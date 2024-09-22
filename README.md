@@ -36,3 +36,6 @@ To remove the compiled files and clear the bin and obj directories, use the foll
 rm -rf **/bin **/obj
 
 This will delete all bin and obj directories recursively throughout the project.
+
+NOTE:
+The Project model is in the diagrams path
