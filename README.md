@@ -1,4 +1,8 @@
 Music Library Editor Project
+
+Elaborated by: Alan Kevin Cano Tenorio
+Account number: 321259967
+
 This project is a music Library editor with a graphical user interface (GUI) where users can view information about songs (title, artist, album, cover, etc.) and perform queries on the database using an easy-to-use query language. The music data is mined from MP3 files with ID3v2.4 tags.
 
 Project Requirements:
