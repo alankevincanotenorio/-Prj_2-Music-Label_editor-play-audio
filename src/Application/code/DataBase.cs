@@ -103,7 +103,7 @@ public class DataBase
         {
             command.ExecuteNonQuery();
         }
-        Console.WriteLine("Data base created succesfully");
+        Console.WriteLine("Data base created successfully");
     }
 
     public SQLiteConnection GetConnection()
@@ -121,10 +121,50 @@ public class DataBase
         }
     }
 
+
+    //addPerformer
+
+    //addPersons
+
+    //addGroup
+
+    //addInGroup
+
+    //addAlbum
+
+    //addRola
+    public bool InsertRola(Rola rola)
+    {
+        bool added = false;
+        string query = "INSERT INTO rolas (id_rola, id_performer, id_album, path, title, track, year, genre) " +
+                    "VALUES (@id_rola, @id_performer, @id_album, @path, @title, @track, @year, @genre)";
+        using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+        {
+            command.Parameters.AddWithValue("@id_rola", rola.IdRola);
+            command.Parameters.AddWithValue("@id_performer", rola.IdPerformer);
+            command.Parameters.AddWithValue("@id_album", rola.IdAlbum);
+            command.Parameters.AddWithValue("@path", rola.Path);
+            command.Parameters.AddWithValue("@title", rola.Title);
+            command.Parameters.AddWithValue("@track", rola.Track);
+            command.Parameters.AddWithValue("@year", rola.Year);
+            command.Parameters.AddWithValue("@genre", rola.Genre);
+            int rowsAffected = command.ExecuteNonQuery();
+            added = rowsAffected > 0;
+        }            
+        Console.WriteLine("Rola inserted correctly");
+        return added;
+    }
+    
     static void Main(string[] args)
     {
-        DataBase db = DataBase.Instance;   
+        DataBase db = DataBase.Instance;
         Console.WriteLine("Data base ready to use");
+        Rola rola = new Rola(1, 1, 1, "/pathExample/ExampleSong.mp3", " Example1", 1, 2024, "example");
+        bool isInserted = db.InsertRola(rola);
+        if (isInserted)
+        {
+            rola.ShowInfo();
+        }
         db.Disconnect();
     }
 }
