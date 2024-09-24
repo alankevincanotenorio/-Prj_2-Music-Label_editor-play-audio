@@ -123,7 +123,63 @@ public class DataBase
 
 
     //addPerformer
+    public bool InsertPerformer (Performer performer)
+    {
+        bool added = false;
+        try
+        {
+            string query = "INSERT INTO performers (id_performer, id_type, name)" +
+                    "VALUES (@id_performer, @id_type, @name)";
+            using(SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@id_performer", performer.IdPerformer);
+                command.Parameters.AddWithValue("@id_type", performer.IdType);
+                command.Parameters.AddWithValue("@name", performer.Name);
+                int rowsAffected = command.ExecuteNonQuery();
+                added = rowsAffected > 0;
+            }
+            Console.WriteLine("Performer added");
+            return added;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error while inserting performer: " + ex.Message);
+        }
+        return added;
+    }
 
+    //addRola
+    public bool InsertRola(Rola rola)
+    {   
+        bool added = false;
+        try
+        {
+            string query = "INSERT INTO rolas (id_rola, id_performer, id_album, path, title, track, year, genre) " +
+                        "VALUES (@id_rola, @id_performer, @id_album, @path, @title, @track, @year, @genre)";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@id_rola", rola.IdRola);
+                command.Parameters.AddWithValue("@id_performer", rola.IdPerformer);
+                command.Parameters.AddWithValue("@id_album", rola.IdAlbum);
+                command.Parameters.AddWithValue("@path", rola.Path);
+                command.Parameters.AddWithValue("@title", rola.Title);
+                command.Parameters.AddWithValue("@track", rola.Track);
+                command.Parameters.AddWithValue("@year", rola.Year);
+                command.Parameters.AddWithValue("@genre", rola.Genre);
+                int rowsAffected = command.ExecuteNonQuery();
+                added = rowsAffected > 0;
+            }            
+            Console.WriteLine("Rola inserted correctly");
+            return added;
+        }
+           catch (Exception ex)
+        {
+            Console.WriteLine("Error while inserting rola: " + ex.Message);
+        }
+        return added;
+    }
+
+    
     //addPersons
 
     //addGroup
@@ -132,38 +188,64 @@ public class DataBase
 
     //addAlbum
 
-    //addRola
-    public bool InsertRola(Rola rola)
+    //get performer by id
+    public Performer? GetPerformerById(int id_performer)
     {
-        bool added = false;
-        string query = "INSERT INTO rolas (id_rola, id_performer, id_album, path, title, track, year, genre) " +
-                    "VALUES (@id_rola, @id_performer, @id_album, @path, @title, @track, @year, @genre)";
-        using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+        Performer? performer = null;
+        try
         {
-            command.Parameters.AddWithValue("@id_rola", rola.IdRola);
-            command.Parameters.AddWithValue("@id_performer", rola.IdPerformer);
-            command.Parameters.AddWithValue("@id_album", rola.IdAlbum);
-            command.Parameters.AddWithValue("@path", rola.Path);
-            command.Parameters.AddWithValue("@title", rola.Title);
-            command.Parameters.AddWithValue("@track", rola.Track);
-            command.Parameters.AddWithValue("@year", rola.Year);
-            command.Parameters.AddWithValue("@genre", rola.Genre);
-            int rowsAffected = command.ExecuteNonQuery();
-            added = rowsAffected > 0;
-        }            
-        Console.WriteLine("Rola inserted correctly");
-        return added;
+            string query = "SELECT * FROM performers WHERE id_performer = @id_performer";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@id_performer", id_performer);
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        int idType = reader.GetInt32(1);
+                        string name = reader.GetString(2);
+                        performer = new Performer(id_performer, name, idType);
+                        return performer;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error while searching performer: " + ex.Message);
+        }
+        return performer;
     }
+
     
     static void Main(string[] args)
     {
         DataBase db = DataBase.Instance;
         Console.WriteLine("Data base ready to use");
+        //add rola example
         Rola rola = new Rola(1, 1, 1, "/pathExample/ExampleSong.mp3", " Example1", 1, 2024, "example");
         bool isInserted = db.InsertRola(rola);
         if (isInserted)
         {
             rola.ShowInfo();
+        }
+        //add performer example
+        Performer p = new Performer(3, "M2222", 2);
+        bool isInsertedP = db.InsertPerformer(p);
+        if (isInsertedP)
+        {
+            p.ShowInfo();
+        }
+        //get performer example
+        Performer? retrievedPerformer = db.GetPerformerById(100);
+        if (retrievedPerformer != null)
+        {
+            Console.WriteLine("Performer founded: ");
+            retrievedPerformer.ShowInfo();
+        }
+        else
+        {
+            Console.WriteLine("Performer does not exists");
         }
         db.Disconnect();
     }
