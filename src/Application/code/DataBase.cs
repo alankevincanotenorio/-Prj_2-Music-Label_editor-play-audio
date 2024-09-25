@@ -247,6 +247,17 @@ public class DataBase
         {
             Console.WriteLine("Performer does not exists");
         }
+        string musicPath = "/home/alan/Downloads";
+        Miner miner = new Miner(musicPath);
+        if(miner.BrowsePaths(musicPath))
+        {
+            Console.WriteLine("Mining complete");
+        }
+        foreach(var fooundRola in miner._rolas)
+        {
+            fooundRola.ShowInfo();
+            db.InsertRola(fooundRola);
+        }
         db.Disconnect();
     }
 }
