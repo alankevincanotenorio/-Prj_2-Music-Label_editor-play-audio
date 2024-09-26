@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataBaseApp", "DataBaseApp\DataBaseApp.csproj", "{52A001B7-44F1-4782-AF44-D1A968DA9F2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinerApp", "MinerApp\MinerApp.csproj", "{58632CA5-715C-4A6D-A234-7721DCAFD69E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libs", "libs\libs.csproj", "{42F46E34-386D-4D01-A01E-AE0B4BB26607}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{52A001B7-44F1-4782-AF44-D1A968DA9F2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52A001B7-44F1-4782-AF44-D1A968DA9F2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52A001B7-44F1-4782-AF44-D1A968DA9F2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52A001B7-44F1-4782-AF44-D1A968DA9F2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58632CA5-715C-4A6D-A234-7721DCAFD69E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58632CA5-715C-4A6D-A234-7721DCAFD69E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58632CA5-715C-4A6D-A234-7721DCAFD69E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58632CA5-715C-4A6D-A234-7721DCAFD69E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42F46E34-386D-4D01-A01E-AE0B4BB26607}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42F46E34-386D-4D01-A01E-AE0B4BB26607}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42F46E34-386D-4D01-A01E-AE0B4BB26607}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42F46E34-386D-4D01-A01E-AE0B4BB26607}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
