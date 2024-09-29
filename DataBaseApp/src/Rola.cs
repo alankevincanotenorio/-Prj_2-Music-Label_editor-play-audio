@@ -22,6 +22,19 @@ public class Rola
         Genre = genre;
     }
 
+    // Constructor to new rolas
+    public Rola(int idPerformer, int idAlbum, string path, string title, int track, int year, string genre)
+    {
+        IdRola = 0;
+        IdPerformer = idPerformer;
+        IdAlbum = idAlbum;
+        Path = path;
+        Title = title;
+        Track = track;
+        Year = year;
+        Genre = genre;
+    }
+
     //Show rola info
     public void ShowInfo()
     {

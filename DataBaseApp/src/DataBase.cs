@@ -7,13 +7,19 @@
     {
         private static DataBase? _instance = null;
         private SQLiteConnection _connection;
-
-        //Constructor
-        private DataBase()  
+        //constuctor
+        private DataBase(string dbPath = "./DataBaseApp/database/DataBase.db")  
         {
-            string dbPath = "./DataBaseApp/database/DataBase.db";
             bool dbExists = File.Exists(dbPath);
-            string connectionString = $"Data Source={dbPath};Version=3;";
+            string connectionString;
+            if (dbPath == ":memory:") //database for test
+            {
+                connectionString = "Data Source=:memory:;Version=3;";
+            }
+            else //database in disk
+            {
+                connectionString = $"Data Source={dbPath};Version=3;";
+            }
             _connection = new SQLiteConnection(connectionString);
             _connection.Open();
             Console.WriteLine("Data base connection open");
@@ -22,18 +28,14 @@
                 CreateTables();
             }
         }
-
-        // Singleton design pattern
-        public static DataBase Instance
+        //singleton
+        public static DataBase Instance(string dbPath = "./DataBaseApp/database/DataBase.db")
         {
-            get 
+            if (_instance == null)
             {
-                if (_instance == null)
-                {
-                    _instance = new DataBase();
-                }
-                return _instance;
+                _instance = new DataBase(dbPath);
             }
+            return _instance;
         }
 
         //Make tables if data base does not exist
@@ -99,7 +101,6 @@
                     FOREIGN KEY (id_album) REFERENCES albums(id_album)
                 );
             ";
-
             using (var command = new SQLiteCommand(createTablesQuery, _connection))
             {
                 command.ExecuteNonQuery();
@@ -122,16 +123,42 @@
             }
         }
 
+        public int GetMaxId(string tableName, string columnName)
+        {
+            int maxId = 0;
+            try
+            {
+                string query = $"SELECT IFNULL(MAX({columnName}), 0) FROM {tableName}";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    var result = command.ExecuteScalar();
+                    maxId = Convert.ToInt32(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error while getting max ID from {tableName}: " + ex.Message);
+            }
+            return maxId;
+        }
+
 
         //addPerformer
-        public bool InsertPerformer (Performer performer)
+        public bool InsertPerformer(Performer performer)
         {
             bool added = false;
             try
             {
-                string query = "INSERT INTO performers (id_performer, id_type, name)" +
-                        "VALUES (@id_performer, @id_type, @name)";
-                using(SQLiteCommand command = new SQLiteCommand(query, _connection))
+                Performer? existingPerformer = GetPerformerByName(performer.Name); //check if performer exist
+                if (existingPerformer != null)
+                {
+                    Console.WriteLine($"Performer '{performer.Name}' already exists with ID: {existingPerformer.IdPerformer}");
+                    performer.IdPerformer = existingPerformer.IdPerformer;
+                    return false;
+                }
+                performer.IdPerformer = GetMaxId("performers", "id_performer") + 1; //id
+                string query = "INSERT INTO performers (id_performer, id_type, name) VALUES (@id_performer, @id_type, @name)";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
                 {
                     command.Parameters.AddWithValue("@id_performer", performer.IdPerformer);
                     command.Parameters.AddWithValue("@id_type", performer.IdType);
@@ -139,7 +166,10 @@
                     int rowsAffected = command.ExecuteNonQuery();
                     added = rowsAffected > 0;
                 }
-                Console.WriteLine("Performer added");
+                if (added)
+                {
+                    Console.WriteLine($"Performer '{performer.Name}' added with ID: {performer.IdPerformer}");
+                }
                 return added;
             }
             catch (Exception ex)
@@ -155,6 +185,14 @@
             bool added = false;
             try
             {
+                Rola? existingRola = GetRolaByName(rola.Title);
+                if (existingRola != null)
+                {
+                    Console.WriteLine($"Rola '{rola.Title}' already exists with ID: {existingRola.IdRola}");
+                    rola.IdRola = existingRola.IdRola;
+                    return false;
+                }
+                rola.IdRola = GetMaxId("rolas", "id_rola") + 1;
                 string query = "INSERT INTO rolas (id_rola, id_performer, id_album, path, title, track, year, genre) " +
                             "VALUES (@id_rola, @id_performer, @id_album, @path, @title, @track, @year, @genre)";
                 using (SQLiteCommand command = new SQLiteCommand(query, _connection))
@@ -189,23 +227,23 @@
 
         //addAlbum
 
-        //get performer by id
-        public Performer? GetPerformerById(int id_performer)
+        //get performer by name
+        public Performer? GetPerformerByName(string name)
         {
             Performer? performer = null;
             try
             {
-                string query = "SELECT * FROM performers WHERE id_performer = @id_performer";
+                string query = "SELECT * FROM performers WHERE name = @name";
                 using (SQLiteCommand command = new SQLiteCommand(query, _connection))
                 {
-                    command.Parameters.AddWithValue("@id_performer", id_performer);
+                    command.Parameters.AddWithValue("@name", name);
                     using (SQLiteDataReader reader = command.ExecuteReader())
                     {
                         if (reader.Read())
                         {
+                            int idPerformer = reader.GetInt32(0);
                             int idType = reader.GetInt32(1);
-                            string name = reader.GetString(2);
-                            performer = new Performer(id_performer, name, idType);
+                            performer = new Performer(idPerformer, name, idType);
                             return performer;
                         }
                     }
@@ -213,9 +251,44 @@
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error while searching performer: " + ex.Message);
+                Console.WriteLine("Error while searching performer by name: " + ex.Message);
             }
             return performer;
         }
+        
+        public Rola? GetRolaByName(string title)
+        {
+            Rola? rola = null;
+            try
+            {
+                string query = "SELECT * FROM rolas WHERE title = @title";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    command.Parameters.AddWithValue("@title", title);
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int idRola = reader.GetInt32(0);
+                            int idPerformer = reader.GetInt32(1);
+                            int idAlbum = reader.GetInt32(2);
+                            string path = reader.GetString(3);
+                            string rolaTitle = reader.GetString(4);
+                            int track = reader.GetInt32(5);
+                            int year = reader.GetInt32(6);
+                            string genre = reader.GetString(7);
+
+                            rola = new Rola(idRola, idPerformer, idAlbum, path, rolaTitle, track, year, genre);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while searching for rola by name: " + ex.Message);
+            }
+            return rola;
+        }
+
     }
 }

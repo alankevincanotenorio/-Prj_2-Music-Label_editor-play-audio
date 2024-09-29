@@ -38,6 +38,8 @@ dotnet test
 
 This will execute all the unit tests for the project and display the results in the terminal.
 
+For detailed test: dotnet test --logger "console;verbosity=detailed"
+
 Cleaning Up (Removing Build Artifacts)
 To remove the compiled files and clear the bin and obj directories, use the following command:
 

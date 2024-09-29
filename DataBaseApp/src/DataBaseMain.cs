@@ -2,24 +2,17 @@ using DataBaseApp;
 public class DataBaseMain{
     static void Main(string[] args)
     {
-        DataBase db = DataBase.Instance;
+        DataBase db = DataBase.Instance();
         Console.WriteLine("Data base ready to use");
-        //add rola example
-        Rola rola = new Rola(1, 1, 1, "/pathExample/ExampleSong.mp3", " Example1", 1, 2024, "example");
-        bool isInserted = db.InsertRola(rola);
+        //add performer example
+        Performer example1 = new Performer("Example1", 2);
+        bool isInserted = db.InsertPerformer(example1);
         if (isInserted)
         {
-            rola.ShowInfo();
-        }
-        //add performer example
-        Performer p = new Performer(3, "M2222", 2);
-        bool isInsertedP = db.InsertPerformer(p);
-        if (isInsertedP)
-        {
-            p.ShowInfo();
+            example1.ShowInfo();
         }
         //get performer example
-        Performer? retrievedPerformer = db.GetPerformerById(100);
+        Performer? retrievedPerformer = db.GetPerformerByName("Example1");
         if (retrievedPerformer != null)
         {
             Console.WriteLine("Performer founded: ");
@@ -29,6 +22,25 @@ public class DataBaseMain{
         {
             Console.WriteLine("Performer does not exists");
         }
+        Performer example2 = new Performer("Example4", 2);
+        bool isInserted2 = db.InsertPerformer(example2);
+        if (isInserted2)
+        {
+            example2.ShowInfo();
+        }
+        //get performer example
+        Performer? retrievedPerformer2 = db.GetPerformerByName("Example3");
+        if (retrievedPerformer2 != null)
+        {
+            Console.WriteLine("Performer founded: ");
+            retrievedPerformer2.ShowInfo();
+        }
+        else
+        {
+            Console.WriteLine("Performer does not exists");
+        }
+        Rola rola = new Rola(example2.IdPerformer, 1, "path/to/rola.mp3", "Song ", 1, 2022, "Rock");
+        db.InsertRola(rola);
         db.Disconnect();
     }
 }

@@ -12,7 +12,14 @@ public class Performer
         IdType = id_type;
     }
 
-    // Método para mostrar la información del performer
+    // Constructor to new performer
+    public Performer(string name, int idType)
+    {
+        IdPerformer = 0;
+        Name = name;
+        IdType = idType;
+    }
+
     public void ShowInfo()
     {
         Console.WriteLine($"Nombre: {Name}");
