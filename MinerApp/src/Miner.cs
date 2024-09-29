@@ -73,7 +73,7 @@
                 //TRCK
                 uint track = file.Tag.Track != 0 ? file.Tag.Track : 0;
                 uint totalTracks = file.Tag.TrackCount;
-                string trackInfo = totalTracks > 0 ? $"{track} de {totalTracks}" : $"{track}";
+                string trackInfo = totalTracks > 0 ? $"{track}/{totalTracks}" : $"{track}";
 
                 int performerId = InsertPerformerIfNotExists(performer);
                 int albumId = InsertAlbumIfNotExists(album, rola_str, (int)year);
