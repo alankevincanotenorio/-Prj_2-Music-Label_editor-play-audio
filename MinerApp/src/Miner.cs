@@ -73,7 +73,8 @@
                 string trackInfo = totalTracks > 0 ? $"{track} de {totalTracks}" : $"{track}";
 
                 int performerId = InsertPerformerIfNotExists(performer);
-                rola = new Rola(performerId, 0, rolaStr, title, (int)track, (int)year, genre);
+                int albumId = InsertAlbumIfNotExists(album, rolaStr, (int)year);
+                rola = new Rola(performerId, albumId, rolaStr, title, (int)track, (int)year, genre);
 
                 Console.WriteLine($"Artista: {performer}");
                 Console.WriteLine($"Título: {title}");
@@ -99,9 +100,24 @@
             }
             else
             {
-                Performer newPerformer = new Performer(performerName, 0);
+                Performer newPerformer = new Performer(performerName);
                 db.InsertPerformer(newPerformer);
                 return newPerformer.IdPerformer;
+            }
+        }
+
+        private int InsertAlbumIfNotExists(string albumName, string albumPath, int year)
+        {
+            Album? album = db.GetAlbumByName(albumName);
+            if (album != null)
+            {
+                return album.IdAlbum;
+            }
+            else
+            {
+                Album newAlbum = new Album(albumPath, albumName, year);
+                db.InsertAlbum(newAlbum);
+                return newAlbum.IdAlbum;
             }
         }
     }

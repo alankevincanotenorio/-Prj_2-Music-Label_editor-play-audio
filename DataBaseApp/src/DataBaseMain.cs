@@ -5,7 +5,7 @@ public class DataBaseMain{
         DataBase db = DataBase.Instance();
         Console.WriteLine("Data base ready to use");
         //add performer example
-        Performer example1 = new Performer("Example1", 2);
+        Performer example1 = new Performer("Example1");
         bool isInserted = db.InsertPerformer(example1);
         if (isInserted)
         {
@@ -22,7 +22,7 @@ public class DataBaseMain{
         {
             Console.WriteLine("Performer does not exists");
         }
-        Performer example2 = new Performer("Example4", 2);
+        Performer example2 = new Performer("Example4");
         bool isInserted2 = db.InsertPerformer(example2);
         if (isInserted2)
         {

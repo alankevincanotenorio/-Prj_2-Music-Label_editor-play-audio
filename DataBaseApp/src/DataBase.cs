@@ -226,6 +226,38 @@
         //addInGroup
 
         //addAlbum
+        public bool InsertAlbum(Album album)
+        {   
+            bool added = false;
+            try
+            {
+                Album? existingAlbum = GetAlbumByName(album.Name);
+                if (existingAlbum != null)
+                {
+                    Console.WriteLine($"Album '{album.Name}' already exists with ID: {existingAlbum.IdAlbum}");
+                    album.IdAlbum = existingAlbum.IdAlbum; //check this
+                    return false;
+                }
+                album.IdAlbum = GetMaxId("albums", "id_album") + 1;
+                string query = "INSERT INTO albums (id_album, path, name, year) VALUES (@id_album, @path, @name, @year)";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    command.Parameters.AddWithValue("@id_album", album.IdAlbum);
+                    command.Parameters.AddWithValue("@path", album.Path);
+                    command.Parameters.AddWithValue("@name", album.Name);
+                    command.Parameters.AddWithValue("@year", album.Year);
+                    int rowsAffected = command.ExecuteNonQuery();
+                    added = rowsAffected > 0;
+                }            
+                Console.WriteLine("album inserted correctly");
+                return added;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while inserting album: " + ex.Message);
+            }
+            return added;
+        }
 
         //get performer by name
         public Performer? GetPerformerByName(string name)
@@ -289,6 +321,38 @@
             }
             return rola;
         }
+
+        public Album? GetAlbumByName(string name)
+        {
+            Album? album = null;
+            try
+            {
+                string query = "SELECT * FROM albums WHERE name = @name";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    command.Parameters.AddWithValue("@name", name);
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int idAlbum = reader.GetInt32(0);
+                            string path = reader.GetString(1);
+                            string albumName = reader.GetString(2);
+                            int year = reader.GetInt32(3);
+                            album = new Album(idAlbum, path, albumName, year);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while searching for rola by name: " + ex.Message);
+            }
+            return album;
+        }
+
+
+
 
     }
 }

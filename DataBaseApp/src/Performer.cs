@@ -13,11 +13,11 @@ public class Performer
     }
 
     // Constructor to new performer
-    public Performer(string name, int idType)
+    public Performer(string name)
     {
         IdPerformer = 0;
         Name = name;
-        IdType = idType;
+        IdType = 2;
     }
 
     public void ShowInfo()
