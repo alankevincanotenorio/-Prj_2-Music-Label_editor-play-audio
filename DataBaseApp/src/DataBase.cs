@@ -123,7 +123,7 @@
             }
         }
 
-        public int GetMaxId(string tableName, string columnName)
+        private int GetMaxId(string tableName, string columnName)
         {
             int maxId = 0;
             try
@@ -141,7 +141,6 @@
             }
             return maxId;
         }
-
 
         //addPerformer
         public bool InsertPerformer(Performer performer)
@@ -350,9 +349,5 @@
             }
             return album;
         }
-
-
-
-
     }
 }
