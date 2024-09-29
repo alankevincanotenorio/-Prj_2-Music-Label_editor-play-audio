@@ -39,7 +39,7 @@ public class DataBaseMain{
         {
             Console.WriteLine("Performer does not exists");
         }
-        Rola rola = new Rola(example2.IdPerformer, 1, "path/to/rola.mp3", "Song ", 1, 2022, "Rock");
+        Rola rola = new Rola(example2.GetIdPerformer(), 1, "path/to/rola.mp3", "Song ", 1, 2022, "Rock");
         db.InsertRola(rola);
         db.Disconnect();
     }

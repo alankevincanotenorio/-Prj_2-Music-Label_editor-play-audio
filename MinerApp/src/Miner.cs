@@ -4,17 +4,18 @@
     using System.IO;
     using TagLib;
     using DataBaseApp;
-
     public class Miner
     {
         private string _path;
-        public List<Rola> _rolas = new List<Rola>();
-        public DataBase db = DataBase.Instance();
+        private List<Rola> _rolas = new List<Rola>();
+        private DataBase _database = DataBase.Instance();
 
+        //constructor
         public Miner(string path)
         {
             _path = path;
         }
+
         //browse directories and add the rola in rolas mining metadata
         public bool Mine(string path)
         {
@@ -30,7 +31,7 @@
                         if (rola != null)
                         {
                             _rolas.Add(rola);
-                            Console.WriteLine($"Rola added: {rola.Title}");
+                            Console.WriteLine($"Rola added: {rola.GetTitle()}");
                         }
                     }
                 }
@@ -43,20 +44,22 @@
             }
         }
 
-        public void Add(){
+        //save metadata 
+        public void SaveMetadata(){
             foreach(Rola rola in _rolas)
             {
-                db.InsertRola(rola);
+                _database.InsertRola(rola);
                 Console.WriteLine("Rola inserted");
             }
         }
 
-        private Rola? GetMetadata(string rolaStr)
+        //Get metadata
+        private Rola? GetMetadata(string rola_str)
         {
             Rola? rola = null;
             try
             {
-                var file = TagLib.File.Create(rolaStr);
+                var file = TagLib.File.Create(rola_str);
                 //TPE1
                 string performer = file.Tag.FirstPerformer ?? "Unknown";
                 //TIT2
@@ -64,7 +67,7 @@
                 //TALB
                 string album = file.Tag.Album ?? "Unknown";
                 //TDRC
-                uint year = file.Tag.Year != 0 ? file.Tag.Year : (uint)System.IO.File.GetCreationTime(rolaStr).Year;
+                uint year = file.Tag.Year != 0 ? file.Tag.Year : (uint)System.IO.File.GetCreationTime(rola_str).Year;
                 //TCON
                 string genre = file.Tag.FirstGenre ?? "Unknown";
                 //TRCK
@@ -73,8 +76,8 @@
                 string trackInfo = totalTracks > 0 ? $"{track} de {totalTracks}" : $"{track}";
 
                 int performerId = InsertPerformerIfNotExists(performer);
-                int albumId = InsertAlbumIfNotExists(album, rolaStr, (int)year);
-                rola = new Rola(performerId, albumId, rolaStr, title, (int)track, (int)year, genre);
+                int albumId = InsertAlbumIfNotExists(album, rola_str, (int)year);
+                rola = new Rola(performerId, albumId, rola_str, title, (int)track, (int)year, genre);
 
                 Console.WriteLine($"Artista: {performer}");
                 Console.WriteLine($"Título: {title}");
@@ -91,34 +94,58 @@
             return rola;
         }
 
-        private int InsertPerformerIfNotExists(string performerName)
+        // insert performer
+        private int InsertPerformerIfNotExists(string performer_name)
         {
-            Performer? performer = db.GetPerformerByName(performerName);
+            Performer? performer = _database.GetPerformerByName(performer_name);
             if (performer != null)
             {
-                return performer.IdPerformer;
+                return performer.GetIdPerformer();
             }
             else
             {
-                Performer newPerformer = new Performer(performerName);
-                db.InsertPerformer(newPerformer);
-                return newPerformer.IdPerformer;
+                performer = new Performer(performer_name);
+                _database.InsertPerformer(performer);
+                return performer.GetIdPerformer();
             }
         }
 
-        private int InsertAlbumIfNotExists(string albumName, string albumPath, int year)
+        // insert album
+        private int InsertAlbumIfNotExists(string album_name, string album_path, int year)
         {
-            Album? album = db.GetAlbumByName(albumName);
+            Album? album = _database.GetAlbumByName(album_name);
             if (album != null)
             {
-                return album.IdAlbum;
+                return album.GetIdAlbum();
             }
             else
             {
-                Album newAlbum = new Album(albumPath, albumName, year);
-                db.InsertAlbum(newAlbum);
-                return newAlbum.IdAlbum;
+                album = new Album(album_path, album_name, year);
+                _database.InsertAlbum(album);
+                return album.GetIdAlbum();
             }
+        }
+
+        // SETTERS & GETTERS
+
+        public void SetPath(string path)
+        {
+            _path = path;
+        }
+
+        public string GetPath()
+        {
+            return _path;
+        }
+
+        public List<Rola> GetRolas()
+        {
+            return _rolas;
+        }
+
+        public DataBase GetDataBase()
+        {
+            return _database;
         }
     }
 }

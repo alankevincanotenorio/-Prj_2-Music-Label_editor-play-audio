@@ -5,13 +5,11 @@ class MinerMain
     {
         string musicPath = "/home/alan/Downloads";
         Miner miner = new Miner(musicPath);
-
         if (miner.Mine(musicPath))
         {
             Console.WriteLine("Mining complete");
         }
-        miner.Add();
-
-        miner.db.Disconnect();
+        miner.SaveMetadata();
+        miner.GetDataBase().Disconnect();
     }
 }

@@ -29,9 +29,9 @@ public class DataBaseTests
         database.InsertPerformer(test1);
         Performer? retrieved = database.GetPerformerByName("Test1");
         Assert.NotNull(retrieved);
-        Assert.Equal(test1.IdPerformer, retrieved?.IdPerformer);
-        Assert.Equal(test1.Name, retrieved?.Name);
-        Assert.Equal(test1.IdType, retrieved?.IdType);
+        Assert.Equal(test1.GetIdPerformer(), retrieved?.GetIdPerformer());
+        Assert.Equal(test1.GetName(), retrieved?.GetName());
+        Assert.Equal(test1.GetIdType(), retrieved?.GetIdType());
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class DataBaseTests
         database.InsertPerformer(performer);
         Album album = new Album("/path/to/album", "Rola Album", 2024);
         database.InsertAlbum(album);
-        Rola rola = new Rola(performer.IdPerformer, album.IdAlbum, "/path/to/rola", "TestRola", 1, 2024, "Rock");
+        Rola rola = new Rola(performer.GetIdPerformer(), album.GetIdAlbum(), "/path/to/rola", "TestRola", 1, 2024, "Rock");
         bool response = database.InsertRola(rola);
         Assert.True(response);
     }
@@ -63,7 +63,7 @@ public class DataBaseTests
         database.InsertPerformer(performer);
         Album album = new Album("/path/to/album", "Rola Album", 2024);
         database.InsertAlbum(album);
-        Rola rola = new Rola(performer.IdPerformer, album.IdAlbum, "/path/to/rola", "TestRola", 1, 2024, "Rock");
+        Rola rola = new Rola(performer.GetIdPerformer(), album.GetIdAlbum(), "/path/to/rola", "TestRola", 1, 2024, "Rock");
         bool secondResponse = database.InsertRola(rola);
         Assert.False(secondResponse);
     }
@@ -76,18 +76,18 @@ public class DataBaseTests
         database.InsertPerformer(performer);
         Album album = new Album("/path/to/album", "Rola Album 2", 2024);
         database.InsertAlbum(album);
-        Rola rola = new Rola(performer.IdPerformer, album.IdAlbum, "/path/to/rola", "TestRola2", 1, 2024, "Rock");
+        Rola rola = new Rola(performer.GetIdPerformer(), album.GetIdAlbum(), "/path/to/rola", "TestRola2", 1, 2024, "Rock");
         database.InsertRola(rola);
         Rola? retrievedRola = database.GetRolaByName("TestRola2");
         Assert.NotNull(retrievedRola);
-        Assert.Equal(rola.IdRola, retrievedRola?.IdRola);
-        Assert.Equal(rola.IdPerformer, retrievedRola?.IdPerformer);
-        Assert.Equal(rola.IdAlbum, retrievedRola?.IdAlbum);
-        Assert.Equal(rola.Path, retrievedRola?.Path);
-        Assert.Equal(rola.Title, retrievedRola?.Title);
-        Assert.Equal(rola.Track, retrievedRola?.Track);
-        Assert.Equal(rola.Year, retrievedRola?.Year);
-        Assert.Equal(rola.Genre, retrievedRola?.Genre);
+        Assert.Equal(rola.GetIdRola(), retrievedRola?.GetIdRola());
+        Assert.Equal(rola.GetIdPerformer(), retrievedRola?.GetIdPerformer());
+        Assert.Equal(rola.GetIdAlbum(), retrievedRola?.GetIdAlbum());
+        Assert.Equal(rola.GetPath(), retrievedRola?.GetPath());
+        Assert.Equal(rola.GetTitle(), retrievedRola?.GetTitle());
+        Assert.Equal(rola.GetTrack(), retrievedRola?.GetTrack());
+        Assert.Equal(rola.GetYear(), retrievedRola?.GetYear());
+        Assert.Equal(rola.GetGenre(), retrievedRola?.GetGenre());
     }
 
     [Fact]
@@ -125,10 +125,10 @@ public class DataBaseTests
         Assert.True(response);
         Album? retrievedAlbum = database.GetAlbumByName("Album r");
         Assert.NotNull(retrievedAlbum);
-        Assert.Equal(album.IdAlbum, retrievedAlbum?.IdAlbum);
-        Assert.Equal(album.Path, retrievedAlbum?.Path);
-        Assert.Equal(album.Name, retrievedAlbum?.Name);
-        Assert.Equal(album.Year, retrievedAlbum?.Year);
+        Assert.Equal(album.GetIdAlbum(), retrievedAlbum?.GetIdAlbum());
+        Assert.Equal(album.GetPath(), retrievedAlbum?.GetPath());
+        Assert.Equal(album.GetName(), retrievedAlbum?.GetName());
+        Assert.Equal(album.GetYear(), retrievedAlbum?.GetYear());
     }
 
     [Fact]
