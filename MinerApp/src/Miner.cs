@@ -4,10 +4,13 @@
     using System.IO;
     using TagLib;
     using DataBaseApp;
+    using System.Collections.Generic;
     public class Miner
     {
         private string _path;
         private List<Rola> _rolas = new List<Rola>();
+        private List<Performer> _performers = new List<Performer>();
+        private List<Album> _albums = new List<Album>();
         private DataBase _database = DataBase.Instance();
 
         //constructor
@@ -100,12 +103,18 @@
             Performer? performer = _database.GetPerformerByName(performer_name);
             if (performer != null)
             {
+                // Ya existe, devolver su ID
                 return performer.GetIdPerformer();
             }
             else
             {
+                // Crear un nuevo Performer
                 performer = new Performer(performer_name);
                 _database.InsertPerformer(performer);
+
+                // Asegúrate de agregar el Performer a la lista local
+                _performers.Add(performer);
+
                 return performer.GetIdPerformer();
             }
         }
@@ -120,11 +129,17 @@
             }
             else
             {
+                // Crear un nuevo Album
                 album = new Album(album_path, album_name, year);
                 _database.InsertAlbum(album);
+
+                // Asegúrate de agregar el Album a la lista local
+                _albums.Add(album);
+
                 return album.GetIdAlbum();
             }
         }
+
 
         // SETTERS & GETTERS
 
@@ -141,6 +156,16 @@
         public List<Rola> GetRolas()
         {
             return _rolas;
+        }
+            
+        public List<Performer> GetPerformers()
+        {
+            return _performers;
+        }
+
+        public List<Album> GetAlbums()
+        {
+            return _albums;
         }
 
         public DataBase GetDataBase()

@@ -8,13 +8,12 @@
         private bool _isMining;
         private int progress;
         public Miner miner;
-        private DataBase database;
+        public DataBase database = DataBase.Instance();
 
         // Constructor
         public Controller()
         {
             miner = new Miner("/home/alan/Downloads");
-            database = DataBase.Instance();
             _isMining = false;
             progress = 0;
         }
@@ -48,12 +47,61 @@
         public List<string> ShowRolasInPath()
         {
             List<Rola> rolas_in_path = miner.GetRolas();
-            List<string> n = new List<string>();
-            foreach(Rola rola in rolas_in_path)
+            List<string> rolasInfo = new List<string>();
+
+            foreach (Rola rola in rolas_in_path)
             {
-                n.Add(rola.GetTitle());
+                Performer? performer = miner.GetPerformers().Find(p => p.GetIdPerformer() == rola.GetIdPerformer());
+                Album? album = miner.GetAlbums().Find(a => a.GetIdAlbum() == rola.GetIdAlbum());
+                string performerName = performer != null ? performer.GetName() : "Unknown Performer";
+                string albumName = album != null ? album.GetName() : "Unknown Album";
+                string rolaInfo = $"Title: {rola.GetTitle()}, Performer: {performerName}, Album: {albumName}, Year: {rola.GetYear()}, Track: {rola.GetTrack()}, Genre: {rola.GetGenre()}";
+                rolasInfo.Add(rolaInfo);
             }
-            return n;
+            
+            return rolasInfo;
+        }
+
+
+        public void showRolaDetails()
+        {
+
+        }
+
+        public void editRolaDetails()
+        {
+
+        }
+
+        
+        public void showAlbumDetails()
+        {
+
+        }
+
+        public void editAlbumDetails()
+        {
+
+        }
+
+        public void showPerformerDetails()
+        {
+
+        }
+
+        public void definePerformer()
+        {
+
+        }
+
+        public void addPersonToGroup()
+        {
+
+        }
+        //this method is for the compiler
+        public void search()
+        {
+
         }
     }
 }

@@ -16,7 +16,7 @@ public class DataBaseMain{
         if (retrievedPerformer != null)
         {
             Console.WriteLine("Performer founded: ");
-            retrievedPerformer.ShowInfo();
+            //retrievedPerformer.ShowInfo();
         }
         else
         {
@@ -33,7 +33,7 @@ public class DataBaseMain{
         if (retrievedPerformer2 != null)
         {
             Console.WriteLine("Performer founded: ");
-            retrievedPerformer2.ShowInfo();
+            //retrievedPerformer2.ShowInfo();
         }
         else
         {
