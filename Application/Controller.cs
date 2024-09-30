@@ -31,6 +31,7 @@
             {
                 Console.WriteLine("You can't mine because you already mining");
             }
+            _isMining = false;
         }
 
         public void SetCurrentPath(string current_path)

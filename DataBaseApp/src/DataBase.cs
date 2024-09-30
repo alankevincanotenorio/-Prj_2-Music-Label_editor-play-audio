@@ -181,7 +181,7 @@
             bool added = false;
             try
             {
-                Rola? existingRola = GetRolaByName(rola.GetTitle());
+                Rola? existingRola = GetRolaByTitleAndPath(rola.GetTitle(), rola.GetPath());
                 if (existingRola != null && existingRola.GetPath() == rola.GetPath())
                 {
                     Console.WriteLine($"Rola '{rola.GetTitle()}' already exists with ID: {existingRola.GetIdRola()}");
@@ -282,16 +282,17 @@
             }
             return performer;
         }
-        
-        public Rola? GetRolaByName(string title)
+
+        public Rola? GetRolaByTitleAndPath(string title, string path)
         {
             Rola? rola = null;
             try
             {
-                string query = "SELECT * FROM rolas WHERE title = @title";
+                string query = "SELECT * FROM rolas WHERE title = @title AND path = @path";
                 using (SQLiteCommand command = new SQLiteCommand(query, _connection))
                 {
                     command.Parameters.AddWithValue("@title", title);
+                    command.Parameters.AddWithValue("@path", path);
                     using (SQLiteDataReader reader = command.ExecuteReader())
                     {
                         if (reader.Read())
@@ -299,20 +300,20 @@
                             int idRola = reader.GetInt32(0);
                             int idPerformer = reader.GetInt32(1);
                             int idAlbum = reader.GetInt32(2);
-                            string path = reader.GetString(3);
+                            string rolaPath = reader.GetString(3);
                             string rolaTitle = reader.GetString(4);
                             int track = reader.GetInt32(5);
                             int year = reader.GetInt32(6);
                             string genre = reader.GetString(7);
 
-                            rola = new Rola(idRola, idPerformer, idAlbum, path, rolaTitle, track, year, genre);
+                            rola = new Rola(idRola, idPerformer, idAlbum, rolaPath, rolaTitle, track, year, genre);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error while searching for rola by name: " + ex.Message);
+                Console.WriteLine("Error while searching for rola by title and path: " + ex.Message);
             }
             return rola;
         }

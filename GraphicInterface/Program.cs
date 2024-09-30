@@ -28,6 +28,12 @@ class SharpApp : Window
 
     void OnMineClick(object sender, EventArgs args)
     {
+        
+        foreach (Widget child in vbox.Children)
+        {
+            vbox.Remove(child); 
+            child.Destroy();    
+        }
         app.StartMining(); 
         List<string> titles = app.ShowRolasInPath();
 

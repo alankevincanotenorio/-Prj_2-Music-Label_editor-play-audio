@@ -4,6 +4,7 @@
     using System.IO;
     using TagLib;
     using DataBaseApp;
+    using System.Collections;
     using System.Collections.Generic;
     public class Miner
     {
@@ -33,11 +34,19 @@
                         Rola? rola = GetMetadata(file);
                         if (rola != null)
                         {
-                            _rolas.Add(rola);
-                            Console.WriteLine($"Rola added: {rola.GetTitle()}");
+                            if (!_rolas.Exists(r => r.GetPath() == rola.GetPath()))
+                            {
+                                _rolas.Add(rola);
+                                Console.WriteLine($"Rola added: {rola.GetTitle()}");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Rola '{rola.GetTitle()}' ya existe en la lista de rolas.");
+                            }
                         }
                     }
                 }
+                Console.WriteLine("Mining finish");
                 return true;
             }
             catch (Exception ex)
@@ -48,11 +57,20 @@
         }
 
         //save metadata 
-        public void SaveMetadata(){
-            foreach(Rola rola in _rolas)
+        public void SaveMetadata()
+        {
+            foreach (Rola rola in _rolas)
             {
-                _database.InsertRola(rola);
-                Console.WriteLine("Rola inserted");
+                Rola? check = _database.GetRolaByTitleAndPath(rola.GetTitle(), rola.GetPath());
+                if (check == null)
+                {
+                    _database.InsertRola(rola);
+                    Console.WriteLine("Rola inserted");
+                }
+                else
+                {
+                    Console.WriteLine($"Rola '{rola.GetTitle()}' already exists with the same path.");
+                }
             }
         }
 
@@ -102,19 +120,15 @@
         {
             Performer? performer = _database.GetPerformerByName(performer_name);
             if (performer != null)
-            {
-                // Ya existe, devolver su ID
+            { 
+                _performers.Add(performer);  //check this cause is for reopen the app
                 return performer.GetIdPerformer();
             }
             else
             {
-                // Crear un nuevo Performer
                 performer = new Performer(performer_name);
                 _database.InsertPerformer(performer);
-
-                // Asegúrate de agregar el Performer a la lista local
                 _performers.Add(performer);
-
                 return performer.GetIdPerformer();
             }
         }
@@ -125,17 +139,14 @@
             Album? album = _database.GetAlbumByName(album_name);
             if (album != null)
             {
+                _albums.Add(album); //check this cause is for reopen the app
                 return album.GetIdAlbum();
             }
             else
             {
-                // Crear un nuevo Album
                 album = new Album(album_path, album_name, year);
-                _database.InsertAlbum(album);
-
-                // Asegúrate de agregar el Album a la lista local
-                _albums.Add(album);
-
+                _database.InsertAlbum(album);   
+                _albums.Add(album); //
                 return album.GetIdAlbum();
             }
         }
