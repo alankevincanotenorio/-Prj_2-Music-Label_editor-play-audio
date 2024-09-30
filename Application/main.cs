@@ -3,7 +3,7 @@ class main
 {
     static void Main(string[] args)
     {
-        Application Application = new Application();
+        Controller Application = new Controller();
         Application.SetCurrentPath("/home/alan/Downloads");
         Console.WriteLine(Application.miner.GetPath());
         Application.StartMining();

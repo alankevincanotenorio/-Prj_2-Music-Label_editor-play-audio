@@ -2,18 +2,18 @@
 {
     using MinerApp;
     using DataBaseApp;
-    public class Application
+    public class Controller
     {
-        private string _currentPath; //maybe here put the default path
+        private string _currentPath = "/home/alan/Downloads"; //maybe here put the default path
         private bool _isMining;
         private int progress;
         public Miner miner;
         private DataBase database;
 
         // Constructor
-        public Application()
+        public Controller()
         {
-            miner = new Miner("");
+            miner = new Miner("/home/alan/Downloads");
             database = DataBase.Instance();
             _isMining = false;
             progress = 0;
@@ -45,13 +45,15 @@
             return _currentPath;
         }
 
-        public void ShowRolasInPath()
+        public List<string> ShowRolasInPath()
         {
             List<Rola> rolas_in_path = miner.GetRolas();
+            List<string> n = new List<string>();
             foreach(Rola rola in rolas_in_path)
             {
-                Console.WriteLine(rola.GetTitle());
+                n.Add(rola.GetTitle());
             }
+            return n;
         }
     }
 }
