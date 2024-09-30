@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataBaseApp.Tests", "test\D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{3A00F0BB-6C69-4049-911D-B4358988AF43}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphicInterface", "GraphicInterface\GraphicInterface.csproj", "{899E2734-2FEF-47AF-A1CE-6506108A3F84}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,10 @@ Global
 		{3A00F0BB-6C69-4049-911D-B4358988AF43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A00F0BB-6C69-4049-911D-B4358988AF43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A00F0BB-6C69-4049-911D-B4358988AF43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{899E2734-2FEF-47AF-A1CE-6506108A3F84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{899E2734-2FEF-47AF-A1CE-6506108A3F84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{899E2734-2FEF-47AF-A1CE-6506108A3F84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{899E2734-2FEF-47AF-A1CE-6506108A3F84}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{182C59F6-E830-456A-8CB3-D56334A73330} = {FFC06A3E-2DC5-4D1F-8E0A-E529A786F2DF}
