@@ -346,5 +346,43 @@
             }
             return album;
         }
+
+        public bool UpdateRola(Rola rola)
+        {
+            bool updated = false;
+            try
+            {
+                string query = "UPDATE rolas SET title = @title, id_performer = @id_performer, id_album = @id_album, " +
+                            "track = @track, year = @year, genre = @genre WHERE id_rola = @id_rola";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    command.Parameters.AddWithValue("@title", rola.GetTitle());
+                    command.Parameters.AddWithValue("@id_performer", rola.GetIdPerformer());
+                    command.Parameters.AddWithValue("@id_album", rola.GetIdAlbum());
+                    command.Parameters.AddWithValue("@track", rola.GetTrack());
+                    command.Parameters.AddWithValue("@year", rola.GetYear());
+                    command.Parameters.AddWithValue("@genre", rola.GetGenre());
+                    command.Parameters.AddWithValue("@id_rola", rola.GetIdRola());
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    updated = rowsAffected > 0;
+                }
+
+                if (updated)
+                {
+                    Console.WriteLine("Rola updated successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to update the rola.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while updating rola: " + ex.Message);
+            }
+
+            return updated;
+        }
     }
 }
