@@ -3,44 +3,26 @@ public class DataBaseMain{
     static void Main(string[] args)
     {
         DataBase db = DataBase.Instance();
-        Console.WriteLine("Data base ready to use");
-        //add performer example
-        Performer example1 = new Performer("Example1");
-        bool isInserted = db.InsertPerformer(example1);
-        if (isInserted)
+        Rola rola = db.GetRolaByTitleAndPath("Unknown", "/home/alan/Downloads/Camilo Sesto/Otro/Triste Final - Camilo Sesto.mp3");
+        Performer p =  db.GetPerformerByName("Camilo Sesto");
+         if (p == null)
         {
-            example1.ShowInfo();
+            Console.WriteLine("Performer not found. Exiting.");
+            return;
         }
-        //get performer example
-        Performer? retrievedPerformer = db.GetPerformerByName("Example1");
-        if (retrievedPerformer != null)
+        rola.SetTitle("New Title");
+        rola.SetGenre("New Genre");
+        rola.SetIdPerformer(p.GetIdPerformer());
+        rola.SetTrack(2);
+        bool isUpdated = db.UpdateRola(rola);
+        if (isUpdated)
         {
-            Console.WriteLine("Performer founded: ");
-            //retrievedPerformer.ShowInfo();
-        }
-        else
-        {
-            Console.WriteLine("Performer does not exists");
-        }
-        Performer example2 = new Performer("Example4");
-        bool isInserted2 = db.InsertPerformer(example2);
-        if (isInserted2)
-        {
-            example2.ShowInfo();
-        }
-        //get performer example
-        Performer? retrievedPerformer2 = db.GetPerformerByName("Example3");
-        if (retrievedPerformer2 != null)
-        {
-            Console.WriteLine("Performer founded: ");
-            //retrievedPerformer2.ShowInfo();
+        Console.WriteLine("Rola updated successfully.");
         }
         else
         {
-            Console.WriteLine("Performer does not exists");
+        Console.WriteLine("Failed to update the rola.");
         }
-        Rola rola = new Rola(example2.GetIdPerformer(), 1, "path/to/rola.mp3", "Song ", 1, 2022, "Rock");
-        db.InsertRola(rola);
         db.Disconnect();
     }
 }

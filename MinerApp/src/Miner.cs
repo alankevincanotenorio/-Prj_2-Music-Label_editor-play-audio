@@ -1,24 +1,15 @@
 ﻿namespace MinerApp
 {
-    using System;
-    using System.IO;
     using TagLib;
     using DataBaseApp;
     using System.Collections;
     using System.Collections.Generic;
     public class Miner
     {
-        private string _path;
         private List<Rola> _rolas = new List<Rola>();
         private List<Performer> _performers = new List<Performer>();
         private List<Album> _albums = new List<Album>();
         private DataBase _database = DataBase.Instance();
-
-        //constructor
-        public Miner(string path)
-        {
-            _path = path;
-        }
 
         //browse directories and add the rola in rolas mining metadata
         public bool Mine(string path)
@@ -34,10 +25,9 @@
                         Rola? rola = GetMetadata(file);
                         if (rola != null)
                         {
-                            if (!_rolas.Exists(r => r.GetPath() == rola.GetPath()))
+                            if (!_rolas.Exists(r => r.GetPath() == rola.GetPath())) //check this condition
                             {
                                 _rolas.Add(rola);
-                                Console.WriteLine($"Rola added: {rola.GetTitle()}");
                             }
                             else
                             {
@@ -46,7 +36,6 @@
                         }
                     }
                 }
-                Console.WriteLine("Mining finish");
                 return true;
             }
             catch (Exception ex)
@@ -61,16 +50,7 @@
         {
             foreach (Rola rola in _rolas)
             {
-                Rola? check = _database.GetRolaByTitleAndPath(rola.GetTitle(), rola.GetPath());
-                if (check == null)
-                {
-                    _database.InsertRola(rola);
-                    Console.WriteLine("Rola inserted");
-                }
-                else
-                {
-                    Console.WriteLine($"Rola '{rola.GetTitle()}' already exists with the same path.");
-                }
+                _database.InsertRola(rola);                
             }
         }
 
@@ -95,17 +75,9 @@
                 uint track = file.Tag.Track != 0 ? file.Tag.Track : 0;
                 uint totalTracks = file.Tag.TrackCount;
                 string trackInfo = totalTracks > 0 ? $"{track}/{totalTracks}" : $"{track}";
-
                 int performerId = InsertPerformerIfNotExists(performer);
                 int albumId = InsertAlbumIfNotExists(album, rola_str, (int)year);
                 rola = new Rola(performerId, albumId, rola_str, title, (int)track, (int)year, genre);
-
-                Console.WriteLine($"Artista: {performer}");
-                Console.WriteLine($"Título: {title}");
-                Console.WriteLine($"Álbum: {album}");
-                Console.WriteLine($"Año: {year}");
-                Console.WriteLine($"Pista: {trackInfo}");
-                Console.WriteLine($"Genero: {genre}");
                 return rola;
             }
             catch (Exception ex)
@@ -121,7 +93,7 @@
             Performer? performer = _database.GetPerformerByName(performer_name);
             if (performer != null)
             { 
-                _performers.Add(performer);  //check this cause is for reopen the app
+                _performers.Add(performer);  //check this cause is for re-open the app
                 return performer.GetIdPerformer();
             }
             else
@@ -133,13 +105,13 @@
             }
         }
 
-        // insert album
+        // insert album but this method also may admit same albums but with diferent id
         private int InsertAlbumIfNotExists(string album_name, string album_path, int year)
         {
             Album? album = _database.GetAlbumByName(album_name);
             if (album != null)
             {
-                _albums.Add(album); //check this cause is for reopen the app
+                _albums.Add(album); //check this cause is for re-open the app
                 return album.GetIdAlbum();
             }
             else
@@ -153,16 +125,6 @@
 
 
         // SETTERS & GETTERS
-
-        public void SetPath(string path)
-        {
-            _path = path;
-        }
-
-        public string GetPath()
-        {
-            return _path;
-        }
 
         public List<Rola> GetRolas()
         {

@@ -64,13 +64,4 @@ public class Album
     {
         return Year;
     }
-
-    //Show rola info
-    public void ShowInfo()
-    {
-        Console.WriteLine($"Título: {Name}");
-        Console.WriteLine($"Álbum ID: {IdAlbum}");
-        Console.WriteLine($"Ruta: {Path}");
-        Console.WriteLine($"Año: {Year}");
-    }
 }

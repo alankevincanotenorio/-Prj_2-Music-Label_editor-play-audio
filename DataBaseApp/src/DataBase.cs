@@ -9,7 +9,7 @@
         private SQLiteConnection _connection;
 
         //constuctor
-        private DataBase(string dbPath = "./DataBaseApp/database/DataBase.db")  
+        private DataBase(string dbPath = "./DataBaseApp/database/DataBase.db")  //make path if does not exists?
         {
             bool dbExists = File.Exists(dbPath);
             string connectionString;
@@ -120,6 +120,120 @@
             }
         }
 
+        //addPerformer
+        public bool InsertPerformer(Performer performer)
+        {
+            bool isAdded = false;
+            try
+            {
+                Performer? existingPerformer = GetPerformerByName(performer.GetName()); // Check if performer exists
+                if (existingPerformer != null)
+                {
+                    Console.WriteLine($"Performer '{performer.GetName()}' already exists with ID: {existingPerformer.GetIdPerformer()}");
+                    performer.SetIdPerformer(existingPerformer.GetIdPerformer());
+                    return isAdded;
+                }
+                performer.SetIdPerformer(GetMaxId("performers", "id_performer") + 1);
+                string query = "INSERT INTO performers (id_performer, id_type, name) VALUES (@id_performer, @id_type, @name)";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    command.Parameters.AddWithValue("@id_performer", performer.GetIdPerformer());
+                    command.Parameters.AddWithValue("@id_type", performer.GetIdType());
+                    command.Parameters.AddWithValue("@name", performer.GetName());
+                    int rowsAffected = command.ExecuteNonQuery();
+                    isAdded = rowsAffected > 0;
+                }
+                Console.WriteLine($"Performer '{performer.GetName()}' added with ID: {performer.GetIdPerformer()}");
+                return isAdded;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while inserting performer: " + ex.Message);
+            }
+            return isAdded;
+        }
+
+        //addRola
+        public bool InsertRola(Rola rola)
+        {   
+            bool isAdded = false;
+            try
+            {
+                Rola? existingRola = GetRolaByTitleAndPath(rola.GetTitle(), rola.GetPath());
+                if (existingRola != null && existingRola.GetPath() == rola.GetPath())
+                {
+                    Console.WriteLine($"Rola '{rola.GetTitle()}' already exists with ID: {existingRola.GetIdRola()}");
+                    rola.SetIdRola(existingRola.GetIdRola());
+                    return isAdded;
+                }
+                rola.SetIdRola(GetMaxId("rolas", "id_rola") + 1);
+                string query = "INSERT INTO rolas (id_rola, id_performer, id_album, path, title, track, year, genre) " +
+                               "VALUES (@id_rola, @id_performer, @id_album, @path, @title, @track, @year, @genre)";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    command.Parameters.AddWithValue("@id_rola", rola.GetIdRola());
+                    command.Parameters.AddWithValue("@id_performer", rola.GetIdPerformer());
+                    command.Parameters.AddWithValue("@id_album", rola.GetIdAlbum());
+                    command.Parameters.AddWithValue("@path", rola.GetPath());
+                    command.Parameters.AddWithValue("@title", rola.GetTitle());
+                    command.Parameters.AddWithValue("@track", rola.GetTrack());
+                    command.Parameters.AddWithValue("@year", rola.GetYear());
+                    command.Parameters.AddWithValue("@genre", rola.GetGenre());
+                    int rowsAffected = command.ExecuteNonQuery();
+                    isAdded = rowsAffected > 0;
+                }            
+                Console.WriteLine("Rola inserted correctly");
+                return isAdded;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while inserting rola: " + ex.Message);
+            }
+            return isAdded;
+        }
+        
+        //addPersons
+
+        //addGroup
+
+        //addInGroup
+
+        //addAlbum
+        //maybe check the path
+        public bool InsertAlbum(Album album)
+        {   
+            bool isAdded = false;
+            try
+            {
+                Album? existingAlbum = GetAlbumByName(album.GetName());
+                if (existingAlbum != null)
+                {
+                    Console.WriteLine($"Album '{album.GetName()}' already exists with ID: {existingAlbum.GetIdAlbum()}");
+                    album.SetIdAlbum(existingAlbum.GetIdAlbum());
+                    return isAdded;
+                }
+                album.SetIdAlbum(GetMaxId("albums", "id_album") + 1);
+                string query = "INSERT INTO albums (id_album, path, name, year) VALUES (@id_album, @path, @name, @year)";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    command.Parameters.AddWithValue("@id_album", album.GetIdAlbum());
+                    command.Parameters.AddWithValue("@path", album.GetPath());
+                    command.Parameters.AddWithValue("@name", album.GetName());
+                    command.Parameters.AddWithValue("@year", album.GetYear());
+                    int rowsAffected = command.ExecuteNonQuery();
+                    isAdded = rowsAffected > 0;
+                }            
+                Console.WriteLine("Album inserted correctly");
+                return isAdded;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while inserting album: " + ex.Message);
+            }
+            return isAdded;
+        }
+
+        //aux method for InsertRola && InsertPerformer && InsertAlbum
         private int GetMaxId(string tableName, string columnName)
         {
             int maxId = 0;
@@ -137,121 +251,6 @@
                 Console.WriteLine($"Error while getting max ID from {tableName}: " + ex.Message);
             }
             return maxId;
-        }
-
-        //addPerformer
-        public bool InsertPerformer(Performer performer)
-        {
-            bool added = false;
-            try
-            {
-                Performer? existingPerformer = GetPerformerByName(performer.GetName()); // Check if performer exists
-                if (existingPerformer != null)
-                {
-                    Console.WriteLine($"Performer '{performer.GetName()}' already exists with ID: {existingPerformer.GetIdPerformer()}");
-                    performer.SetIdPerformer(existingPerformer.GetIdPerformer());
-                    return false;
-                }
-                performer.SetIdPerformer(GetMaxId("performers", "id_performer") + 1);
-                string query = "INSERT INTO performers (id_performer, id_type, name) VALUES (@id_performer, @id_type, @name)";
-                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
-                {
-                    command.Parameters.AddWithValue("@id_performer", performer.GetIdPerformer());
-                    command.Parameters.AddWithValue("@id_type", performer.GetIdType());
-                    command.Parameters.AddWithValue("@name", performer.GetName());
-                    int rowsAffected = command.ExecuteNonQuery();
-                    added = rowsAffected > 0;
-                }
-                if (added)
-                {
-                    Console.WriteLine($"Performer '{performer.GetName()}' added with ID: {performer.GetIdPerformer()}");
-                }
-                return added;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error while inserting performer: " + ex.Message);
-            }
-            return added;
-        }
-
-        //addRola
-        public bool InsertRola(Rola rola)
-        {   
-            bool added = false;
-            try
-            {
-                Rola? existingRola = GetRolaByTitleAndPath(rola.GetTitle(), rola.GetPath());
-                if (existingRola != null && existingRola.GetPath() == rola.GetPath())
-                {
-                    Console.WriteLine($"Rola '{rola.GetTitle()}' already exists with ID: {existingRola.GetIdRola()}");
-                    rola.SetIdRola(existingRola.GetIdRola());
-                    return false;
-                }
-                rola.SetIdRola(GetMaxId("rolas", "id_rola") + 1);
-                string query = "INSERT INTO rolas (id_rola, id_performer, id_album, path, title, track, year, genre) " +
-                               "VALUES (@id_rola, @id_performer, @id_album, @path, @title, @track, @year, @genre)";
-                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
-                {
-                    command.Parameters.AddWithValue("@id_rola", rola.GetIdRola());
-                    command.Parameters.AddWithValue("@id_performer", rola.GetIdPerformer());
-                    command.Parameters.AddWithValue("@id_album", rola.GetIdAlbum());
-                    command.Parameters.AddWithValue("@path", rola.GetPath());
-                    command.Parameters.AddWithValue("@title", rola.GetTitle());
-                    command.Parameters.AddWithValue("@track", rola.GetTrack());
-                    command.Parameters.AddWithValue("@year", rola.GetYear());
-                    command.Parameters.AddWithValue("@genre", rola.GetGenre());
-                    int rowsAffected = command.ExecuteNonQuery();
-                    added = rowsAffected > 0;
-                }            
-                Console.WriteLine("Rola inserted correctly");
-                return added;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error while inserting rola: " + ex.Message);
-            }
-            return added;
-        }
-        
-        //addPersons
-
-        //addGroup
-
-        //addInGroup
-
-        //addAlbum
-        public bool InsertAlbum(Album album)
-        {   
-            bool added = false;
-            try
-            {
-                Album? existingAlbum = GetAlbumByName(album.GetName());
-                if (existingAlbum != null)
-                {
-                    Console.WriteLine($"Album '{album.GetName()}' already exists with ID: {existingAlbum.GetIdAlbum()}");
-                    album.SetIdAlbum(existingAlbum.GetIdAlbum());
-                    return false;
-                }
-                album.SetIdAlbum(GetMaxId("albums", "id_album") + 1);
-                string query = "INSERT INTO albums (id_album, path, name, year) VALUES (@id_album, @path, @name, @year)";
-                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
-                {
-                    command.Parameters.AddWithValue("@id_album", album.GetIdAlbum());
-                    command.Parameters.AddWithValue("@path", album.GetPath());
-                    command.Parameters.AddWithValue("@name", album.GetName());
-                    command.Parameters.AddWithValue("@year", album.GetYear());
-                    int rowsAffected = command.ExecuteNonQuery();
-                    added = rowsAffected > 0;
-                }            
-                Console.WriteLine("Album inserted correctly");
-                return added;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error while inserting album: " + ex.Message);
-            }
-            return added;
         }
         
         //get performer by name
@@ -305,8 +304,8 @@
                             int track = reader.GetInt32(5);
                             int year = reader.GetInt32(6);
                             string genre = reader.GetString(7);
-
                             rola = new Rola(idRola, idPerformer, idAlbum, rolaPath, rolaTitle, track, year, genre);
+                            return rola;
                         }
                     }
                 }
@@ -336,6 +335,7 @@
                             string albumName = reader.GetString(2);
                             int year = reader.GetInt32(3);
                             album = new Album(idAlbum, path, albumName, year);
+                            return album;
                         }
                     }
                 }
@@ -349,7 +349,7 @@
 
         public bool UpdateRola(Rola rola)
         {
-            bool updated = false;
+            bool isUpdated = false;
             try
             {
                 string query = "UPDATE rolas SET title = @title, id_performer = @id_performer, id_album = @id_album, " +
@@ -363,31 +363,23 @@
                     command.Parameters.AddWithValue("@year", rola.GetYear());
                     command.Parameters.AddWithValue("@genre", rola.GetGenre());
                     command.Parameters.AddWithValue("@id_rola", rola.GetIdRola());
-
                     int rowsAffected = command.ExecuteNonQuery();
-                    updated = rowsAffected > 0;
+                    isUpdated = rowsAffected > 0;
                 }
-
-                if (updated)
-                {
-                    Console.WriteLine("Rola updated successfully.");
-                }
-                else
-                {
-                    Console.WriteLine("Failed to update the rola.");
-                }
+                Console.WriteLine("Rola updated successfully.");
+                return isUpdated;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error while updating rola: " + ex.Message);
             }
-
-            return updated;
+            Console.WriteLine("Failed to update the rola.");
+            return isUpdated;
         }
 
         public bool UpdateAlbum(Album album)
         {
-            bool updated = false;
+            bool isUpdated = false;
             try
             {
                 string query = "UPDATE albums SET path = @path, name = @name, year = @year WHERE id_album = @id_album";
@@ -398,25 +390,17 @@
                     command.Parameters.AddWithValue("@year", album.GetYear());
                     command.Parameters.AddWithValue("@id_album", album.GetIdAlbum());
                     int rowsAffected = command.ExecuteNonQuery();
-                    updated = rowsAffected > 0;
+                    isUpdated = rowsAffected > 0;
                 }
-
-                if (updated)
-                {
-                    Console.WriteLine("Album updated successfully.");
-                }
-                else
-                {
-                    Console.WriteLine("Failed to update the Album.");
-                }
+                Console.WriteLine("Album updated successfully.");
+                return isUpdated;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error while updating Album: " + ex.Message);
             }
-
-            return updated;
+            Console.WriteLine("Failed to update the Album.");
+            return isUpdated;
         }
-
     }
 }

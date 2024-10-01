@@ -1,25 +1,21 @@
 ﻿using Gtk;
-using System;
-using System.Collections.Generic;
-using ApplicationApp;  
+using ControllerApp;
 
-class SharpApp : Window
+class GraphicInterface : Window
 {
     public Controller app = new Controller();  
-
     private VBox vbox;
 
-    public SharpApp() : base("Music Library Mining")
+    public GraphicInterface() : base("Music Library Editor")
     {
         SetDefaultSize(400, 300);
         SetPosition(WindowPosition.Center);
         DeleteEvent += delegate { Application.Quit(); };
         Fixed fix = new Fixed();
-        Button mineButton = new Button("Start Mining");
-        mineButton.Clicked += OnMineClick;
-        mineButton.SetSizeRequest(100, 40);
-        
-        fix.Put(mineButton, 50, 50);
+        Button miningButton = new Button("Start Mining");
+        miningButton.Clicked += OnMineClick;
+        miningButton.SetSizeRequest(100, 40);
+        fix.Put(miningButton, 50, 50);
         vbox = new VBox();
         fix.Put(vbox, 50, 100);  
         Add(fix);
@@ -28,28 +24,25 @@ class SharpApp : Window
 
     void OnMineClick(object sender, EventArgs args)
     {
-        
         foreach (Widget child in vbox.Children)
         {
             vbox.Remove(child); 
             child.Destroy();    
         }
         app.StartMining(); 
-        List<string> titles = app.ShowRolasInPath();
-
-        foreach (string title in titles)
+        List<string> rolas = app.GetRolasInfoInPath();
+        foreach (string title in rolas)
         {
             Label titleLabel = new Label(title); 
             vbox.PackStart(titleLabel, false, false, 5);
         }
-        
         vbox.ShowAll();  
     }
 
     public static void Main()
     {
         Application.Init();
-        new SharpApp();
+        new GraphicInterface();
         Application.Run();
     }
 }

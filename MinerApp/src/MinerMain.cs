@@ -4,7 +4,7 @@ class MinerMain
     static void Main(string[] args)
     {
         string musicPath = "/home/alan/Downloads";
-        Miner miner = new Miner(musicPath);
+        Miner miner = new Miner();
         if (miner.Mine(musicPath))
         {
             Console.WriteLine("Mining complete");

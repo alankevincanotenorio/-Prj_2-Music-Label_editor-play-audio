@@ -51,10 +51,4 @@ public class Performer
     {
         return IdType;
     }
-
-    public void ShowInfo()
-    {
-        Console.WriteLine($"Nombre: {Name}");
-        Console.WriteLine($"Tipo de intérprete (Id): {IdType}");
-    }
 }

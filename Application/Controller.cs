@@ -1,21 +1,69 @@
-﻿namespace ApplicationApp
+﻿namespace ControllerApp
 {
     using MinerApp;
     using DataBaseApp;
     public class Controller
     {
-        private string _currentPath = "/home/alan/Downloads"; //maybe here put the default path
+        private string _configFilePath = "config.txt";
+        private string _currentPath;
         private bool _isMining;
         private int progress;
-        public Miner miner;
-        public DataBase database = DataBase.Instance();
+        private Miner miner;
+        private DataBase database = DataBase.Instance();
 
         // Constructor
         public Controller()
         {
-            miner = new Miner("/home/alan/Downloads");
+            _currentPath = LoadPathFromConfig();
+            if(!Directory.Exists(_currentPath))
+            {
+                Directory.CreateDirectory(_currentPath);
+            }
+            miner = new Miner();
             _isMining = false;
             progress = 0;
+        }
+
+        private string LoadPathFromConfig()
+        {
+            if (File.Exists(_configFilePath))
+            {
+                return File.ReadAllText(_configFilePath).Trim();
+            }
+            else
+            {
+                string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                string defaultPath = Path.Combine(userProfile, "Downloads"); //maybe change to a convencial path
+                File.WriteAllText(_configFilePath, defaultPath);
+                return defaultPath;
+            }
+        }
+
+        public void SetCurrentPath(string current_path)
+        {
+            if (!Directory.Exists(current_path))
+            {
+                Console.WriteLine("Path does not exists");
+                return;
+            }
+            _currentPath =  current_path;
+            
+            File.WriteAllText(_configFilePath, _currentPath);
+        }
+        
+        public string GetCurrentPath()
+        {
+            return _currentPath;
+        }
+
+        public Miner GetMiner()
+        {
+            return miner;
+        }
+
+        public DataBase GetDataBase()
+        {
+            return database;
         }
 
         public void StartMining()
@@ -26,6 +74,7 @@
                 miner.Mine(_currentPath);
                 miner.SaveMetadata();
                 progress = 100;
+                Console.WriteLine("Mining finished.");
             }
             else
             {
@@ -34,40 +83,18 @@
             _isMining = false;
         }
 
-        public void SetCurrentPath(string current_path)
-        {
-            _currentPath =  current_path;
-            miner = new Miner(_currentPath);
-        }
-
-        public string GetCurrentPath()
-        {
-            return _currentPath;
-        }
-
-        public List<string> ShowRolasInPath()
+        public List<string> GetRolasInfoInPath()
         {
             List<Rola> rolas_in_path = miner.GetRolas();
             List<string> rolasInfo = new List<string>();
-
             foreach (Rola rola in rolas_in_path)
             {
-                //maybe refact
-                Performer? performer = miner.GetPerformers().Find(p => p.GetIdPerformer() == rola.GetIdPerformer());
-                Album? album = miner.GetAlbums().Find(a => a.GetIdAlbum() == rola.GetIdAlbum());
-                string performerName = performer != null ? performer.GetName() : "Unknown Performer";
-                string albumName = album != null ? album.GetName() : "Unknown Album";
+                string performerName = GetPerformerName(rola.GetIdPerformer());
+                string albumName = GetAlbumName(rola.GetIdAlbum());
                 string rolaInfo = $"Title: {rola.GetTitle()}, Performer: {performerName}, Album: {albumName}, Year: {rola.GetYear()}, Track: {rola.GetTrack()}, Genre: {rola.GetGenre()}";
                 rolasInfo.Add(rolaInfo);
             }
-            
             return rolasInfo;
-        }
-
-
-        public void showRolaDetails()
-        {
-
         }
 
         public void editRolaDetails(Rola rola)
@@ -75,8 +102,8 @@
             database.UpdateRola(rola);
             var file = TagLib.File.Create(rola.GetPath());
             file.Tag.Title = rola.GetTitle();
-            file.Tag.Performers = new[] { GetPerformerName(rola.GetIdPerformer()) };
-            file.Tag.Album = GetAlbumName(rola.GetIdAlbum());
+            file.Tag.Performers = new[] { GetPerformerName(rola.GetIdPerformer()) }; //No se actualiza correctamente pq al iniciar el programa estan en 0
+            file.Tag.Album = GetAlbumName(rola.GetIdAlbum()); //No se actualiza correctamente pq al iniciar el programa estan en 0
             file.Tag.Year = (uint)rola.GetYear();
             file.Tag.Track = (uint)rola.GetTrack();
             file.Tag.Genres = new[] { rola.GetGenre() };
@@ -104,7 +131,7 @@
 
         public void editAlbumDetails(Album album)
         {
-            database.editAlbumDetails(album);
+            database.UpdateAlbum(album);
         }
 
         public void showPerformerDetails()

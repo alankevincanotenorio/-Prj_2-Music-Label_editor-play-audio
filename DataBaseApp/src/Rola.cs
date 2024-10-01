@@ -116,16 +116,4 @@ public class Rola
     {
         return Genre;
     }
-
-    //Show rola info
-    public void ShowInfo()
-    {
-        Console.WriteLine($"Título: {Title}");
-        Console.WriteLine($"Intérprete ID: {IdPerformer}");
-        Console.WriteLine($"Álbum ID: {IdAlbum}");
-        Console.WriteLine($"Ruta: {Path}");
-        Console.WriteLine($"Número de pista: {Track}");
-        Console.WriteLine($"Año: {Year}");
-        Console.WriteLine($"Género: {Genre}");
-    }
 }
