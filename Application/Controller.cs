@@ -52,6 +52,7 @@
 
             foreach (Rola rola in rolas_in_path)
             {
+                //maybe refact
                 Performer? performer = miner.GetPerformers().Find(p => p.GetIdPerformer() == rola.GetIdPerformer());
                 Album? album = miner.GetAlbums().Find(a => a.GetIdAlbum() == rola.GetIdAlbum());
                 string performerName = performer != null ? performer.GetName() : "Unknown Performer";
@@ -69,9 +70,30 @@
 
         }
 
-        public void editRolaDetails()
+        public void editRolaDetails(Rola rola)
         {
+            database.UpdateRola(rola);
+            var file = TagLib.File.Create(rola.GetPath());
+            file.Tag.Title = rola.GetTitle();
+            file.Tag.Performers = new[] { GetPerformerName(rola.GetIdPerformer()) };
+            file.Tag.Album = GetAlbumName(rola.GetIdAlbum());
+            file.Tag.Year = (uint)rola.GetYear();
+            file.Tag.Track = (uint)rola.GetTrack();
+            file.Tag.Genres = new[] { rola.GetGenre() };
+            file.Save();
+            Console.WriteLine("MP3 metadata updated.");
+        }
 
+        private string GetPerformerName(int performerId)
+        {
+            Performer? performer = miner.GetPerformers().Find(p => p.GetIdPerformer() == performerId);
+            return performer != null ? performer.GetName() : "Unknown Performer";
+        }
+
+        private string GetAlbumName(int albumId)
+        {
+            Album? album = miner.GetAlbums().Find(a => a.GetIdAlbum() == albumId);
+            return album != null ? album.GetName() : "Unknown Album";
         }
 
         
@@ -80,9 +102,9 @@
 
         }
 
-        public void editAlbumDetails()
+        public void editAlbumDetails(Album album)
         {
-
+            database.editAlbumDetails(album);
         }
 
         public void showPerformerDetails()

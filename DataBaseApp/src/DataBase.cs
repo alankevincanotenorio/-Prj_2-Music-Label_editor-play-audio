@@ -384,5 +384,39 @@
 
             return updated;
         }
+
+        public bool UpdateAlbum(Album album)
+        {
+            bool updated = false;
+            try
+            {
+                string query = "UPDATE albums SET path = @path, name = @name, year = @year WHERE id_album = @id_album";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    command.Parameters.AddWithValue("@path", album.GetPath());
+                    command.Parameters.AddWithValue("@name", album.GetName());
+                    command.Parameters.AddWithValue("@year", album.GetYear());
+                    command.Parameters.AddWithValue("@id_album", album.GetIdAlbum());
+                    int rowsAffected = command.ExecuteNonQuery();
+                    updated = rowsAffected > 0;
+                }
+
+                if (updated)
+                {
+                    Console.WriteLine("Album updated successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to update the Album.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while updating Album: " + ex.Message);
+            }
+
+            return updated;
+        }
+
     }
 }
