@@ -51,20 +51,9 @@
             File.WriteAllText(_configFilePath, _currentPath);
         }
         
-        public string GetCurrentPath()
-        {
-            return _currentPath;
-        }
-
-        public Miner GetMiner()
-        {
-            return miner;
-        }
-
-        public DataBase GetDataBase()
-        {
-            return database;
-        }
+        public string GetCurrentPath() => _currentPath;
+        public Miner GetMiner() => miner;
+        public DataBase GetDataBase() => database;
 
         public void StartMining()
         {
@@ -91,7 +80,9 @@
             {
                 string performerName = GetPerformerName(rola.GetIdPerformer());
                 string albumName = GetAlbumName(rola.GetIdAlbum());
-                string rolaInfo = $"Title: {rola.GetTitle()}, Performer: {performerName}, Album: {albumName}, Year: {rola.GetYear()}, Track: {rola.GetTrack()}, Genre: {rola.GetGenre()}";
+                string rolaInfo = $"Title: {rola.GetTitle()}, Performer: {GetPerformerName(rola.GetIdPerformer())}, " +
+                                  $"Album: {GetAlbumName(rola.GetIdAlbum())}, Year: {rola.GetYear()}, " +
+                                  $"Track: {rola.GetTrack()}, Genre: {rola.GetGenre()}";
                 rolasInfo.Add(rolaInfo);
             }
             return rolasInfo;

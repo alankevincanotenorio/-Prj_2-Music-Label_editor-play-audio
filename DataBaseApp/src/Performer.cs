@@ -1,8 +1,8 @@
 public class Performer
 {
-    private int IdPerformer { get; set; }
-    private string Name { get; set; }
-    private int IdType { get; set; }
+    private int IdPerformer = 0;
+    private string Name;
+    private int IdType = 2;
 
     // Constructor
     public Performer(int id_performer, string name, int id_type)
@@ -12,43 +12,19 @@ public class Performer
         IdType = id_type;
     }
 
-    // Constructor to new performer
+    // Constructor for new performer
     public Performer(string name)
     {
-        IdPerformer = 0;
-        Name = name;
-        IdType = 2;
-    }
-
-    // SETTERS & GETTERS
-
-    public void SetIdPerformer(int id_performer)
-    {
-        IdPerformer = id_performer;
-    }
-
-    public int GetIdPerformer()
-    {
-        return IdPerformer;
-    }
-
-    public void SetName(string name)
-    {
         Name = name;
     }
 
-    public string GetName()
-    {
-        return Name;
-    }
+    // getters
+    public int GetIdPerformer() => IdPerformer;
+    public string GetName() => Name;
+    public int GetIdType() => IdType;
 
-    public void SetIdType(int id_type)
-    {
-        IdType = id_type;
-    }
-
-    public int GetIdType()
-    {
-        return IdType;
-    }
+    //setters
+    public void SetIdPerformer(int id_performer) => IdPerformer = id_performer;
+    public void SetName(string name) => Name = name;
+    public void SetIdType(int id_type) => IdType = id_type;
 }

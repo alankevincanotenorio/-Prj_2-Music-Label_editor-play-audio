@@ -1,11 +1,11 @@
 public class Album
 {
-    private int IdAlbum { get; set; }
-    private string Path { get; set; }
-    private string Name { get; set; }
-    private int Year { get; set; } 
+    private int IdAlbum = 0;
+    private string Path;
+    private string Name;
+    private int Year;
 
-    //constructor
+    // Constructor
     public Album(int idAlbum, string path, string name, int year)
     {
         IdAlbum = idAlbum;
@@ -14,54 +14,23 @@ public class Album
         Year = year;
     }
 
-    // Constructor to new rolas
+    // Constructor for new albums
     public Album(string path, string name, int year)
     {
-        IdAlbum = 0;
         Path = path;
         Name = name;
         Year = year;
     }
 
-    //SETTERS & GETTERS
+    // getters
+    public int GetIdAlbum() => IdAlbum;
+    public string GetPath() => Path;
+    public string GetName() => Name;
+    public int GetYear() => Year;
 
-    public void SetIdAlbum(int id_album)
-    {
-        IdAlbum = id_album;
-    }
-
-    public int GetIdAlbum()
-    {
-        return IdAlbum;
-    }
-
-    public void SetPath(string path)
-    {
-        Path = path;
-    }
-
-    public string GetPath()
-    {
-        return Path;
-    }
-
-    public void SetName(string name)
-    {
-        Name = name;
-    }
-
-    public string GetName()
-    {
-        return Name;
-    }
-
-    public void SetYear(int year)
-    {
-        Year = year;
-    }
-
-    public int GetYear()
-    {
-        return Year;
-    }
+    // setters
+    public void SetIdAlbum(int id_album) => IdAlbum = id_album;
+    public void SetPath(string path) => Path = path;
+    public void SetName(string name) => Name = name;
+    public void SetYear(int year) => Year = year;
 }

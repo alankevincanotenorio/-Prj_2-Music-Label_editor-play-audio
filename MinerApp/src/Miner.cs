@@ -93,7 +93,7 @@
             Performer? performer = _database.GetPerformerByName(performer_name);
             if (performer != null)
             { 
-                _performers.Add(performer);  //check this cause is for re-open the app
+                _performers.Add(performer);
                 return performer.GetIdPerformer();
             }
             else
@@ -105,45 +105,29 @@
             }
         }
 
-        // insert album but this method also may admit same albums but with diferent id
+        // insert album
         public int InsertAlbumIfNotExists(string album_name, string album_path, int year)
         {
             Album? album = _database.GetAlbumByName(album_name);
             if (album != null)
             {
-                _albums.Add(album); //check this cause is for re-open the app
+                _albums.Add(album);
                 return album.GetIdAlbum();
             }
             else
             {
                 album = new Album(album_path, album_name, year);
                 _database.InsertAlbum(album);   
-                _albums.Add(album); //
+                _albums.Add(album);
                 return album.GetIdAlbum();
             }
         }
 
 
-        // SETTERS & GETTERS
-
-        public List<Rola> GetRolas()
-        {
-            return _rolas;
-        }
-            
-        public List<Performer> GetPerformers()
-        {
-            return _performers;
-        }
-
-        public List<Album> GetAlbums()
-        {
-            return _albums;
-        }
-
-        public DataBase GetDataBase()
-        {
-            return _database;
-        }
+        // getters
+        public List<Rola> GetRolas() => _rolas;
+        public List<Performer> GetPerformers() => _performers;
+        public List<Album> GetAlbums() => _albums;
+        public DataBase GetDataBase() => _database;
     }
 }
