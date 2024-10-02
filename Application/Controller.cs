@@ -7,9 +7,9 @@
         private string _configFilePath = "config.txt";
         private string _currentPath;
         private bool _isMining;
-        private int progress;
-        private Miner miner;
-        private DataBase database = DataBase.Instance();
+        private int _progress;
+        private Miner _miner;
+        private DataBase _database = DataBase.Instance();
 
         // Constructor
         public Controller()
@@ -19,9 +19,9 @@
             {
                 Directory.CreateDirectory(_currentPath);
             }
-            miner = new Miner();
+            _miner = new Miner();
             _isMining = false;
-            progress = 0;
+            _progress = 0;
         }
 
         private string LoadPathFromConfig()
@@ -52,17 +52,17 @@
         }
         
         public string GetCurrentPath() => _currentPath;
-        public Miner GetMiner() => miner;
-        public DataBase GetDataBase() => database;
+        public Miner GetMiner() => _miner;
+        public DataBase GetDataBase() => _database;
 
         public void StartMining()
         {
             if(!_isMining)
             {
                 _isMining = true;
-                miner.Mine(_currentPath);
-                miner.SaveMetadata();
-                progress = 100;
+                _miner.Mine(_currentPath);
+                _miner.SaveMetadata();
+                _progress = 100;
                 Console.WriteLine("Mining finished.");
             }
             else
@@ -74,7 +74,7 @@
 
         public List<string> GetRolasInfoInPath()
         {
-            List<Rola> rolas_in_path = miner.GetRolas();
+            List<Rola> rolas_in_path = _miner.GetRolas();
             List<string> rolasInfo = new List<string>();
             foreach (Rola rola in rolas_in_path)
             {
@@ -90,7 +90,7 @@
 
         public void editRolaDetails(Rola rola)
         {
-            database.UpdateRola(rola);
+            _database.UpdateRola(rola);
             var file = TagLib.File.Create(rola.GetPath());
             file.Tag.Title = rola.GetTitle();
             file.Tag.Performers = new[] { GetPerformerName(rola.GetIdPerformer()) };
@@ -104,13 +104,13 @@
 
         private string GetPerformerName(int performerId)
         {
-            Performer? performer = miner.GetPerformers().Find(p => p.GetIdPerformer() == performerId);
+            Performer? performer = _miner.GetPerformers().Find(p => p.GetIdPerformer() == performerId);
             return performer != null ? performer.GetName() : "Unknown Performer";
         }
 
         private string GetAlbumName(int albumId)
         {
-            Album? album = miner.GetAlbums().Find(a => a.GetIdAlbum() == albumId);
+            Album? album = _miner.GetAlbums().Find(a => a.GetIdAlbum() == albumId);
             return album != null ? album.GetName() : "Unknown Album";
         }
 
@@ -122,7 +122,7 @@
 
         public void editAlbumDetails(Album album)
         {
-            database.UpdateAlbum(album);
+            _database.UpdateAlbum(album);
         }
 
         public void showPerformerDetails()
