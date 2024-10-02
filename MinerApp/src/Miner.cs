@@ -88,7 +88,7 @@
         }
 
         // insert performer
-        private int InsertPerformerIfNotExists(string performer_name)
+        public int InsertPerformerIfNotExists(string performer_name)
         {
             Performer? performer = _database.GetPerformerByName(performer_name);
             if (performer != null)
@@ -106,7 +106,7 @@
         }
 
         // insert album but this method also may admit same albums but with diferent id
-        private int InsertAlbumIfNotExists(string album_name, string album_path, int year)
+        public int InsertAlbumIfNotExists(string album_name, string album_path, int year)
         {
             Album? album = _database.GetAlbumByName(album_name);
             if (album != null)

@@ -71,20 +71,31 @@ class ControllerMain
                         Console.Write("New Performer Name: ");
                         string? performerName = Console.ReadLine();
                         Performer? newPerformer = app.GetDataBase().GetPerformerByName(performerName);
-
+                        if(newPerformer == null) 
+                        {
+                            int idp = app.GetMiner().InsertPerformerIfNotExists(performerName);
+                            rolaToEdit.SetIdPerformer(idp);
+                        }
                         Console.Write("New year: ");
                         string? year = Console.ReadLine();
 
                         Console.Write("New Album Name: ");
                         string? albumN = Console.ReadLine();
                         Album? album = app.GetDataBase().GetAlbumByName(albumN);
-
+                        if(album == null) 
+                        {
+                            int idA = app.GetMiner().InsertAlbumIfNotExists(albumN, rolaToEdit.GetPath(), rolaToEdit.GetYear());
+                            rolaToEdit.SetIdAlbum(idA);
+                        }
                         if (!string.IsNullOrEmpty(newTitle)) rolaToEdit.SetTitle(newTitle);
                         if (!string.IsNullOrEmpty(newGenre)) rolaToEdit.SetGenre(newGenre);
                         if (!string.IsNullOrEmpty(newTrack)) rolaToEdit.SetTrack(int.Parse(newTrack));
                         if (newPerformer != null) rolaToEdit.SetIdPerformer(newPerformer.GetIdPerformer());
                         if (!string.IsNullOrEmpty(year)) rolaToEdit.SetYear(int.Parse(year));
-                        if (album != null) rolaToEdit.SetIdAlbum(album.GetIdAlbum());
+                        if (album != null)
+                        {
+                            rolaToEdit.SetIdAlbum(album.GetIdAlbum());
+                        } 
                         app.editRolaDetails(rolaToEdit);
                         Console.WriteLine("Song details updated.");
                     }

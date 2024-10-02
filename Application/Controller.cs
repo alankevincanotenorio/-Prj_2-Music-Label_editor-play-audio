@@ -102,8 +102,8 @@
             database.UpdateRola(rola);
             var file = TagLib.File.Create(rola.GetPath());
             file.Tag.Title = rola.GetTitle();
-            file.Tag.Performers = new[] { GetPerformerName(rola.GetIdPerformer()) }; //No se actualiza correctamente pq al iniciar el programa estan en 0
-            file.Tag.Album = GetAlbumName(rola.GetIdAlbum()); //No se actualiza correctamente pq al iniciar el programa estan en 0
+            file.Tag.Performers = new[] { GetPerformerName(rola.GetIdPerformer()) };
+            file.Tag.Album = GetAlbumName(rola.GetIdAlbum());
             file.Tag.Year = (uint)rola.GetYear();
             file.Tag.Track = (uint)rola.GetTrack();
             file.Tag.Genres = new[] { rola.GetGenre() };
