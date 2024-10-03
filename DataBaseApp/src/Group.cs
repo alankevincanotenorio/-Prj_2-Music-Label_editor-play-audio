@@ -19,4 +19,16 @@ public class Group{
         EndDate = end_date;
         
     }
+
+    //getters
+    public int GetIdGroup() => IdGroup;
+    public string GetName() => Name;
+    public string GetStartDate() => StartDate;
+    public string GetEndDate() => EndDate;
+
+    // setters
+    public void SetIdGroup(int id_group) => IdGroup = id_group;
+    public void SetName(string name) => Name = name;
+    public void SetStartDate(string start_date) => StartDate = start_date;
+    public void SetEndDate(string end_date) => EndDate = end_date;
 }

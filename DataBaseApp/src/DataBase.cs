@@ -193,8 +193,75 @@
         }
         
         //addPersons
+        public bool InsertPerson(Person person)
+        {
+            bool isAdded = false;
+            try
+            {
+                Person? existingPerson = GetPersonByStageName(person.GetStageName());
+                if (existingPerson != null) 
+                {
+                    Console.WriteLine($"Person '{person.GetStageName()}' already exists with ID: {existingPerson.GetIdPerson()}");
+                    person.SetIdPerson(existingPerson.GetIdPerson());
+                    return isAdded;
+                }
+                person.SetIdPerson(GetMaxId("persons", "id_person") + 1);
+                string query = "INSERT INTO persons (id_person, stage_name, real_name, birth_date, death_date) " +
+                            "VALUES (@id_person, @stage_name, @real_name, @birth_date, @death_date)";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    command.Parameters.AddWithValue("@id_person", person.GetIdPerson());
+                    command.Parameters.AddWithValue("@stage_name", person.GetStageName());
+                    command.Parameters.AddWithValue("@real_name", person.GetRealName());
+                    command.Parameters.AddWithValue("@birth_date", person.GetBirthDate());
+                    command.Parameters.AddWithValue("@death_date", person.GetDeathDate());
+                    int rowsAffected = command.ExecuteNonQuery();
+                    isAdded = rowsAffected > 0;
+                }
+                Console.WriteLine("Person inserted correctly");
+                return isAdded;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while inserting person: " + ex.Message);
+            }
+            return isAdded;
+        }
 
         //addGroup
+        public bool InsertGroup(Group group)
+        {
+            bool isAdded = false;
+            try
+            {
+                Group? existingGroup = GetGroupByName(group.GetName());
+                if (existingGroup != null) 
+                {
+                    Console.WriteLine($"Group '{group.GetName()}' already exists with ID: {existingGroup.GetIdGroup()}");
+                    group.SetIdGroup(existingGroup.GetIdGroup());
+                    return isAdded;
+                }
+                group.SetIdGroup(GetMaxId("groups", "id_group") + 1);
+                string query = "INSERT INTO groups (id_group, name, start_date, end_date) " +
+                            "VALUES (@id_group, @name, @start_date, @end_date)";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    command.Parameters.AddWithValue("@id_group", group.GetIdGroup());
+                    command.Parameters.AddWithValue("@name", group.GetName());
+                    command.Parameters.AddWithValue("@start_date", group.GetStartDate());
+                    command.Parameters.AddWithValue("@end_date", group.GetEndDate());
+                    int rowsAffected = command.ExecuteNonQuery();
+                    isAdded = rowsAffected > 0;
+                }
+                Console.WriteLine("Group inserted correctly");
+                return isAdded;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while inserting group: " + ex.Message);
+            }
+            return isAdded;
+        }
 
         //addInGroup
 
@@ -270,7 +337,6 @@
                             int idPerformer = reader.GetInt32(0);
                             int idType = reader.GetInt32(1);
                             performer = new Performer(idPerformer, name, idType);
-                            return performer;
                         }
                     }
                 }
@@ -305,7 +371,6 @@
                             int year = reader.GetInt32(6);
                             string genre = reader.GetString(7);
                             rola = new Rola(idRola, idPerformer, idAlbum, rolaPath, rolaTitle, track, year, genre);
-                            return rola;
                         }
                     }
                 }
@@ -316,6 +381,66 @@
             }
             return rola;
         }
+
+        public Person? GetPersonByStageName(string stage_name)
+        {
+            Person? person  = null;
+            try
+            {
+                string query = "SELECT * FROM persons WHERE stage_name = @stage_name";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    command.Parameters.AddWithValue("@stage_name", stage_name);
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int idPerson = reader.GetInt32(0);
+                            string stageName = reader.GetString(1);
+                            string realName = reader.GetString(2);
+                            string birthDate = reader.GetString(3);
+                            string deathDate = reader.GetString(4);
+                            person = new Person(idPerson, stageName, realName, birthDate, deathDate);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while searching for person by name: " + ex.Message);
+            }
+            return person;
+        }
+
+        public Group? GetGroupByName(string name)
+        {
+            Group? group = null;
+            try
+            {
+                string query = "SELECT * FROM groups WHERE name = @name";
+                using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+                {
+                    command.Parameters.AddWithValue("@name", name);
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int idGroup = reader.GetInt32(0);
+                            string groupName = reader.GetString(1);
+                            string startDate = reader.GetString(2);
+                            string endDate = reader.GetString(3);
+                            group = new Group(idGroup, groupName, startDate, endDate);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while searching for group by name: " + ex.Message);
+            }
+            return group;
+        }
+
 
         public Album? GetAlbumByName(string name)
         {
@@ -335,7 +460,6 @@
                             string albumName = reader.GetString(2);
                             int year = reader.GetInt32(3);
                             album = new Album(idAlbum, path, albumName, year);
-                            return album;
                         }
                     }
                 }

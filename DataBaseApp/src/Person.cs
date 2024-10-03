@@ -21,4 +21,18 @@ public class Person{
         BirthDate = birth_date;
         DeathDate = death_date;
     }
+
+    //getters
+    public int GetIdPerson() => IdPerson;
+    public string GetStageName() => StageName;
+    public string GetRealName() => RealName;
+    public string GetBirthDate() => BirthDate;
+    public string GetDeathDate() => DeathDate;
+
+    // setters
+    public void SetIdPerson(int id_person) => IdPerson = id_person;
+    public void SetStageName(string stage_name) => StageName = stage_name;
+    public void SetRealName(string real_name) => RealName = real_name;
+    public void SetBirthDate(string birth_date) => BirthDate = birth_date;
+    public void SetDeathDate(string death_date) => DeathDate = death_date;
 }

@@ -78,7 +78,7 @@ public class DataBaseTests
         database.InsertAlbum(album);
         Rola rola = new Rola(performer.GetIdPerformer(), album.GetIdAlbum(), "/path/to/rola", "TestRola2", 1, 2024, "Rock");
         database.InsertRola(rola);
-        Rola? retrievedRola = database.GetRolaByName("TestRola2");
+        Rola? retrievedRola = database.GetRolaByTitleAndPath("TestRola2", "/path/to/rola");
         Assert.NotNull(retrievedRola);
         Assert.Equal(rola.GetIdRola(), retrievedRola?.GetIdRola());
         Assert.Equal(rola.GetIdPerformer(), retrievedRola?.GetIdPerformer());
@@ -94,7 +94,7 @@ public class DataBaseTests
     public void TestGetInexistentRolaByName()
     {
         var database = DataBase.Instance(":memory:");
-        Rola? retrieved = database.GetRolaByName("NonExistent");
+        Rola? retrieved = database.GetRolaByTitleAndPath("NonExistent", "path/non/existent");
         Assert.Null(retrieved);
     }
 
@@ -120,10 +120,10 @@ public class DataBaseTests
     public void TestGetAlbum()
     {
         var database = DataBase.Instance(":memory:");
-        Album album = new Album("/path/to/album", "Album r", 2024);
+        Album album = new Album("/path/to/album", "Album retrieved", 2024);
         bool response = database.InsertAlbum(album);
         Assert.True(response);
-        Album? retrievedAlbum = database.GetAlbumByName("Album r");
+        Album? retrievedAlbum = database.GetAlbumByName("Album retrieved");
         Assert.NotNull(retrievedAlbum);
         Assert.Equal(album.GetIdAlbum(), retrievedAlbum?.GetIdAlbum());
         Assert.Equal(album.GetPath(), retrievedAlbum?.GetPath());
@@ -137,5 +137,72 @@ public class DataBaseTests
         var database = DataBase.Instance(":memory:");
         Album? retrieved = database.GetAlbumByName("NonExistent");
         Assert.Null(retrieved);
+    }
+
+    [Fact]
+    public void TestInsertPerson()
+    {
+        var database = DataBase.Instance(":memory:");
+        Person person = new Person("PersonExample", "Real Name", "01/01/1990", "01/01/2020");
+        bool response = database.InsertPerson(person);
+        Assert.True(response);
+    }
+
+    [Fact]
+    public void TestInsertAlreadyPerson()
+    {
+        var database = DataBase.Instance(":memory:");
+        Person person = new Person("Stage Name", "Real Name", "01/01/1990", "01/01/2020");
+        database.InsertPerson(person);
+        bool secondResponse = database.InsertPerson(person);
+        Assert.False(secondResponse);
+    }
+
+    [Fact]
+    public void TestGetPerson()
+    {
+        var database = DataBase.Instance(":memory:");
+        Person person = new Person("Person Retrieved", "Real Name", "01/01/1990", "01/01/2020");
+        database.InsertPerson(person);
+        Person? retrieved = database.GetPersonByStageName("Person Retrieved");
+        Assert.NotNull(retrieved);
+        Assert.Equal(person.GetIdPerson(), retrieved?.GetIdPerson());
+        Assert.Equal(person.GetStageName(), retrieved?.GetStageName());
+        Assert.Equal(person.GetRealName(), retrieved?.GetRealName());
+        Assert.Equal(person.GetBirthDate(), retrieved?.GetBirthDate());
+        Assert.Equal(person.GetDeathDate(), retrieved?.GetDeathDate());
+    }
+
+    [Fact]
+    public void TestInsertGroup()
+    {
+        var database = DataBase.Instance(":memory:");
+        Group group = new Group("Group example", "01/01/2000", "01/01/2010");
+        bool response = database.InsertGroup(group);
+        Assert.True(response);
+    }
+
+    [Fact]
+    public void TestInsertAlreadyGroup()
+    {
+        var database = DataBase.Instance(":memory:");
+        Group group = new Group("Group Name", "01/01/2000", "01/01/2010");
+        database.InsertGroup(group);
+        bool secondResponse = database.InsertGroup(group);
+        Assert.False(secondResponse);
+    }
+
+    [Fact]
+    public void TestGetGroup()
+    {
+        var database = DataBase.Instance(":memory:");
+        Group group = new Group("Group retrieved", "01/01/2000", "01/01/2010");
+        database.InsertGroup(group);
+        Group? retrieved = database.GetGroupByName("Group retrieved");
+        Assert.NotNull(retrieved);
+        Assert.Equal(group.GetIdGroup(), retrieved?.GetIdGroup());
+        Assert.Equal(group.GetName(), retrieved?.GetName());
+        Assert.Equal(group.GetStartDate(), retrieved?.GetStartDate());
+        Assert.Equal(group.GetEndDate(), retrieved?.GetEndDate());
     }
 }
