@@ -130,6 +130,7 @@ class ControllerMain
                     Console.Write("Enter the performer name to edit: ");
                     string? performer = Console.ReadLine();
                     Performer? performerToEdit = app.GetDataBase().GetPerformerByName(performer);
+                    bool isAdded = false;
                     if(performerToEdit != null)
                     {
                         Console.Write("Enter 0 if is a person, 1 if is a group: ");
@@ -137,7 +138,24 @@ class ControllerMain
                         switch(response)
                         {
                             case "0":
+                                Console.Write("Stage name: ");
+                                string? stageName = Console.ReadLine();
 
+                                Console.Write("Real name: ");
+                                string? realName = Console.ReadLine();
+
+                                Console.Write("Birth date: ");
+                                string? birthDate = Console.ReadLine();
+
+                                Console.Write("Death date: ");
+                                string? deathDate = Console.ReadLine();
+
+                                Person person = new Person(stageName, realName, birthDate, deathDate);
+                                isAdded = app.GetDataBase().InsertPerson(person);
+                                performerToEdit.SetIdType(PerformerType.Person);
+                                app.GetDataBase().UpdatePerformer(performerToEdit);
+                                if(isAdded) Console.WriteLine("Performer defined as group");
+                                else Console.WriteLine("Error");
                                 break;
                             case "1":
                                 Console.Write("Name: ");
@@ -149,7 +167,7 @@ class ControllerMain
                                 Console.Write("end date: ");
                                 string? endDate = Console.ReadLine();
                                 Group group = new Group(groupName, startDate, endDate);
-                                bool isAdded = app.GetDataBase().InsertGroup(group);
+                                isAdded = app.GetDataBase().InsertGroup(group);
                                 performerToEdit.SetIdType(PerformerType.Group);
                                 app.GetDataBase().UpdatePerformer(performerToEdit);
                                 if(isAdded) Console.WriteLine("Performer defined as group");
