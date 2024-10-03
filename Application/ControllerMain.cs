@@ -14,8 +14,9 @@ class ControllerMain
             Console.WriteLine("3. Show Mined Songs");
             Console.WriteLine("4. Edit Song Details");
             Console.WriteLine("5. Edit Album Details");
-            Console.WriteLine("6. Exit");
-            Console.Write("Choose an option (1-6): ");
+            Console.WriteLine("6. Define Performer as Person or Group");
+            Console.WriteLine("7. Exit");
+            Console.Write("Choose an option (1-7): ");
             string? input = Console.ReadLine();
             switch (input)
             {
@@ -126,6 +127,45 @@ class ControllerMain
                     }
                     break;
                 case "6":
+                    Console.Write("Enter the performer name to edit: ");
+                    string? performer = Console.ReadLine();
+                    Performer? performerToEdit = app.GetDataBase().GetPerformerByName(performer);
+                    if(performerToEdit != null)
+                    {
+                        Console.Write("Enter 0 if is a person, 1 if is a group: ");
+                        string? response = Console.ReadLine();
+                        switch(response)
+                        {
+                            case "0":
+
+                                break;
+                            case "1":
+                                Console.Write("Name: ");
+                                string? groupName = Console.ReadLine();
+
+                                Console.Write("Start date: ");
+                                string? startDate = Console.ReadLine();
+
+                                Console.Write("end date: ");
+                                string? endDate = Console.ReadLine();
+                                Group group = new Group(groupName, startDate, endDate);
+                                bool isAdded = app.GetDataBase().InsertGroup(group);
+                                performerToEdit.SetIdType(PerformerType.Group);
+                                app.GetDataBase().UpdatePerformer(performerToEdit);
+                                if(isAdded) Console.WriteLine("Performer defined as group");
+                                else Console.WriteLine("Error");
+                                break;
+                            default:
+                                Console.WriteLine("Invalid type");
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Performer not found.");
+                    }
+                    break;
+                case "7":
                     exit = true;
                     Console.WriteLine("Exiting the program...");
                     break;
