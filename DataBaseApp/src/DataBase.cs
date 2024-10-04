@@ -9,7 +9,7 @@
         private SQLiteConnection _connection;
 
         //constuctor
-        private DataBase(string dbPath = "./DataBaseApp/database/DataBase.db")  //make path if does not exists?
+        private DataBase(string dbPath = "./DataBaseApp/database/DataBase.db")  //modify
         {
             bool dbExists = File.Exists(dbPath); //verificar que tenga las tablas
             string connectionString;
@@ -33,10 +33,8 @@
         //singleton
         public static DataBase Instance(string dbPath = "./DataBaseApp/database/DataBase.db")
         {
-            if (_instance == null)
-            {
+            if (_instance == null) 
                 _instance = new DataBase(dbPath);
-            }
             return _instance;
         }
 
@@ -104,9 +102,7 @@
                 );
             ";
             using (var command = new SQLiteCommand(createTablesQuery, _connection))
-            {
                 command.ExecuteNonQuery();
-            }
             Console.WriteLine("Data base created successfully");
         }
 
@@ -126,14 +122,12 @@
             bool isAdded = false;
             try
             {
-                Performer? existingPerformer = GetPerformerByName(performer.GetName()); // Check if performer exists
+                Performer? existingPerformer = GetPerformerByName(performer.GetName());
                 if (existingPerformer != null)
                 {
                     Console.WriteLine($"Performer '{performer.GetName()}' already exists with ID: {existingPerformer.GetIdPerformer()}");
                     return isAdded;
                 }
-
-                // Inserta un nuevo performer sin especificar id_performer (así SQLite genera uno automáticamente)
                 string query = "INSERT INTO performers (id_type, name) VALUES (@id_type, @name)";
                 using (SQLiteCommand command = new SQLiteCommand(query, _connection))
                 {
@@ -141,11 +135,7 @@
                     command.Parameters.AddWithValue("@name", performer.GetName());
                     int rowsAffected = command.ExecuteNonQuery();
                     isAdded = rowsAffected > 0;
-
-                    if (isAdded)
-                    {
-                        performer.SetIdPerformer((int)_connection.LastInsertRowId); // Establece el id del performer insertado
-                    }
+                    if (isAdded) performer.SetIdPerformer((int)_connection.LastInsertRowId);
                 }
                 Console.WriteLine($"Performer '{performer.GetName()}' added with ID: {performer.GetIdPerformer()}");
                 return isAdded;
@@ -184,9 +174,7 @@
                     int rowsAffected = command.ExecuteNonQuery();
                     isAdded = rowsAffected > 0;
                     if (isAdded)
-                    {
                         rola.SetIdRola((int)_connection.LastInsertRowId);
-                    }
                 }            
                 Console.WriteLine("Rola inserted correctly");
                 return isAdded;
@@ -210,8 +198,6 @@
                     Console.WriteLine($"Person '{person.GetStageName()}' already exists with ID: {existingPerson.GetIdPerson()}");
                     return isAdded;
                 }
-
-                // Inserta una nueva persona
                 string query = "INSERT INTO persons (stage_name, real_name, birth_date, death_date) VALUES (@stage_name, @real_name, @birth_date, @death_date)";
                 using (SQLiteCommand command = new SQLiteCommand(query, _connection))
                 {
@@ -221,11 +207,8 @@
                     command.Parameters.AddWithValue("@death_date", person.GetDeathDate());
                     int rowsAffected = command.ExecuteNonQuery();
                     isAdded = rowsAffected > 0;
-
                     if (isAdded)
-                    {
-                        person.SetIdPerson((int)_connection.LastInsertRowId); // Establece el id de la persona insertada
-                    }
+                        person.SetIdPerson((int)_connection.LastInsertRowId);
                 }
                 Console.WriteLine("Person inserted correctly");
                 return isAdded;
@@ -236,7 +219,6 @@
             }
             return isAdded;
         }
-
 
         //addGroup
         public bool InsertGroup(Group group)
@@ -260,9 +242,7 @@
                     int rowsAffected = command.ExecuteNonQuery();
                     isAdded = rowsAffected > 0;
                     if (isAdded)
-                    {
                         group.SetIdGroup((int)_connection.LastInsertRowId);
-                    }
                 }
                 Console.WriteLine("Group inserted correctly");
                 return isAdded;
@@ -277,7 +257,6 @@
         //addInGroup
 
         //addAlbum
-        //maybe check the path
         public bool InsertAlbum(Album album)
         {
             bool isAdded = false;
@@ -289,8 +268,6 @@
                     Console.WriteLine($"Album '{album.GetName()}' already exists with ID: {existingAlbum.GetIdAlbum()}");
                     return isAdded;
                 }
-
-                // Inserta un nuevo album
                 string query = "INSERT INTO albums (path, name, year) VALUES (@path, @name, @year)";
                 using (SQLiteCommand command = new SQLiteCommand(query, _connection))
                 {
@@ -301,9 +278,8 @@
                     isAdded = rowsAffected > 0;
 
                     if (isAdded)
-                    {
-                        album.SetIdAlbum((int)_connection.LastInsertRowId); // Establece el id del álbum insertado
-                    }
+                        album.SetIdAlbum((int)_connection.LastInsertRowId);
+                    
                 }
                 Console.WriteLine("Album inserted correctly");
                 return isAdded;

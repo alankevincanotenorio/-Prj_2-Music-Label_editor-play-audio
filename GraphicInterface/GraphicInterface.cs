@@ -10,12 +10,32 @@ class GraphicInterface : Window
     {
         SetDefaultSize(400, 300);
         SetPosition(WindowPosition.Center);
+        
+
         DeleteEvent += delegate { Application.Quit(); };
+
         Fixed fix = new Fixed();
         Button miningButton = new Button("Start Mining");
         miningButton.Clicked += OnMineClick;
         miningButton.SetSizeRequest(100, 40);
-        fix.Put(miningButton, 50, 50);
+        fix.Put(miningButton, 500, 60);
+
+        Button changeDirButton = new Button("Change");
+        changeDirButton.SetSizeRequest(100, 40);
+        fix.Put(changeDirButton, 500, 20);
+
+        Button editButton = new Button("Edit");
+        editButton.SetSizeRequest(100, 40);
+        fix.Put(editButton, 500, 100);
+
+        Button searchButton = new Button("Search"); //insert lupa icon
+        searchButton.SetSizeRequest(100, 40);
+        fix.Put(searchButton, 500, 160);
+
+        Button burgerButton = new Button("Burger"); //insert burger icon
+        burgerButton.SetSizeRequest(100, 40);        
+        fix.Put(burgerButton, 500, 200);
+    
         vbox = new VBox();
         fix.Put(vbox, 50, 100);  
         Add(fix);
