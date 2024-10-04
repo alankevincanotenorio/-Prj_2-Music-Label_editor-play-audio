@@ -1,6 +1,6 @@
 public class Performer
 {
-    private int IdPerformer = 0;
+    private int IdPerformer;
     private string Name;
     private int IdType = (int)PerformerType.Unknown;
 

@@ -1,5 +1,5 @@
 public class Group{
-    private int IdGroup = 0;
+    private int IdGroup;
     private string Name;
     private string StartDate;
     private string EndDate;

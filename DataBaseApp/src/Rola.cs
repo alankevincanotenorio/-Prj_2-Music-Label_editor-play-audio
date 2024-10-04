@@ -1,6 +1,6 @@
 public class Rola
 {
-    private int IdRola = 0;
+    private int IdRola;
     private int IdPerformer;
     private int IdAlbum;
     private string Path;

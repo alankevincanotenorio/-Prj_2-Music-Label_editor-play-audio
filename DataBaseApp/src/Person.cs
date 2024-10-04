@@ -1,5 +1,5 @@
 public class Person{
-    private int IdPerson = 0;
+    private int IdPerson;
     private string StageName;
     private string RealName;
     private string BirthDate;

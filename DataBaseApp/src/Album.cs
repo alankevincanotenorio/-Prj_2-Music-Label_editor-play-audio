@@ -1,6 +1,6 @@
 public class Album
 {
-    private int IdAlbum = 0;
+    private int IdAlbum;
     private string Path;
     private string Name;
     private int Year;
