@@ -14,19 +14,20 @@ class GraphicInterface : Window
         SetDefaultSize(800, 600);
         SetPosition(WindowPosition.Center);
         BorderWidth = 10;
+        Resizable = true; // El usuario puede redimensionar la ventana, pero no la aplicación.
 
         //to change background color
         cssProvider.LoadFromData(@"
             textview {
-                background-color: #a9a9a9; /* Fondo gris claro para el TextView */
-                color: #000000; /* Color del texto */
+                background-color: #a9a9a9;
+                color: #000000;
             }
             text {
-                background-color: #a9a9a9; /* Fondo gris claro para el área de texto */
-                color: #282828; /* Color del texto */
+                background-color: #a9a9a9;
+                color: #282828;
             }
             window {
-                background-color: #999999; /* Fondo gris para la ventana */
+                background-color: #999999;
             }
         ");
         StyleContext.AddProviderForScreen(Gdk.Screen.Default, cssProvider, 800);
@@ -52,48 +53,47 @@ class GraphicInterface : Window
         pathBox.PackStart(changeDirButton, false, false, 5);
         grid.Attach(pathBox, 0, 0, 4, 1);
 
-        // TextView to show mined rolas
+        // TextView to show mined rolas inside a ScrolledWindow
+        ScrolledWindow scrolledWindow = new ScrolledWindow();
+        scrolledWindow.Vexpand = true;
+        scrolledWindow.Hexpand = true;
+
         rolasList = new TextView();
         rolasList.StyleContext.AddProvider(cssProvider, uint.MaxValue);
         rolasList.Buffer.Text = "Rolas will be displayed here...";
         rolasList.WrapMode = WrapMode.Word;
         rolasList.Editable = false;
-        rolasList.Vexpand = true;
-        rolasList.Hexpand = true;
-        grid.Attach(rolasList, 0, 1, 3, 4);
+
+        scrolledWindow.Add(rolasList);  // Add TextView inside ScrolledWindow
+        grid.Attach(scrolledWindow, 0, 1, 3, 4);  // Attach scrolledWindow to grid
 
         Box buttonBox = new Box(Orientation.Vertical, 10);
-
         // "Start mining"
         Button miningButton = new Button("Start Mining");
         miningButton.SetSizeRequest(100, 40);
         miningButton.Clicked += OnMineClick!;
         buttonBox.PackStart(miningButton, false, false, 0);
-
         // "Edit"
         Button editButton = new Button("Edit");
         editButton.SetSizeRequest(100, 40);
         buttonBox.PackStart(editButton, false, false, 0);
-
         // "Help"
         Button helpButton = new Button("Help");
         helpButton.SetSizeRequest(100, 40);
         buttonBox.PackStart(helpButton, false, false, 0);
-
         // "Search"
         Button searchButton = new Button();
         Image searchIcon = new Image(Stock.Find, IconSize.Button);
         searchButton.Image = searchIcon;
         searchButton.SetSizeRequest(40, 40);
         buttonBox.PackStart(searchButton, false, false, 0);
-
         // "Burger"
         Button burgerButton = new Button();
         Image burgerImage = new Image(Stock.Index, IconSize.Button);
         burgerButton.Image = burgerImage;
         burgerButton.SetSizeRequest(40, 40);
         buttonBox.PackStart(burgerButton, false, false, 0);
-
+        
         grid.Attach(buttonBox, 3, 1, 1, 5);
 
         // add grid
