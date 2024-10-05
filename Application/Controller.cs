@@ -4,8 +4,8 @@
     using DataBaseApp;
     public class Controller
     {
-        private string _configFilePath = "config.txt";
         private string _currentPath;
+        private string _configFilePath = "config.txt";
         private bool _isMining;
         private int _progress;
         private Miner _miner;
@@ -15,10 +15,6 @@
         public Controller()
         {
             _currentPath = LoadPathFromConfig();
-            if(!Directory.Exists(_currentPath))
-            {
-                Directory.CreateDirectory(_currentPath);
-            }
             _miner = new Miner();
             _isMining = false;
             _progress = 0;
@@ -28,15 +24,17 @@
         {
             if (File.Exists(_configFilePath))
             {
-                return File.ReadAllText(_configFilePath).Trim();
+                string pathFromFile = File.ReadAllText(_configFilePath).Trim();
+                if(Directory.Exists(pathFromFile)) return pathFromFile;
+                else return "Invalid path";
             }
-            else
-            {
-                string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                string defaultPath = Path.Combine(userProfile, "Downloads"); //maybe change to a convencial path
-                File.WriteAllText(_configFilePath, defaultPath);
-                return defaultPath;
-            }
+            string defaultPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+            if(string.IsNullOrWhiteSpace(defaultPath))
+                defaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Music");
+            if(!Directory.Exists(defaultPath)) 
+                Directory.CreateDirectory(defaultPath);
+            File.WriteAllText(_configFilePath, defaultPath);
+            return defaultPath;
         }
 
         public void SetCurrentPath(string current_path)
