@@ -1,6 +1,5 @@
 ﻿using Gtk;
 using ControllerApp;
-using System.Collections.Generic;
 
 class GraphicInterface : Window
 {
@@ -14,7 +13,7 @@ class GraphicInterface : Window
         SetDefaultSize(800, 600);
         SetPosition(WindowPosition.Center);
         BorderWidth = 10;
-        Resizable = true; // El usuario puede redimensionar la ventana, pero no la aplicación.
+        Resizable = true;
 
         //to change background color
         cssProvider.LoadFromData(@"
@@ -28,6 +27,10 @@ class GraphicInterface : Window
             }
             window {
                 background-color: #999999;
+            }
+            entry {
+                background-color: #d3d3d3;
+                color: #000000;
             }
         ");
         StyleContext.AddProviderForScreen(Gdk.Screen.Default, cssProvider, 800);
@@ -44,8 +47,11 @@ class GraphicInterface : Window
 
         // show current path
         currentPathLabel = new Label($"Current Path: {app.GetCurrentPath()}");
+        Frame currentPathFrame = new Frame();
+        currentPathFrame.Add(currentPathLabel);
+        currentPathFrame.ShadowType = ShadowType.EtchedIn;
         Box pathBox = new Box(Orientation.Horizontal, 10);
-        pathBox.PackStart(currentPathLabel, true, true, 5);
+        pathBox.PackStart(currentPathFrame, true, true, 5);
 
         Button changeDirButton = new Button("Change Path");
         changeDirButton.SetSizeRequest(100, 40);
@@ -64,8 +70,8 @@ class GraphicInterface : Window
         rolasList.WrapMode = WrapMode.Word;
         rolasList.Editable = false;
 
-        scrolledWindow.Add(rolasList);  // Add TextView inside ScrolledWindow
-        grid.Attach(scrolledWindow, 0, 1, 3, 4);  // Attach scrolledWindow to grid
+        scrolledWindow.Add(rolasList);
+        grid.Attach(scrolledWindow, 0, 1, 3, 4);
 
         Box buttonBox = new Box(Orientation.Vertical, 10);
         // "Start mining"
@@ -125,6 +131,7 @@ class GraphicInterface : Window
 
         Entry pathEntry = new Entry();
         vbox.PackStart(pathEntry, false, false, 5);
+        pathEntry.StyleContext.AddProvider(cssProvider, uint.MaxValue);
 
         Button confirmButton = new Button("Confirm");
         confirmButton.Clicked += (s, e) => {
