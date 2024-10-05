@@ -5,7 +5,7 @@
     public class Controller
     {
         private string _currentPath;
-        private string _configFilePath = "config.txt";
+        private string _configFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "MusicLibraryEditorConfg", "config.txt");
         private bool _isMining;
         private int _progress;
         private Miner _miner;
@@ -22,6 +22,9 @@
 
         private string LoadPathFromConfig()
         {
+            string configDirectory = Path.GetDirectoryName(_configFilePath);
+            if (!Directory.Exists(configDirectory))
+                Directory.CreateDirectory(configDirectory);
             if (File.Exists(_configFilePath))
             {
                 string pathFromFile = File.ReadAllText(_configFilePath).Trim();
