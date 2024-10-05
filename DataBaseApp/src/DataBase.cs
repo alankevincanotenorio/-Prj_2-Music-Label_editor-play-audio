@@ -5,25 +5,39 @@
     using System.IO;
     public class DataBase
     {
-        private static DataBase? _instance = null;
-        private SQLiteConnection _connection;
+        private static DataBase _instance = null!;
+        private SQLiteConnection _connection = null!;
+        private static readonly string _defaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MusicLibraryEditor", "database.db");
 
-        //constuctor
-        private DataBase(string dbPath = "./DataBaseApp/database/DataBase.db")  //modify
+        // constructor for the program
+        private DataBase(string dbPath)
         {
-            bool dbExists = File.Exists(dbPath); //verificar que tenga las tablas
-            string connectionString;
-            if (dbPath == ":memory:") //database for test
+            Initialize(dbPath);
+        }
+
+        // constructor for the test
+        private DataBase()
+        {
+            Initialize(":memory:");
+        }
+
+        //Initialize the database
+        private void Initialize(string dbPath)
+        {
+            string? directoryPath = Path.GetDirectoryName(dbPath);
+            if (dbPath != ":memory:" && directoryPath != null && !Directory.Exists(directoryPath))
             {
-                connectionString = "Data Source=:memory:;Version=3;";
+                Directory.CreateDirectory(directoryPath);
+                Console.WriteLine($"Directory '{directoryPath}' created.");
             }
-            else //database on disk
-            {
-                connectionString = $"Data Source={dbPath};Version=3;";
-            }
+
+            bool dbExists = File.Exists(dbPath);
+            string connectionString = $"Data Source={dbPath};Version=3;";
+
             _connection = new SQLiteConnection(connectionString);
             _connection.Open();
-            Console.WriteLine("Data base connection open");
+            Console.WriteLine("Database connection open");
+
             if (!dbExists)
             {
                 CreateTables();
@@ -31,10 +45,18 @@
         }
 
         //singleton
-        public static DataBase Instance(string dbPath = "./DataBaseApp/database/DataBase.db")
+        public static DataBase Instance()
         {
             if (_instance == null) 
-                _instance = new DataBase(dbPath);
+                _instance = new DataBase(_defaultPath);
+            return _instance;
+        }
+
+        // Singleton for test
+        public static DataBase TestInstance()
+        {
+            if (_instance == null)
+                _instance = new DataBase();
             return _instance;
         }
 

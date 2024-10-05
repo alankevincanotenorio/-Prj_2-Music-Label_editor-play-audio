@@ -6,7 +6,7 @@ public class DataBaseTests
     [Fact]
     public void TestInsertPerformer()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Performer test1 = new Performer("PerformerTest");
         bool response = database.InsertPerformer(test1);
         Assert.True(response);
@@ -15,7 +15,7 @@ public class DataBaseTests
     [Fact]
     public void TestInsertAlreadyPerformer()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Performer test1 = new Performer("PerformerTest");
         bool secondResponse = database.InsertPerformer(test1);
         Assert.False(secondResponse);
@@ -24,7 +24,7 @@ public class DataBaseTests
     [Fact]
     public void TestGetPerformer()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Performer test1 = new Performer("Test1");
         database.InsertPerformer(test1);
         Performer? retrieved = database.GetPerformerByName("Test1");
@@ -37,7 +37,7 @@ public class DataBaseTests
     [Fact]
     public void TestGetInexistentPerformer()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Performer? retrieved = database.GetPerformerByName("NonExistent");
         Assert.Null(retrieved);
     }
@@ -45,7 +45,7 @@ public class DataBaseTests
     [Fact]
     public void TestInsertRola()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Performer performer = new Performer("Rola Performer");
         database.InsertPerformer(performer);
         Album album = new Album("/path/to/album", "Rola Album", 2024);
@@ -58,7 +58,7 @@ public class DataBaseTests
     [Fact]
     public void TestInsertAlreadyRola()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Performer performer = new Performer("Rola Performer"); 
         database.InsertPerformer(performer);
         Album album = new Album("/path/to/album", "Rola Album", 2024);
@@ -71,7 +71,7 @@ public class DataBaseTests
     [Fact]
     public void TestGetRola()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Performer performer = new Performer("Rola Performer 2");
         database.InsertPerformer(performer);
         Album album = new Album("/path/to/album", "Rola Album 2", 2024);
@@ -93,7 +93,7 @@ public class DataBaseTests
     [Fact]
     public void TestGetInexistentRolaByName()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Rola? retrieved = database.GetRolaByTitleAndPath("NonExistent", "path/non/existent");
         Assert.Null(retrieved);
     }
@@ -101,7 +101,7 @@ public class DataBaseTests
     [Fact]
     public void TestInsertAlbum()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Album album = new Album("/path/to/album", "AlbumTest", 2024);
         bool response = database.InsertAlbum(album);
         Assert.True(response);
@@ -110,7 +110,7 @@ public class DataBaseTests
     [Fact]
     public void TestInsertAlreadyAlbum()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Album album = new Album("/path/to/album", "AlbumTest", 2024);
         bool secondResponse = database.InsertAlbum(album);
         Assert.False(secondResponse);
@@ -119,7 +119,7 @@ public class DataBaseTests
     [Fact]
     public void TestGetAlbum()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Album album = new Album("/path/to/album", "Album retrieved", 2024);
         bool response = database.InsertAlbum(album);
         Assert.True(response);
@@ -134,7 +134,7 @@ public class DataBaseTests
     [Fact]
     public void TestGetInexistentAlbumByName()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Album? retrieved = database.GetAlbumByName("NonExistent");
         Assert.Null(retrieved);
     }
@@ -142,7 +142,7 @@ public class DataBaseTests
     [Fact]
     public void TestInsertPerson()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Person person = new Person("PersonExample", "Real Name", "01/01/1990", "01/01/2020");
         bool response = database.InsertPerson(person);
         Assert.True(response);
@@ -151,7 +151,7 @@ public class DataBaseTests
     [Fact]
     public void TestInsertAlreadyPerson()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Person person = new Person("Stage Name", "Real Name", "01/01/1990", "01/01/2020");
         database.InsertPerson(person);
         bool secondResponse = database.InsertPerson(person);
@@ -161,7 +161,7 @@ public class DataBaseTests
     [Fact]
     public void TestGetPerson()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Person person = new Person("Person Retrieved", "Real Name", "01/01/1990", "01/01/2020");
         database.InsertPerson(person);
         Person? retrieved = database.GetPersonByStageName("Person Retrieved");
@@ -176,7 +176,7 @@ public class DataBaseTests
     [Fact]
     public void TestInsertGroup()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Group group = new Group("Group example", "01/01/2000", "01/01/2010");
         bool response = database.InsertGroup(group);
         Assert.True(response);
@@ -185,7 +185,7 @@ public class DataBaseTests
     [Fact]
     public void TestInsertAlreadyGroup()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Group group = new Group("Group Name", "01/01/2000", "01/01/2010");
         database.InsertGroup(group);
         bool secondResponse = database.InsertGroup(group);
@@ -195,7 +195,7 @@ public class DataBaseTests
     [Fact]
     public void TestGetGroup()
     {
-        var database = DataBase.Instance(":memory:");
+        var database = DataBase.TestInstance();
         Group group = new Group("Group retrieved", "01/01/2000", "01/01/2010");
         database.InsertGroup(group);
         Group? retrieved = database.GetGroupByName("Group retrieved");
