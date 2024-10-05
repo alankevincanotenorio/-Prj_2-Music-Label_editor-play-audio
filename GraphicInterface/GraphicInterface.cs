@@ -29,7 +29,11 @@ class GraphicInterface : Window
                 background-color: #999999;
             }
             entry {
-                background-color: #d3d3d3;
+                background-color: #ffffff;
+                color: #000000;
+            }
+            frame {
+                background-color: #ffffff;
                 color: #000000;
             }
         ");
@@ -50,6 +54,7 @@ class GraphicInterface : Window
         Frame currentPathFrame = new Frame();
         currentPathFrame.Add(currentPathLabel);
         currentPathFrame.ShadowType = ShadowType.EtchedIn;
+        currentPathFrame.StyleContext.AddProvider(cssProvider, uint.MaxValue);
         Box pathBox = new Box(Orientation.Horizontal, 10);
         pathBox.PackStart(currentPathFrame, true, true, 5);
 
@@ -109,14 +114,6 @@ class GraphicInterface : Window
         ShowAll();
     }
 
-    // manage miner
-    void OnMineClick(object sender, EventArgs args)
-    {
-        app.StartMining();
-        List<string> rolas = app.GetRolasInfoInPath();
-        rolasList.Buffer.Text = string.Join("\n", rolas);
-    }
-
     // manage change directory
     void OnChangeDirClick(object sender, EventArgs args)
     {
@@ -134,16 +131,30 @@ class GraphicInterface : Window
         pathEntry.StyleContext.AddProvider(cssProvider, uint.MaxValue);
 
         Button confirmButton = new Button("Confirm");
-        confirmButton.Clicked += (s, e) => {
-            string newPath = pathEntry.Text;
-            app.SetCurrentPath(newPath);
-            currentPathLabel.Text = $"Current Path: {newPath}";
+        confirmButton.Clicked += (s, e) => {            
+            bool isValidPath = app.SetCurrentPath(pathEntry.Text);
+            if(!isValidPath)
+            {
+                changePathWindow.Destroy();
+                MessageDialog errorDialog = new MessageDialog(this,DialogFlags.Modal,MessageType.Error,ButtonsType.Ok,"Invalid path. Please enter a valid directory.");
+                errorDialog.Run();
+                errorDialog.Destroy();
+                return;
+            }
+            currentPathLabel.Text = $"Current Path: {pathEntry.Text}";
             changePathWindow.Destroy();
         };
         vbox.PackStart(confirmButton, false, false, 5);
-
         changePathWindow.Add(vbox);
         changePathWindow.ShowAll();
+    }
+
+    // manage miner
+    void OnMineClick(object sender, EventArgs args)
+    {
+        app.StartMining();
+        List<string> rolas = app.GetRolasInfoInPath();
+        rolasList.Buffer.Text = string.Join("\n", rolas);
     }
 
     public static void Main()

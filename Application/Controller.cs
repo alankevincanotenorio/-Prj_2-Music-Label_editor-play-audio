@@ -24,7 +24,10 @@
         {
             string configDirectory = Path.GetDirectoryName(_configFilePath);
             if (!Directory.Exists(configDirectory))
+            {
                 Directory.CreateDirectory(configDirectory);
+                Console.WriteLine($"Directory '{configDirectory}' created.");
+            }
             if (File.Exists(_configFilePath))
             {
                 string pathFromFile = File.ReadAllText(_configFilePath).Trim();
@@ -40,16 +43,16 @@
             return defaultPath;
         }
 
-        public void SetCurrentPath(string current_path)
+        public bool SetCurrentPath(string current_path)
         {
             if (!Directory.Exists(current_path))
             {
                 Console.WriteLine("Path does not exists");
-                return;
+                return false;
             }
             _currentPath =  current_path;
-            
             File.WriteAllText(_configFilePath, _currentPath);
+            return true;
         }
         
         public string GetCurrentPath() => _currentPath;
