@@ -18,6 +18,7 @@
             _miner = new Miner();
             _isMining = false;
             _progress = 0;
+            CheckForDeletedFiles();
         }
 
         // read the path config
@@ -155,6 +156,19 @@
         public void search()
         {
 
+        }
+
+        public void CheckForDeletedFiles()
+        {
+            List<Rola> allRolas = _database.GetAllRolas();
+            foreach (Rola rola in allRolas)
+            {
+                if (!File.Exists(rola.GetPath()))
+                {
+                    Console.WriteLine($"File '{rola.GetPath()}' Not founded, removing from database");
+                    _database.DeleteRola(rola.GetIdRola());
+                }
+            }
         }
     }
 }

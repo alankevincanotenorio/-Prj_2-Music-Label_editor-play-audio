@@ -184,7 +184,7 @@ class GraphicInterface : Window
         if (app.GetMiner().GetLog().Count > 0)
             errorLogView.Buffer.Text = "Error Log:\n" + string.Join("\n", app.GetMiner().GetLog());
         if (!app.GetDataBase().IsRolasTableEmpty()) AbleNonMiningActions();
-        
+        app.CheckForDeletedFiles();
     }
 
     private void DisableNonMiningActions()

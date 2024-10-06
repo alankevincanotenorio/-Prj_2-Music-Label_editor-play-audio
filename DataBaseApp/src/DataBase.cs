@@ -539,5 +539,17 @@
             
             return albums;
         }
+
+        public bool DeleteRola(int idRola)
+        {
+            string query = "DELETE FROM rolas WHERE id_rola = @id_rola";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@id_rola", idRola);
+                int rowsAffected = command.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
+
     }
 }
