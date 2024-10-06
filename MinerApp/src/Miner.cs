@@ -11,13 +11,13 @@
         private List<Performer> _performers = new List<Performer>();
         private List<Album> _albums = new List<Album>();
         private DataBase _database = DataBase.Instance();
-        public List<string> _errors { get; private set; } = new List<string>();
+        public List<string> _log { get; private set; } = new List<string>();
 
         // getters
         public List<Rola> GetRolas() => _rolas;
         public List<Performer> GetPerformers() => _performers;
         public List<Album> GetAlbums() => _albums;
-        public List<string> GetErrors() => _errors;
+        public List<string> GetErrors() => _log;
         public DataBase GetDataBase() => _database;
 
         //browse directories and add the rola in rolas mining metadata
@@ -25,7 +25,7 @@
         {
             if (!HasReadAccess(path, true)) 
             {
-                _errors.Add($"Inaccessible directory: '{path}': Permission denied");
+                _log.Add($"Inaccessible directory: '{path}': Permission denied");
                 return false;
             }
             var mp3Files = Directory.GetFiles(path, "*.mp3", SearchOption.TopDirectoryOnly);   
@@ -43,18 +43,19 @@
                             {
                                 _rolas.Add(rola);
                                 _database.InsertRola(rola);
+                                _log.Add($"Rola '{rola.GetTitle()}' added with ID: {rola.GetIdRola()}");
                             }
                             else Console.WriteLine($"Rola '{rola.GetTitle()}' Already exists");
                         }
                     } 
-                    else _errors.Add($"Inaccessible subdirectory '{file}': Permission denied.");
+                    else _log.Add($"Inaccessible file '{file}': Permission denied.");
                 }
             }
             var subDirectories = Directory.GetDirectories(path);
             foreach (var directory in subDirectories)
             {
                 if (HasReadAccess(directory, true)) Mine(directory);
-                else _errors.Add($"Inaccessible subdirectory '{directory}': Permission denied.");
+                else _log.Add($"Inaccessible subdirectory '{directory}': Permission denied.");
             }
             return true;
         }
@@ -114,6 +115,7 @@
             {
                 performer = new Performer(performer_name);
                 _database.InsertPerformer(performer);
+                _log.Add($"Performer '{performer.GetName()}' added with ID: {performer.GetIdPerformer()}");
                 _performers.Add(performer);
                 return performer.GetIdPerformer();
             }
@@ -131,7 +133,8 @@
             else
             {
                 album = new Album(album_path, album_name, year);
-                _database.InsertAlbum(album);   
+                _database.InsertAlbum(album);
+                _log.Add($"Album '{album.GetName()}' added with ID: {album.GetIdAlbum()}");
                 _albums.Add(album);
                 return album.GetIdAlbum();
             }
