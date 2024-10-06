@@ -129,6 +129,17 @@
             }
         }
 
+        //check if the databse has not songs
+        public bool IsRolasTableEmpty()
+        {
+            string query = "SELECT COUNT(*) FROM rolas";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                int count = Convert.ToInt32(command.ExecuteScalar());
+                return count == 0;
+            }
+        }
+
         //addPerformer
         public bool InsertPerformer(Performer performer)
         {

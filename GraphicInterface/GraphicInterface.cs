@@ -6,7 +6,13 @@ class GraphicInterface : Window
     public Controller app = new Controller();  
     private TextView rolasList;
     private Label currentPathLabel;
-    CssProvider cssProvider = new CssProvider();
+    private CssProvider cssProvider = new CssProvider();
+    private TextView errorLogView;
+    private Button changeDirButton ;
+    private Button editButton;
+    private Button searchButton;
+    private Button helpButton;
+    private Button burgerButton;
 
     public GraphicInterface() : base("Music Library Editor")
     {
@@ -58,7 +64,7 @@ class GraphicInterface : Window
         Box pathBox = new Box(Orientation.Horizontal, 10);
         pathBox.PackStart(currentPathFrame, true, true, 5);
 
-        Button changeDirButton = new Button("Change Path");
+        changeDirButton = new Button("Change Path");
         changeDirButton.SetSizeRequest(100, 40);
         changeDirButton.Clicked += OnChangeDirClick!;
         pathBox.PackStart(changeDirButton, false, false, 5);
@@ -84,32 +90,46 @@ class GraphicInterface : Window
         miningButton.SetSizeRequest(100, 40);
         miningButton.Clicked += OnMineClick!;
         buttonBox.PackStart(miningButton, false, false, 0);
+         
         // "Edit"
-        Button editButton = new Button("Edit");
+        editButton = new Button("Edit");
         editButton.SetSizeRequest(100, 40);
         buttonBox.PackStart(editButton, false, false, 0);
+
         // "Help"
-        Button helpButton = new Button("Help");
+        helpButton = new Button("Help");
         helpButton.SetSizeRequest(100, 40);
         buttonBox.PackStart(helpButton, false, false, 0);
+
         // "Search"
-        Button searchButton = new Button();
+        searchButton = new Button();
         Image searchIcon = new Image(Stock.Find, IconSize.Button);
         searchButton.Image = searchIcon;
         searchButton.SetSizeRequest(40, 40);
         buttonBox.PackStart(searchButton, false, false, 0);
+
         // "Burger"
-        Button burgerButton = new Button();
+        burgerButton = new Button();
         Image burgerImage = new Image(Stock.Index, IconSize.Button);
         burgerButton.Image = burgerImage;
         burgerButton.SetSizeRequest(40, 40);
         buttonBox.PackStart(burgerButton, false, false, 0);
-        
+    
+        // log view
+        errorLogView = new TextView();
+        errorLogView.Buffer.Text = "Log:\n";
+        errorLogView.Editable = false;
+        ScrolledWindow errorLogScrolledWindow = new ScrolledWindow();
+        errorLogScrolledWindow.Add(errorLogView);
+        grid.Attach(errorLogScrolledWindow, 0, 5, 4, 1);
+
         grid.Attach(buttonBox, 3, 1, 1, 5);
 
         // add grid
         mainBox.PackStart(grid, true, true, 0);
         Add(mainBox);
+
+        if (app.GetDataBase().IsRolasTableEmpty()) DisableNonMiningActions();
 
         ShowAll();
     }
@@ -152,9 +172,30 @@ class GraphicInterface : Window
     // manage miner
     void OnMineClick(object sender, EventArgs args)
     {
-        app.StartMining();
+        bool success = app.StartMining();
         List<string> rolas = app.GetRolasInfoInPath();
         rolasList.Buffer.Text = string.Join("\n", rolas);
+
+        if (app.GetMiner().GetErrors().Count > 0)
+            errorLogView.Buffer.Text = "Error Log:\n" + string.Join("\n", app.GetMiner().GetErrors());
+        if (!app.GetDataBase().IsRolasTableEmpty()) AbleNonMiningActions();
+        
+    }
+
+    private void DisableNonMiningActions()
+    {
+        editButton.Sensitive = false;
+        searchButton.Sensitive = false;
+        helpButton.Sensitive = false;
+        burgerButton.Sensitive = false;
+    }
+
+    private void AbleNonMiningActions()
+    {
+        editButton.Sensitive = true;
+        searchButton.Sensitive = true;
+        helpButton.Sensitive = true;
+        burgerButton.Sensitive = true;
     }
 
     public static void Main()
