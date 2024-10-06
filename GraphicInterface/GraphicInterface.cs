@@ -130,6 +130,11 @@ class GraphicInterface : Window
         Add(mainBox);
 
         if (app.GetDataBase().IsRolasTableEmpty()) DisableNonMiningActions();
+        else 
+        {
+            List<string> rolas = app.GetRolasInfoInPath();
+            rolasList.Buffer.Text = string.Join("\n", rolas);
+        }
 
         ShowAll();
     }
@@ -176,8 +181,8 @@ class GraphicInterface : Window
         List<string> rolas = app.GetRolasInfoInPath();
         rolasList.Buffer.Text = string.Join("\n", rolas);
 
-        if (app.GetMiner().GetErrors().Count > 0)
-            errorLogView.Buffer.Text = "Error Log:\n" + string.Join("\n", app.GetMiner().GetErrors());
+        if (app.GetMiner().GetLog().Count > 0)
+            errorLogView.Buffer.Text = "Error Log:\n" + string.Join("\n", app.GetMiner().GetLog());
         if (!app.GetDataBase().IsRolasTableEmpty()) AbleNonMiningActions();
         
     }

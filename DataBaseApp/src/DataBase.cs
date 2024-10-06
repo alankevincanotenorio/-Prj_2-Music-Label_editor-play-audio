@@ -464,5 +464,80 @@
             }
             return isUpdated;
         }
+
+        public List<Rola> GetAllRolas()
+        {
+            List<Rola> rolas = new List<Rola>();
+            string query = "SELECT * FROM rolas";
+            using(SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                using(SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while(reader.Read())
+                    {
+                        int idRola = reader.GetInt32(0);
+                        int idPerformer = reader.GetInt32(1);
+                        int idAlbum = reader.GetInt32(2);
+                        string rolaPath = reader.GetString(3);
+                        string rolaTitle = reader.GetString(4);
+                        int track = reader.GetInt32(5);
+                        int year = reader.GetInt32(6);
+                        string genre = reader.GetString(7);
+                        Rola rola = new Rola(idRola, idPerformer, idAlbum, rolaPath, rolaTitle, track, year, genre);
+                        rolas.Add(rola);
+                    }
+                }
+            }
+            return rolas;
+        }
+
+        public List<Performer> GetAllPerformers()
+        {
+            List<Performer> performers = new List<Performer>();
+            string query = "SELECT * FROM performers";
+            
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idPerformer = reader.GetInt32(0);
+                        int idType = reader.GetInt32(1);
+                        string name = reader.GetString(2);
+                        
+                        Performer performer = new Performer(idPerformer, name, idType);
+                        performers.Add(performer);
+                    }
+                }
+            }
+            
+            return performers;
+        }
+
+        public List<Album> GetAllAlbums()
+        {
+            List<Album> albums = new List<Album>();
+            string query = "SELECT * FROM albums";
+            
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idAlbum = reader.GetInt32(0);
+                        string path = reader.GetString(1);
+                        string name = reader.GetString(2);
+                        int year = reader.GetInt32(3);
+                        
+                        Album album = new Album(idAlbum, path, name, year);
+                        albums.Add(album);
+                    }
+                }
+            }
+            
+            return albums;
+        }
     }
 }

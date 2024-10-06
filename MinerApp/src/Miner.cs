@@ -7,18 +7,11 @@
     using System.IO;
     public class Miner
     {
-        private List<Rola> _rolas = new List<Rola>();
-        private List<Performer> _performers = new List<Performer>();
-        private List<Album> _albums = new List<Album>();
         private DataBase _database = DataBase.Instance();
-        public List<string> _log { get; private set; } = new List<string>();
+        public List<string> _log = new List<string>();
 
         // getters
-        public List<Rola> GetRolas() => _rolas;
-        public List<Performer> GetPerformers() => _performers;
-        public List<Album> GetAlbums() => _albums;
-        public List<string> GetErrors() => _log;
-        public DataBase GetDataBase() => _database;
+        public List<string> GetLog() => _log;
 
         //browse directories and add the rola in rolas mining metadata
         public bool Mine(string path)
@@ -39,9 +32,9 @@
                         Rola? rola = GetMetadata(file);
                         if (rola != null)
                         {
-                            if (!_rolas.Exists(r => r.GetPath() == rola.GetPath()))
+                            Rola? existingRola = _database.GetRolaByTitleAndPath(rola.GetTitle(), rola.GetPath());
+                            if (existingRola == null)
                             {
-                                _rolas.Add(rola);
                                 _database.InsertRola(rola);
                                 _log.Add($"Rola '{rola.GetTitle()}' added with ID: {rola.GetIdRola()}");
                             }
@@ -108,7 +101,6 @@
             Performer? performer = _database.GetPerformerByName(performer_name);
             if (performer != null)
             { 
-                _performers.Add(performer);
                 return performer.GetIdPerformer();
             }
             else
@@ -116,7 +108,6 @@
                 performer = new Performer(performer_name);
                 _database.InsertPerformer(performer);
                 _log.Add($"Performer '{performer.GetName()}' added with ID: {performer.GetIdPerformer()}");
-                _performers.Add(performer);
                 return performer.GetIdPerformer();
             }
         }
@@ -127,7 +118,6 @@
             Album? album = _database.GetAlbumByName(album_name);
             if (album != null)
             {
-                _albums.Add(album);
                 return album.GetIdAlbum();
             }
             else
@@ -135,7 +125,6 @@
                 album = new Album(album_path, album_name, year);
                 _database.InsertAlbum(album);
                 _log.Add($"Album '{album.GetName()}' added with ID: {album.GetIdAlbum()}");
-                _albums.Add(album);
                 return album.GetIdAlbum();
             }
         }

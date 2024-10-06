@@ -20,6 +20,7 @@
             _progress = 0;
         }
 
+        // read the path config
         private string LoadPathFromConfig()
         {
             string configDirectory = Path.GetDirectoryName(_configFilePath);
@@ -32,17 +33,23 @@
             {
                 string pathFromFile = File.ReadAllText(_configFilePath).Trim();
                 if(Directory.Exists(pathFromFile)) return pathFromFile;
-                else return "Invalid path";
             }
             string defaultPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
             if(string.IsNullOrWhiteSpace(defaultPath))
                 defaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Music");
             if(!Directory.Exists(defaultPath)) 
                 Directory.CreateDirectory(defaultPath);
+
             File.WriteAllText(_configFilePath, defaultPath);
             return defaultPath;
         }
 
+        // getters
+        public string GetCurrentPath() => _currentPath;
+        public Miner GetMiner() => _miner;
+        public DataBase GetDataBase() => _database;
+
+        // set the current path
         public bool SetCurrentPath(string current_path)
         {
             if (!Directory.Exists(current_path))
@@ -54,31 +61,30 @@
             File.WriteAllText(_configFilePath, _currentPath);
             return true;
         }
-        
-        public string GetCurrentPath() => _currentPath;
-        public Miner GetMiner() => _miner;
-        public DataBase GetDataBase() => _database;
 
-        public void StartMining()
+        // start mining method
+        public bool StartMining()
         {
+            _miner.GetLog().Clear();
             if(!_isMining)
             {
                 _isMining = true;
                 _miner.Mine(_currentPath);
-                _miner.SaveMetadata();
                 _progress = 100;
                 Console.WriteLine("Mining finished.");
+                _isMining = false;
             }
             else
             {
                 Console.WriteLine("You can't mine because you already mining");
+                return false;
             }
-            _isMining = false;
+            return true;
         }
 
         public List<string> GetRolasInfoInPath()
         {
-            List<Rola> rolas_in_path = _miner.GetRolas();
+            List<Rola> rolas_in_path = _database.GetAllRolas();
             List<string> rolasInfo = new List<string>();
             foreach (Rola rola in rolas_in_path)
             {
@@ -108,13 +114,15 @@
 
         private string GetPerformerName(int performerId)
         {
-            Performer? performer = _miner.GetPerformers().Find(p => p.GetIdPerformer() == performerId);
+            List<Performer> performers = _database.GetAllPerformers();
+            Performer? performer = performers.Find(p => p.GetIdPerformer() == performerId);
             return performer != null ? performer.GetName() : "Unknown Performer";
         }
 
         private string GetAlbumName(int albumId)
         {
-            Album? album = _miner.GetAlbums().Find(a => a.GetIdAlbum() == albumId);
+            List<Album> albums = _database.GetAllAlbums();
+            Album? album = albums.Find(a => a.GetIdAlbum() == albumId);
             return album != null ? album.GetName() : "Unknown Album";
         }
 
