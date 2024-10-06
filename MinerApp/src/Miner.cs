@@ -39,7 +39,11 @@
                         Rola? rola = GetMetadata(file);
                         if (rola != null)
                         {
-                            if (!_rolas.Exists(r => r.GetPath() == rola.GetPath())) _rolas.Add(rola);
+                            if (!_rolas.Exists(r => r.GetPath() == rola.GetPath()))
+                            {
+                                _rolas.Add(rola);
+                                _database.InsertRola(rola);
+                            }
                             else Console.WriteLine($"Rola '{rola.GetTitle()}' Already exists");
                         }
                     } 
@@ -55,6 +59,7 @@
             return true;
         }
 
+        // checks if a file or directory has read access
         private bool HasReadAccess(string path, bool isDirectory)
         {
             try
@@ -66,15 +71,6 @@
             catch (UnauthorizedAccessException)
             {
                 return false;
-            }
-        }
-
-        //save metadata 
-        public void SaveMetadata()
-        {
-            foreach (Rola rola in _rolas)
-            {
-                _database.InsertRola(rola);                
             }
         }
 
