@@ -4,43 +4,67 @@
     using DataBaseApp;
     using System.Collections;
     using System.Collections.Generic;
+    using System.IO;
     public class Miner
     {
         private List<Rola> _rolas = new List<Rola>();
         private List<Performer> _performers = new List<Performer>();
         private List<Album> _albums = new List<Album>();
         private DataBase _database = DataBase.Instance();
+        public List<string> _errors { get; private set; } = new List<string>();
+
+        // getters
+        public List<Rola> GetRolas() => _rolas;
+        public List<Performer> GetPerformers() => _performers;
+        public List<Album> GetAlbums() => _albums;
+        public List<string> GetErrors() => _errors;
+        public DataBase GetDataBase() => _database;
 
         //browse directories and add the rola in rolas mining metadata
         public bool Mine(string path)
         {
-            try
+            if (!HasReadAccess(path, true)) 
             {
-                var mp3Files = Directory.GetFiles(path, "*.mp3", SearchOption.AllDirectories);
-                foreach (var file in mp3Files)
+                _errors.Add($"Inaccessible directory: '{path}': Permission denied");
+                return false;
+            }
+            var mp3Files = Directory.GetFiles(path, "*.mp3", SearchOption.TopDirectoryOnly);   
+            foreach (var file in mp3Files)
+            {
+                bool IsValidFile = Path.GetExtension(file).Equals(".mp3", StringComparison.OrdinalIgnoreCase);
+                if (IsValidFile)
                 {
-                    bool IsValidFile = Path.GetExtension(file).Equals(".mp3", StringComparison.OrdinalIgnoreCase);
-                    if (IsValidFile)
+                    if(HasReadAccess(file, false))
                     {
                         Rola? rola = GetMetadata(file);
                         if (rola != null)
                         {
-                            if (!_rolas.Exists(r => r.GetPath() == rola.GetPath())) //check this condition
-                            {
-                                _rolas.Add(rola);
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Rola '{rola.GetTitle()}' ya existe en la lista de rolas.");
-                            }
+                            if (!_rolas.Exists(r => r.GetPath() == rola.GetPath())) _rolas.Add(rola);
+                            else Console.WriteLine($"Rola '{rola.GetTitle()}' Already exists");
                         }
-                    }
+                    } 
+                    else _errors.Add($"Inaccessible subdirectory '{file}': Permission denied.");
                 }
+            }
+            var subDirectories = Directory.GetDirectories(path);
+            foreach (var directory in subDirectories)
+            {
+                if (HasReadAccess(directory, true)) Mine(directory);
+                else _errors.Add($"Inaccessible subdirectory '{directory}': Permission denied.");
+            }
+            return true;
+        }
+
+        private bool HasReadAccess(string path, bool isDirectory)
+        {
+            try
+            {
+                if(isDirectory) Directory.GetFiles(path);
+                else using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read)) { }
                 return true;
             }
-            catch (Exception ex)
+            catch (UnauthorizedAccessException)
             {
-                Console.WriteLine("Mining error: " + ex.Message);
                 return false;
             }
         }
@@ -58,33 +82,26 @@
         private Rola? GetMetadata(string rola_str)
         {
             Rola? rola = null;
-            try
-            {
-                var file = TagLib.File.Create(rola_str);
-                //TPE1
-                string performer = file.Tag.FirstPerformer ?? "Unknown";
-                //TIT2
-                string title = file.Tag.Title ?? "Unknown";
-                //TALB
-                string album = file.Tag.Album ?? "Unknown";
-                //TDRC
-                uint year = file.Tag.Year != 0 ? file.Tag.Year : (uint)System.IO.File.GetCreationTime(rola_str).Year;
-                //TCON
-                string genre = file.Tag.FirstGenre ?? "Unknown";
-                //TRCK
-                uint track = file.Tag.Track != 0 ? file.Tag.Track : 0;
-                uint totalTracks = file.Tag.TrackCount;
-                string trackInfo = totalTracks > 0 ? $"{track}/{totalTracks}" : $"{track}";
-                int performerId = InsertPerformerIfNotExists(performer);
-                string albumPath = Directory.GetParent(rola_str)?.FullName ?? "Unknown";
-                int albumId = InsertAlbumIfNotExists(album, albumPath, (int)year);
-                rola = new Rola(performerId, albumId, rola_str, title, (int)track, (int)year, genre);
-                return rola;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error mining metadata: " + ex.Message);
-            }
+            var file = TagLib.File.Create(rola_str);
+            //TPE1
+            string performer = file.Tag.FirstPerformer ?? "Unknown";
+            //TIT2
+            string title = file.Tag.Title ?? "Unknown";
+            //TALB
+            string album = file.Tag.Album ?? "Unknown";
+            //TDRC
+            uint year = file.Tag.Year != 0 ? file.Tag.Year : (uint)System.IO.File.GetCreationTime(rola_str).Year;
+            //TCON
+            string genre = file.Tag.FirstGenre ?? "Unknown";
+            //TRCK
+            uint track = file.Tag.Track != 0 ? file.Tag.Track : 0;
+
+            int performerId = InsertPerformerIfNotExists(performer);
+
+            string albumPath = Directory.GetParent(rola_str)?.FullName ?? "Unknown";
+            int albumId = InsertAlbumIfNotExists(album, albumPath, (int)year);
+
+            rola = new Rola(performerId, albumId, rola_str, title, (int)track, (int)year, genre);
             return rola;
         }
 
@@ -123,12 +140,5 @@
                 return album.GetIdAlbum();
             }
         }
-
-
-        // getters
-        public List<Rola> GetRolas() => _rolas;
-        public List<Performer> GetPerformers() => _performers;
-        public List<Album> GetAlbums() => _albums;
-        public DataBase GetDataBase() => _database;
     }
 }
