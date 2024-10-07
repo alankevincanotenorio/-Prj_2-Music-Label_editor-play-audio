@@ -101,6 +101,24 @@
             Console.WriteLine("MP3 metadata updated.");
         }
 
+        public List<Rola> GetAllRolasInDB()
+        {
+            return _database.GetAllRolas();
+        }
+
+        public string ShowRolaDetails(Rola rola)
+        {
+            string performerName = GetPerformerName(rola.GetIdPerformer());
+            string albumName = GetAlbumName(rola.GetIdAlbum());
+            
+            return $"Title: {rola.GetTitle()}\n" +
+                $"Performer: {performerName}\n" +
+                $"Album: {albumName}\n" +
+                $"Track: {rola.GetTrack()}\n" +
+                $"Year: {rola.GetYear()}\n" +
+                $"Genre: {rola.GetGenre()}";
+        }
+
         private string GetPerformerName(int performerId)
         {
             List<Performer> performers = _database.GetAllPerformers();

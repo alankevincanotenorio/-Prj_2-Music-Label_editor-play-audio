@@ -235,18 +235,72 @@ class GraphicInterface : Window
         vbox.PackStart(definePerformer, false, false, 5);
         vbox.PackStart(addPerson, false, false, 5);
 
+        editRola.Clicked += (s, ev) => EditRola(editWindow);
+
+
+
         editWindow.Add(vbox);
         editWindow.ShowAll();
     }
 
 
+    void EditRola(Window editWindow)
+    {
+        editWindow.Destroy();
+        Window editRola = new Window("Edit Rola");
+        editRola.SetDefaultSize(300, 100);
+        editRola.SetPosition(WindowPosition.Center);
+        editRola.StyleContext.AddProvider(cssProvider, 800);
 
+        Box vbox = new Box(Orientation.Vertical, 10);
+        Label instructionLabel = new Label("Enter the rola song:");
+        vbox.PackStart(instructionLabel, false, false, 5);
 
+        Entry entry = new Entry();
+        vbox.PackStart(entry, false, false, 5);
+        entry.StyleContext.AddProvider(cssProvider, uint.MaxValue);
 
+        Button confirm = new Button("Confirm");
+        vbox.PackStart(confirm, false, false, 5);
 
+        confirm.Clicked += (s, e) => {
+            string rolaTitle = entry.Text;
+            List<Rola> rolas = app.GetAllRolasInDB();
+            Rola retrievedRola = rolas.Find(a => a.GetTitle() == rolaTitle);
 
+            if (retrievedRola == null)
+            {
+                MessageDialog errorDialog = new MessageDialog(editRola,
+                DialogFlags.Modal, MessageType.Error, ButtonsType.Ok,
+                "Rola not found. Please enter a valid title.");
+                errorDialog.Run();
+                errorDialog.Destroy();
+            }
+            else
+            {
+                string rolaDetails = app.ShowRolaDetails(retrievedRola);
+                
+                Window detailsWindow = new Window("Rola Details");
+                detailsWindow.SetDefaultSize(300, 200);
+                detailsWindow.SetPosition(WindowPosition.Center);
+                detailsWindow.StyleContext.AddProvider(cssProvider, 800);
 
+                Box detailsBox = new Box(Orientation.Vertical, 10);
+                Label rolaDetailsLabel = new Label(rolaDetails);
+                detailsBox.PackStart(rolaDetailsLabel, false, false, 5);
+                    
+                Button closeButton = new Button("Close");
+                closeButton.Clicked += (closeSender, closeEvent) => detailsWindow.Destroy();
+                detailsBox.PackStart(closeButton, false, false, 5);
+                    
+                detailsWindow.Add(detailsBox);
+                detailsWindow.ShowAll();
+            }
+        };
 
+        editRola.Add(vbox);
+        editRola.ShowAll();
+    }
 
     private void DisableNonMiningActions()
     {
