@@ -67,6 +67,7 @@
         public void StartMining(Action<int> onFileProcessed)
         {
             _miner.GetLog().Clear();
+            SetProcessedFilesNumber(0);
             _miner.Mine(_currentPath, onFileProcessed);
             Console.WriteLine("Mining finished.");
         }

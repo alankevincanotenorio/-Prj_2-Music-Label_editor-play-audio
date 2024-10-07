@@ -37,8 +37,6 @@
                         Rola? rola = GetMetadata(file);
                         if (rola != null)
                         {
-                            processedFilesCount++;
-                            onFileProcessed(processedFilesCount);
                             Rola? existingRola = _database.GetRolaByTitleAndPath(rola.GetTitle(), rola.GetPath());
                             if (existingRola == null)
                             {
@@ -47,6 +45,8 @@
                             }
                             else Console.WriteLine($"Rola '{rola.GetTitle()}' Already exists");
                         }
+                        processedFilesCount++;
+                        onFileProcessed(processedFilesCount);
                     }
                     else _log.Add($"Inaccessible file '{file}': Permission denied.");
                 }
@@ -133,37 +133,22 @@
         public int GetTotalMp3FilesCount(string path)
         {
             int totalMp3FilesCount = 0;
-            try
+            if (!HasReadAccess(path, true))
             {
-                if (!HasReadAccess(path, true))
-                {
-                    Console.WriteLine($"Inaccessible directory: {path}");
-                    return totalMp3FilesCount;
-                }
-                var mp3Files = Directory.GetFiles(path, "*.mp3", SearchOption.TopDirectoryOnly);
-                foreach (var file in mp3Files)
-                {
-                    if (HasReadAccess(file, false)) totalMp3FilesCount++;
-                    else Console.WriteLine($"Inaccessible file: {file}");
-                }
-                var subDirectories = Directory.GetDirectories(path, "*", SearchOption.AllDirectories);
-                foreach (var directory in subDirectories)
-                {
-                    if (HasReadAccess(directory, true))
-                    {
-                        var subDirMp3Files = Directory.GetFiles(directory, "*.mp3", SearchOption.TopDirectoryOnly);
-                        foreach (var subFile in subDirMp3Files)
-                        {
-                            if (HasReadAccess(subFile, false)) totalMp3FilesCount++;
-                            else Console.WriteLine($"Inaccessible file: {subFile}");
-                        }
-                    }
-                    else Console.WriteLine($"Inaccessible directory: {directory}");
-                }
+                Console.WriteLine($"Inaccessible directory: '{path}'");
+                return totalMp3FilesCount;
             }
-            catch (UnauthorizedAccessException ex)
+            var mp3Files = Directory.GetFiles(path, "*.mp3", SearchOption.TopDirectoryOnly);
+            foreach (var file in mp3Files)
             {
-                Console.WriteLine($"Access error: {ex.Message}");
+                if (HasReadAccess(file, false)) totalMp3FilesCount++;
+                else Console.WriteLine($"Inaccessible file: {file}");
+            }
+            var subDirectories = Directory.GetDirectories(path);
+            foreach (var directory in subDirectories)
+            {
+                if (HasReadAccess(directory, true)) totalMp3FilesCount += GetTotalMp3FilesCount(directory);
+                else Console.WriteLine($"Inaccessible directory: {directory}");
             }
             Console.WriteLine($"Total accessible MP3 files in '{path}' and subdirectories: {totalMp3FilesCount}");
             return totalMp3FilesCount;
