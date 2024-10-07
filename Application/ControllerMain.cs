@@ -38,6 +38,7 @@ class ControllerMain
               case "2":
                   Console.WriteLine("Starting mining...");
                   int totalFiles = app.GetTotalMp3FilesInPath();
+                  if(totalFiles == 0) Console.WriteLine("Mining process 100%");
                   Console.WriteLine($"Total MP3 Files: {totalFiles}");
                   app.StartMining((processedFiles) =>
                   {
@@ -66,7 +67,7 @@ class ControllerMain
               case "4":
                   Console.Write("Enter song title to edit: ");
                   string? rolaTitle = Console.ReadLine();
-                  Rola? rolaToEdit = app.GetDataBase().GetRolaByTitleAndPath(rolaTitle, app.GetCurrentPath());
+                  Rola? rolaToEdit = app.GetDataBase().GetRolaByTitleAndPath(rolaTitle, app.GetCurrentPath()); //buscar en todas las canciones
 
                   if (rolaToEdit != null)
                   {

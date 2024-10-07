@@ -36,7 +36,6 @@
                 defaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Music");
             if(!Directory.Exists(defaultPath)) 
                 Directory.CreateDirectory(defaultPath);
-
             File.WriteAllText(_configFilePath, defaultPath);
             return defaultPath;
         }

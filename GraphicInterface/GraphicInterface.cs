@@ -189,6 +189,11 @@ class GraphicInterface : Window
         miningButton.Sensitive = false;
         totalFiles = app.GetTotalMp3FilesInPath();
         progressBar.Fraction = 0;
+        if(totalFiles == 0)
+        {
+            progressBar.Fraction = 1;
+            progressBar.Text = "100%";   
+        }
         await Task.Run(() => 
         {
             app.StartMining((processedFiles) =>
