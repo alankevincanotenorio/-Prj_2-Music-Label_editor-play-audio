@@ -211,7 +211,7 @@ class GraphicInterface : Window
         List<string> rolas = app.GetRolasInfoInPath();
         rolasList.Buffer.Text = string.Join("\n", rolas);
         if (app.GetLog().Count > 0)
-            errorLogView.Buffer.Text = "Error Log:\n" + string.Join("\n", app.GetMiner().GetLog());
+            errorLogView.Buffer.Text = "Log:\n" + string.Join("\n", app.GetMiner().GetLog());
         miningButton.Sensitive = true;
     }
 
@@ -237,12 +237,9 @@ class GraphicInterface : Window
 
         editRola.Clicked += (s, ev) => EditRola(editWindow);
 
-
-
         editWindow.Add(vbox);
         editWindow.ShowAll();
     }
-
 
     void EditRola(Window editWindow)
     {
@@ -253,7 +250,7 @@ class GraphicInterface : Window
         editRola.StyleContext.AddProvider(cssProvider, 800);
 
         Box vbox = new Box(Orientation.Vertical, 10);
-        Label instructionLabel = new Label("Enter the rola song:");
+        Label instructionLabel = new Label("Enter the rola name:");
         vbox.PackStart(instructionLabel, false, false, 5);
 
         Entry entry = new Entry();
@@ -265,42 +262,107 @@ class GraphicInterface : Window
 
         confirm.Clicked += (s, e) => {
             string rolaTitle = entry.Text;
-            List<Rola> rolas = app.GetAllRolasInDB();
-            Rola retrievedRola = rolas.Find(a => a.GetTitle() == rolaTitle);
-
-            if (retrievedRola == null)
+            List<Rola> matchedRolas = app.GetMatchedRolas(rolaTitle);
+            if (matchedRolas.Count == 0)
             {
                 MessageDialog errorDialog = new MessageDialog(editRola,
                 DialogFlags.Modal, MessageType.Error, ButtonsType.Ok,
-                "Rola not found. Please enter a valid title.");
+                "No rola found with that title. Please enter a valid title.");
                 errorDialog.Run();
                 errorDialog.Destroy();
             }
+            else if (matchedRolas.Count == 1) ShowEditForm(matchedRolas.First());
             else
             {
-                string rolaDetails = app.ShowRolaDetails(retrievedRola);
-                
-                Window detailsWindow = new Window("Rola Details");
-                detailsWindow.SetDefaultSize(300, 200);
-                detailsWindow.SetPosition(WindowPosition.Center);
-                detailsWindow.StyleContext.AddProvider(cssProvider, 800);
+                Window selectRolaWindow = new Window("Select Rola to Edit");
+                selectRolaWindow.SetDefaultSize(400, 300);
+                selectRolaWindow.SetPosition(WindowPosition.Center);
+                selectRolaWindow.StyleContext.AddProvider(cssProvider, 800);
 
-                Box detailsBox = new Box(Orientation.Vertical, 10);
-                Label rolaDetailsLabel = new Label(rolaDetails);
-                detailsBox.PackStart(rolaDetailsLabel, false, false, 5);
-                    
-                Button closeButton = new Button("Close");
-                closeButton.Clicked += (closeSender, closeEvent) => detailsWindow.Destroy();
-                detailsBox.PackStart(closeButton, false, false, 5);
-                    
-                detailsWindow.Add(detailsBox);
-                detailsWindow.ShowAll();
+                Box rolaSelectionBox = new Box(Orientation.Vertical, 10);
+                Label selectLabel = new Label("Select the Rola to edit:");
+                rolaSelectionBox.PackStart(selectLabel, false, false, 5);
+                foreach (var rola in matchedRolas)
+                {
+                    Button rolaButton = new Button($"{rola.GetTitle()} - Path: {rola.GetPath()}");
+                    rolaSelectionBox.PackStart(rolaButton, false, false, 5);
+                    rolaButton.Clicked += (sender, args) =>
+                    {
+                        selectRolaWindow.Destroy();
+                        ShowEditForm(rola);
+                    };
+                }
+                selectRolaWindow.Add(rolaSelectionBox);
+                selectRolaWindow.ShowAll();
             }
         };
-
         editRola.Add(vbox);
         editRola.ShowAll();
     }
+
+    void ShowEditForm(Rola rolaToEdit)
+    {
+        Window detailsWindow = new Window("Edit Rola");
+        detailsWindow.SetDefaultSize(300, 400);
+        detailsWindow.SetPosition(WindowPosition.Center);
+        detailsWindow.StyleContext.AddProvider(cssProvider, 800);
+
+        Box detailsBox = new Box(Orientation.Vertical, 10);
+
+        Entry newTitleEntry = new Entry { Text = rolaToEdit.GetTitle() };
+        Entry newGenreEntry = new Entry { Text = rolaToEdit.GetGenre() };
+        Entry newTrackEntry = new Entry { Text = rolaToEdit.GetTrack().ToString() };
+        Entry performerEntry = new Entry();
+        Entry newYearEntry = new Entry { Text = rolaToEdit.GetYear().ToString() };
+        Entry newAlbumEntry = new Entry();
+
+        detailsBox.PackStart(new Label("New Title:"), false, false, 5);
+        detailsBox.PackStart(newTitleEntry, false, false, 5);
+
+        detailsBox.PackStart(new Label("New Genre:"), false, false, 5);
+        detailsBox.PackStart(newGenreEntry, false, false, 5);
+
+        detailsBox.PackStart(new Label("New Track Number:"), false, false, 5);
+        detailsBox.PackStart(newTrackEntry, false, false, 5);
+
+        detailsBox.PackStart(new Label("New Performer Name:"), false, false, 5);
+        detailsBox.PackStart(performerEntry, false, false, 5);
+
+        detailsBox.PackStart(new Label("New Year:"), false, false, 5);
+        detailsBox.PackStart(newYearEntry, false, false, 5);
+
+        detailsBox.PackStart(new Label("New Album Name:"), false, false, 5);
+        detailsBox.PackStart(newAlbumEntry, false, false, 5);
+
+        Button acceptButton = new Button("Accept");
+        detailsBox.PackStart(acceptButton, false, false, 5);
+
+        acceptButton.Clicked += (sender, eventArgs) =>
+        {
+            app.UpdateRolaDetails(
+                rolaToEdit.GetTitle(), 
+                rolaToEdit.GetPath(),
+                newTitleEntry.Text, 
+                newGenreEntry.Text, 
+                newTrackEntry.Text, 
+                performerEntry.Text, 
+                newYearEntry.Text, 
+                newAlbumEntry.Text
+            );
+
+            MessageDialog successDialog = new MessageDialog(detailsWindow,
+            DialogFlags.Modal, MessageType.Info, ButtonsType.Ok,
+            "Rola updated successfully.");
+            successDialog.Run();
+            successDialog.Destroy();
+
+            detailsWindow.Destroy();
+        };
+
+        detailsWindow.Add(detailsBox);
+        detailsWindow.ShowAll();
+    }
+
 
     private void DisableNonMiningActions()
     {

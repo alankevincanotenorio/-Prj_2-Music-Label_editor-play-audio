@@ -65,53 +65,53 @@ class ControllerMain
                   break;
 
               case "4":
-                  Console.Write("Enter song title to edit: ");
-                  string? rolaTitle = Console.ReadLine();
-                  Rola? rolaToEdit = app.GetDataBase().GetRolaByTitleAndPath(rolaTitle, app.GetCurrentPath()); //buscar en todas las canciones
+                //   Console.Write("Enter song title to edit: ");
+                //   string? rolaTitle = Console.ReadLine();
+                //   Rola? rolaToEdit = app.GetDataBase().GetRolaByTitleAndPath(rolaTitle, app.GetCurrentPath()); //buscar en todas las canciones
 
-                  if (rolaToEdit != null)
-                  {
-                      Console.WriteLine("Editing Song Details:");
-                      Console.Write("New Title: ");
-                      string? newTitle = Console.ReadLine();
-                      Console.Write("New Genre: ");
-                      string? newGenre = Console.ReadLine();
-                      Console.Write("New Track Number: ");
-                      string? newTrack = Console.ReadLine();
-                      Console.Write("New Performer Name: ");
-                      string? performerName = Console.ReadLine();
+                //   if (rolaToEdit != null)
+                //   {
+                //       Console.WriteLine("Editing Song Details:");
+                //       Console.Write("New Title: ");
+                //       string? newTitle = Console.ReadLine();
+                //       Console.Write("New Genre: ");
+                //       string? newGenre = Console.ReadLine();
+                //       Console.Write("New Track Number: ");
+                //       string? newTrack = Console.ReadLine();
+                //       Console.Write("New Performer Name: ");
+                //       string? performerName = Console.ReadLine();
 
-                      Performer? newPerformer = app.GetDataBase().GetPerformerByName(performerName);
-                      if (newPerformer == null)
-                      {
-                          int idp = app.GetMiner().InsertPerformerIfNotExists(performerName);
-                          rolaToEdit.SetIdPerformer(idp);
-                      }
+                //       Performer? newPerformer = app.GetDataBase().GetPerformerByName(performerName);
+                //       if (newPerformer == null)
+                //       {
+                //           int idp = app.GetMiner().InsertPerformerIfNotExists(performerName);
+                //           rolaToEdit.SetIdPerformer(idp);
+                //       }
 
-                      Console.Write("New Year: ");
-                      string? year = Console.ReadLine();
-                      Console.Write("New Album Name: ");
-                      string? albumN = Console.ReadLine();
+                //       Console.Write("New Year: ");
+                //       string? year = Console.ReadLine();
+                //       Console.Write("New Album Name: ");
+                //       string? albumN = Console.ReadLine();
 
-                      Album? album = app.GetDataBase().GetAlbumByName(albumN);
-                      if (album == null)
-                      {
-                          int idA = app.GetMiner().InsertAlbumIfNotExists(albumN, rolaToEdit.GetPath(), rolaToEdit.GetYear());
-                          rolaToEdit.SetIdAlbum(idA);
-                      }
+                //       Album? album = app.GetDataBase().GetAlbumByName(albumN);
+                //       if (album == null)
+                //       {
+                //           int idA = app.GetMiner().InsertAlbumIfNotExists(albumN, rolaToEdit.GetPath(), rolaToEdit.GetYear());
+                //           rolaToEdit.SetIdAlbum(idA);
+                //       }
 
-                      if (!string.IsNullOrEmpty(newTitle)) rolaToEdit.SetTitle(newTitle);
-                      if (!string.IsNullOrEmpty(newGenre)) rolaToEdit.SetGenre(newGenre);
-                      if (!string.IsNullOrEmpty(newTrack)) rolaToEdit.SetTrack(int.Parse(newTrack));
-                      if (!string.IsNullOrEmpty(year)) rolaToEdit.SetYear(int.Parse(year));
+                //       if (!string.IsNullOrEmpty(newTitle)) rolaToEdit.SetTitle(newTitle);
+                //       if (!string.IsNullOrEmpty(newGenre)) rolaToEdit.SetGenre(newGenre);
+                //       if (!string.IsNullOrEmpty(newTrack)) rolaToEdit.SetTrack(int.Parse(newTrack));
+                //       if (!string.IsNullOrEmpty(year)) rolaToEdit.SetYear(int.Parse(year));
 
-                      app.editRolaDetails(rolaToEdit);
-                      Console.WriteLine("Song details updated.");
-                  }
-                  else
-                  {
-                      Console.WriteLine("Song not found.");
-                  }
+                //       app.editRolaDetails(rolaToEdit);
+                //       Console.WriteLine("Song details updated.");
+                //   }
+                //   else
+                //   {
+                //       Console.WriteLine("Song not found.");
+                //   }
                   break;
 
               case "5":

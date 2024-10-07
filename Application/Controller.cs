@@ -45,7 +45,8 @@
         public Miner GetMiner() => _miner;
         public DataBase GetDataBase() => _database;
         public List<string> GetLog() => _miner.GetLog();
-        public int GetTotalMp3FilesInPath() => _miner.GetTotalMp3FilesCount(_currentPath); 
+        public int GetTotalMp3FilesInPath() => _miner.GetTotalMp3FilesCount(_currentPath);
+        public List<Rola> GetAllRolasInDB() => _database.GetAllRolas();
 
         public void SetProcessedFilesNumber(int count) => _miner.SetProcessedFilesCount(count);
 
@@ -62,6 +63,20 @@
             return true;
         }
 
+        //check ir a file was deleted and update the database
+        public void CheckForDeletedFiles()
+        {
+            List<Rola> allRolas = _database.GetAllRolas();
+            foreach (Rola rola in allRolas)
+            {
+                if (!File.Exists(rola.GetPath()))
+                {
+                    Console.WriteLine($"File '{rola.GetPath()}' Not founded, removing from database");
+                    _database.DeleteRola(rola.GetIdRola());
+                }
+            }
+        }
+
         // start mining method
         public void StartMining(Action<int> onFileProcessed)
         {
@@ -71,6 +86,7 @@
             Console.WriteLine("Mining finished.");
         }
 
+        //show rolas in path, maybe erase it or change name
         public List<string> GetRolasInfoInPath()
         {
             List<Rola> rolas_in_path = _database.GetAllRolas();
@@ -78,22 +94,64 @@
             foreach (Rola rola in rolas_in_path)
             {
                 string performerName = GetPerformerName(rola.GetIdPerformer());
-                string albumName = GetAlbumName(rola.GetIdAlbum());
+                string albumNameame = GetalbumNameame(rola.GetIdAlbum());
                 string rolaInfo = $"{rola.GetTitle()}, - Performer: {GetPerformerName(rola.GetIdPerformer())}, " +
-                                  $" - Album: {GetAlbumName(rola.GetIdAlbum())}, Year: {rola.GetYear()}, " +
+                                  $" - Album: {GetalbumNameame(rola.GetIdAlbum())}, Year: {rola.GetYear()}, " +
                                   $" - Track: {rola.GetTrack()} -  Genre: {rola.GetGenre()}";
                 rolasInfo.Add(rolaInfo);
             }
             return rolasInfo;
         }
 
-        public void editRolaDetails(Rola rola)
+        public List<Rola> GetMatchedRolas(string title)
         {
-            _database.UpdateRola(rola);
+            List<Rola> matchedRolas = new List<Rola>();
+            List<Rola> rolas = _database.GetAllRolas();
+            foreach(Rola rola in rolas)
+            {
+                if(rola.GetTitle() == title) matchedRolas.Add(rola);
+            }
+            return matchedRolas;
+        }
+
+        public void UpdateRolaDetails(string title, string path, string newTitle, string newGenre, string newTrack, string performerName, string year, string albumName)
+        {
+            Rola? rolaToEdit = _database.GetRolaByTitleAndPath(title, path);
+            if (rolaToEdit == null) return;
+            
+            Performer? newPerformer = _database.GetPerformerByName(performerName);
+            if (newPerformer == null)
+            {
+                int performerId = _miner.InsertPerformerIfNotExists(performerName);
+                rolaToEdit.SetIdPerformer(performerId);
+            }
+            else rolaToEdit.SetIdPerformer(newPerformer.GetIdPerformer());
+
+            Album? album = _database.GetAlbumByName(albumName);
+            if (album == null)
+            {
+                string albumPath = Directory.GetParent(rolaToEdit.GetPath())?.FullName ?? "Unknown";
+                int albumId = _miner.InsertAlbumIfNotExists(albumName, albumPath, rolaToEdit.GetYear());
+                rolaToEdit.SetIdAlbum(albumId);
+            }
+            else rolaToEdit.SetIdAlbum(album.GetIdAlbum());
+
+            if (!string.IsNullOrEmpty(newTitle)) rolaToEdit.SetTitle(newTitle);
+            if (!string.IsNullOrEmpty(newGenre)) rolaToEdit.SetGenre(newGenre);
+            if (!string.IsNullOrEmpty(newTrack)) rolaToEdit.SetTrack(int.Parse(newTrack));
+            if (!string.IsNullOrEmpty(year)) rolaToEdit.SetYear(int.Parse(year));
+
+            _database.UpdateRola(rolaToEdit);
+
+            UpdateMp3Metadata(rolaToEdit);
+        }
+
+        private void UpdateMp3Metadata(Rola rola)
+        {
             var file = TagLib.File.Create(rola.GetPath());
             file.Tag.Title = rola.GetTitle();
             file.Tag.Performers = new[] { GetPerformerName(rola.GetIdPerformer()) };
-            file.Tag.Album = GetAlbumName(rola.GetIdAlbum());
+            file.Tag.Album = GetalbumNameame(rola.GetIdAlbum());
             file.Tag.Year = (uint)rola.GetYear();
             file.Tag.Track = (uint)rola.GetTrack();
             file.Tag.Genres = new[] { rola.GetGenre() };
@@ -101,19 +159,14 @@
             Console.WriteLine("MP3 metadata updated.");
         }
 
-        public List<Rola> GetAllRolasInDB()
-        {
-            return _database.GetAllRolas();
-        }
-
         public string ShowRolaDetails(Rola rola)
         {
             string performerName = GetPerformerName(rola.GetIdPerformer());
-            string albumName = GetAlbumName(rola.GetIdAlbum());
+            string albumNameame = GetalbumNameame(rola.GetIdAlbum());
             
             return $"Title: {rola.GetTitle()}\n" +
                 $"Performer: {performerName}\n" +
-                $"Album: {albumName}\n" +
+                $"Album: {albumNameame}\n" +
                 $"Track: {rola.GetTrack()}\n" +
                 $"Year: {rola.GetYear()}\n" +
                 $"Genre: {rola.GetGenre()}";
@@ -126,7 +179,7 @@
             return performer != null ? performer.GetName() : "Unknown Performer";
         }
 
-        private string GetAlbumName(int albumId)
+        private string GetalbumNameame(int albumId)
         {
             List<Album> albums = _database.GetAllAlbums();
             Album? album = albums.Find(a => a.GetIdAlbum() == albumId);
@@ -162,19 +215,6 @@
         public void search()
         {
 
-        }
-
-        public void CheckForDeletedFiles()
-        {
-            List<Rola> allRolas = _database.GetAllRolas();
-            foreach (Rola rola in allRolas)
-            {
-                if (!File.Exists(rola.GetPath()))
-                {
-                    Console.WriteLine($"File '{rola.GetPath()}' Not founded, removing from database");
-                    _database.DeleteRola(rola.GetIdRola());
-                }
-            }
         }
     }
 }
