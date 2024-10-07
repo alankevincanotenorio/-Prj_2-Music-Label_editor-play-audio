@@ -103,6 +103,7 @@ class GraphicInterface : Window
         // "Edit"
         editButton = new Button("Edit");
         editButton.SetSizeRequest(100, 40);
+        editButton.Clicked += OnEditClick!;
         buttonBox.PackStart(editButton, false, false, 0);
 
         // "Help"
@@ -213,6 +214,30 @@ class GraphicInterface : Window
             errorLogView.Buffer.Text = "Error Log:\n" + string.Join("\n", app.GetMiner().GetLog());
         miningButton.Sensitive = true;
     }
+
+    void OnEditClick(object sender, EventArgs e)
+    {
+        Window editWindow = new Window("Edit");
+        editWindow.SetDefaultSize(300, 100);
+        editWindow.SetPosition(WindowPosition.Center);
+        editWindow.StyleContext.AddProvider(cssProvider, 800);
+
+        Box vbox = new Box(Orientation.Vertical, 10);
+        Label instructionLabel = new Label("Select object to edit.");
+        vbox.PackStart(instructionLabel, false, false, 5);
+
+        editWindow.Add(vbox);
+        editWindow.ShowAll();
+    }
+
+
+
+
+
+
+
+
+
 
     private void DisableNonMiningActions()
     {
