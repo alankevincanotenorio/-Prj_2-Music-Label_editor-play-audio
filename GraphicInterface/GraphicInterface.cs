@@ -226,6 +226,15 @@ class GraphicInterface : Window
         Label instructionLabel = new Label("Select object to edit.");
         vbox.PackStart(instructionLabel, false, false, 5);
 
+        Button editRola = new Button("Edit rola");
+        Button editAlbum = new Button("Edit album");
+        Button definePerformer = new Button("Define Performer");
+        Button addPerson = new Button("Add person to group");
+        vbox.PackStart(editRola, false, false, 5);
+        vbox.PackStart(editAlbum, false, false, 5);
+        vbox.PackStart(definePerformer, false, false, 5);
+        vbox.PackStart(addPerson, false, false, 5);
+
         editWindow.Add(vbox);
         editWindow.ShowAll();
     }
