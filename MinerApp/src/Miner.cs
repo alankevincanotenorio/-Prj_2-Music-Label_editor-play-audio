@@ -9,9 +9,14 @@
     {
         private DataBase _database = DataBase.Instance();
         public List<string> _log = new List<string>();
+        private int processedFilesCount = 0;
 
         // getters
         public List<string> GetLog() => _log;
+        public int GetProcessedFilesCount() => processedFilesCount;
+
+        //setter
+        public void SetProcessedFilesCount(int count) => processedFilesCount = count;
 
         //browse directories and add the rola in rolas mining metadata
         public bool Mine(string path)
@@ -32,6 +37,7 @@
                         Rola? rola = GetMetadata(file);
                         if (rola != null)
                         {
+                            processedFilesCount++;
                             Rola? existingRola = _database.GetRolaByTitleAndPath(rola.GetTitle(), rola.GetPath());
                             if (existingRola == null)
                             {
@@ -54,7 +60,7 @@
         }
 
         // checks if a file or directory has read access
-        private bool HasReadAccess(string path, bool isDirectory)
+        public bool HasReadAccess(string path, bool isDirectory)
         {
             try
             {
@@ -127,6 +133,45 @@
                 _log.Add($"Album '{album.GetName()}' added with ID: {album.GetIdAlbum()}");
                 return album.GetIdAlbum();
             }
+        }
+
+        public int GetTotalMp3FilesCount(string path)
+        {
+            int totalMp3FilesCount = 0;
+            try
+            {
+                if (!HasReadAccess(path, true))
+                {
+                    Console.WriteLine($"Inaccessible directory: {path}");
+                    return totalMp3FilesCount;
+                }
+                var mp3Files = Directory.GetFiles(path, "*.mp3", SearchOption.TopDirectoryOnly);
+                foreach (var file in mp3Files)
+                {
+                    if (HasReadAccess(file, false)) totalMp3FilesCount++;
+                    else Console.WriteLine($"Inaccessible file: {file}");
+                }
+                var subDirectories = Directory.GetDirectories(path, "*", SearchOption.AllDirectories);
+                foreach (var directory in subDirectories)
+                {
+                    if (HasReadAccess(directory, true))
+                    {
+                        var subDirMp3Files = Directory.GetFiles(directory, "*.mp3", SearchOption.TopDirectoryOnly);
+                        foreach (var subFile in subDirMp3Files)
+                        {
+                            if (HasReadAccess(subFile, false)) totalMp3FilesCount++;
+                            else Console.WriteLine($"Inaccessible file: {subFile}");
+                        }
+                    }
+                    else Console.WriteLine($"Inaccessible directory: {directory}");
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine($"Access error: {ex.Message}");
+            }
+            Console.WriteLine($"Total accessible MP3 files in '{path}' and subdirectories: {totalMp3FilesCount}");
+            return totalMp3FilesCount;
         }
     }
 }

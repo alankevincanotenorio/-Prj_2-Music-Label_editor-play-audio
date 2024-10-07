@@ -1,5 +1,6 @@
 ﻿using Gtk;
 using ControllerApp;
+using System.Threading.Tasks;
 
 class GraphicInterface : Window
 {
@@ -8,11 +9,16 @@ class GraphicInterface : Window
     private Label currentPathLabel;
     private CssProvider cssProvider = new CssProvider();
     private TextView errorLogView;
-    private Button changeDirButton ;
+    private Button changeDirButton;
+    private Button miningButton;
     private Button editButton;
     private Button searchButton;
     private Button helpButton;
     private Button burgerButton;
+
+    private ProgressBar progressBar;
+    private int totalFiles = 0;
+
 
     public GraphicInterface() : base("Music Library Editor")
     {
@@ -85,12 +91,15 @@ class GraphicInterface : Window
         grid.Attach(scrolledWindow, 0, 1, 3, 4);
 
         Box buttonBox = new Box(Orientation.Vertical, 10);
+
         // "Start mining"
-        Button miningButton = new Button("Start Mining");
+        progressBar = new ProgressBar();
+        miningButton = new Button("Start Mining");
         miningButton.SetSizeRequest(100, 40);
         miningButton.Clicked += OnMineClick!;
         buttonBox.PackStart(miningButton, false, false, 0);
-         
+        buttonBox.PackStart(progressBar, false, false, 0);
+
         // "Edit"
         editButton = new Button("Edit");
         editButton.SetSizeRequest(100, 40);
@@ -174,19 +183,38 @@ class GraphicInterface : Window
         changePathWindow.ShowAll();
     }
 
-    // manage miner
-    void OnMineClick(object sender, EventArgs args)
-    {
-        bool success = app.StartMining();
-        List<string> rolas = app.GetRolasInfoInPath();
-        rolasList.Buffer.Text = string.Join("\n", rolas);
 
-        if (app.GetMiner().GetLog().Count > 0)
-            errorLogView.Buffer.Text = "Error Log:\n" + string.Join("\n", app.GetMiner().GetLog());
-        if (!app.GetDataBase().IsRolasTableEmpty()) AbleNonMiningActions();
-        app.CheckForDeletedFiles();
+    private async void OnMineClick(object sender, EventArgs e)
+    {
+        miningButton.Sensitive = false;
+        totalFiles = app.GetTotalMp3FilesCount();
+        await Task.Run(() => Mining());
+        miningButton.Sensitive = true;
     }
 
+    void Mining()
+    {
+        app.StartMining();
+        int processedFiles = 0;
+        while (processedFiles < totalFiles)
+        {
+            processedFiles = app.GetMiner().GetProcessedFilesCount();
+            Application.Invoke(delegate
+            {
+                float progress = (float)processedFiles / totalFiles;
+                progressBar.Fraction = progress;
+                progressBar.Text = $"{(int)(progress * 100)}%";
+            });
+            System.Threading.Thread.Sleep(100);
+            Console.WriteLine($"Processed files {processedFiles}");
+        }
+        app.GetMiner().SetProcessedFilesCount(0);
+        List<string> rolas = app.GetRolasInfoInPath();
+        rolasList.Buffer.Text = string.Join("\n", rolas);
+        if (app.GetMiner().GetLog().Count > 0)
+            errorLogView.Buffer.Text = "Error Log:\n" + string.Join("\n", app.GetMiner().GetLog());
+    }
+    
     private void DisableNonMiningActions()
     {
         editButton.Sensitive = false;

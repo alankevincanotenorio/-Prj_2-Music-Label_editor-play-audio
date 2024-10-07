@@ -6,8 +6,6 @@
     {
         private string _currentPath;
         private string _configFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "MusicLibraryEditorConfg", "config.txt");
-        private bool _isMining;
-        private int _progress;
         private Miner _miner;
         private DataBase _database = DataBase.Instance();
 
@@ -16,8 +14,6 @@
         {
             _currentPath = LoadPathFromConfig();
             _miner = new Miner();
-            _isMining = false;
-            _progress = 0;
             CheckForDeletedFiles();
         }
 
@@ -64,23 +60,11 @@
         }
 
         // start mining method
-        public bool StartMining()
+        public void StartMining()
         {
             _miner.GetLog().Clear();
-            if(!_isMining)
-            {
-                _isMining = true;
-                _miner.Mine(_currentPath);
-                _progress = 100;
-                Console.WriteLine("Mining finished.");
-                _isMining = false;
-            }
-            else
-            {
-                Console.WriteLine("You can't mine because you already mining");
-                return false;
-            }
-            return true;
+            _miner.Mine(_currentPath);
+            Console.WriteLine("Mining finished.");
         }
 
         public List<string> GetRolasInfoInPath()
@@ -91,9 +75,9 @@
             {
                 string performerName = GetPerformerName(rola.GetIdPerformer());
                 string albumName = GetAlbumName(rola.GetIdAlbum());
-                string rolaInfo = $"Title: {rola.GetTitle()}, Performer: {GetPerformerName(rola.GetIdPerformer())}, " +
-                                  $"Album: {GetAlbumName(rola.GetIdAlbum())}, Year: {rola.GetYear()}, " +
-                                  $"Track: {rola.GetTrack()}, Genre: {rola.GetGenre()}";
+                string rolaInfo = $"{rola.GetTitle()}, - Performer: {GetPerformerName(rola.GetIdPerformer())}, " +
+                                  $" - Album: {GetAlbumName(rola.GetIdAlbum())}, Year: {rola.GetYear()}, " +
+                                  $" - Track: {rola.GetTrack()} -  Genre: {rola.GetGenre()}";
                 rolasInfo.Add(rolaInfo);
             }
             return rolasInfo;
@@ -169,6 +153,12 @@
                     _database.DeleteRola(rola.GetIdRola());
                 }
             }
+        }
+
+        // Obtener el total de archivos MP3 accesibles
+        public int GetTotalMp3FilesCount()
+        {
+            return _miner.GetTotalMp3FilesCount(_currentPath); 
         }
     }
 }
