@@ -45,6 +45,10 @@
         public string GetCurrentPath() => _currentPath;
         public Miner GetMiner() => _miner;
         public DataBase GetDataBase() => _database;
+        public List<string> GetLog() => _miner.GetLog();
+        public int GetTotalMp3FilesInPath() => _miner.GetTotalMp3FilesCount(_currentPath); 
+
+        public void SetProcessedFilesNumber(int count) => _miner.SetProcessedFilesCount(count);
 
         // set the current path
         public bool SetCurrentPath(string current_path)
@@ -60,10 +64,10 @@
         }
 
         // start mining method
-        public void StartMining()
+        public void StartMining(Action<int> onFileProcessed)
         {
             _miner.GetLog().Clear();
-            _miner.Mine(_currentPath);
+            _miner.Mine(_currentPath, onFileProcessed);
             Console.WriteLine("Mining finished.");
         }
 
@@ -153,12 +157,6 @@
                     _database.DeleteRola(rola.GetIdRola());
                 }
             }
-        }
-
-        // Obtener el total de archivos MP3 accesibles
-        public int GetTotalMp3FilesCount()
-        {
-            return _miner.GetTotalMp3FilesCount(_currentPath); 
         }
     }
 }

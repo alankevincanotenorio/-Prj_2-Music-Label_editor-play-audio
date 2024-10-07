@@ -96,7 +96,7 @@ class GraphicInterface : Window
         progressBar = new ProgressBar();
         miningButton = new Button("Start Mining");
         miningButton.SetSizeRequest(100, 40);
-        miningButton.Clicked += OnMineClick!;
+        miningButton.Clicked += OnStartMiningClick!;
         buttonBox.PackStart(miningButton, false, false, 0);
         buttonBox.PackStart(progressBar, false, false, 0);
 
@@ -184,37 +184,31 @@ class GraphicInterface : Window
     }
 
 
-    private async void OnMineClick(object sender, EventArgs e)
+    private async void OnStartMiningClick(object sender, EventArgs e)
     {
         miningButton.Sensitive = false;
-        totalFiles = app.GetTotalMp3FilesCount();
-        await Task.Run(() => Mining());
+        totalFiles = app.GetTotalMp3FilesInPath();
+        progressBar.Fraction = 0;
+        await Task.Run(() => 
+        {
+            app.StartMining((processedFiles) =>
+            {
+                Application.Invoke(delegate
+                {
+                    float progress = (float)processedFiles / totalFiles;
+                    progressBar.Fraction = progress;
+                    progressBar.Text = $"{(int)(progress * 100)}%";
+                });
+            });
+        });
+        app.SetProcessedFilesNumber(0);
+        List<string> rolas = app.GetRolasInfoInPath();
+        rolasList.Buffer.Text = string.Join("\n", rolas);
+        if (app.GetLog().Count > 0)
+            errorLogView.Buffer.Text = "Error Log:\n" + string.Join("\n", app.GetMiner().GetLog());
         miningButton.Sensitive = true;
     }
 
-    void Mining()
-    {
-        app.StartMining();
-        int processedFiles = 0;
-        while (processedFiles < totalFiles)
-        {
-            processedFiles = app.GetMiner().GetProcessedFilesCount();
-            Application.Invoke(delegate
-            {
-                float progress = (float)processedFiles / totalFiles;
-                progressBar.Fraction = progress;
-                progressBar.Text = $"{(int)(progress * 100)}%";
-            });
-            System.Threading.Thread.Sleep(100);
-            Console.WriteLine($"Processed files {processedFiles}");
-        }
-        app.GetMiner().SetProcessedFilesCount(0);
-        List<string> rolas = app.GetRolasInfoInPath();
-        rolasList.Buffer.Text = string.Join("\n", rolas);
-        if (app.GetMiner().GetLog().Count > 0)
-            errorLogView.Buffer.Text = "Error Log:\n" + string.Join("\n", app.GetMiner().GetLog());
-    }
-    
     private void DisableNonMiningActions()
     {
         editButton.Sensitive = false;

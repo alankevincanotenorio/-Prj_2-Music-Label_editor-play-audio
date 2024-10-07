@@ -19,25 +19,26 @@
         public void SetProcessedFilesCount(int count) => processedFilesCount = count;
 
         //browse directories and add the rola in rolas mining metadata
-        public bool Mine(string path)
+        public bool Mine(string path, Action<int> onFileProcessed)
         {
-            if (!HasReadAccess(path, true)) 
+            if (!HasReadAccess(path, true))
             {
                 _log.Add($"Inaccessible directory: '{path}': Permission denied");
                 return false;
             }
-            var mp3Files = Directory.GetFiles(path, "*.mp3", SearchOption.TopDirectoryOnly);   
+            var mp3Files = Directory.GetFiles(path, "*.mp3", SearchOption.TopDirectoryOnly);
             foreach (var file in mp3Files)
             {
                 bool IsValidFile = Path.GetExtension(file).Equals(".mp3", StringComparison.OrdinalIgnoreCase);
                 if (IsValidFile)
                 {
-                    if(HasReadAccess(file, false))
+                    if (HasReadAccess(file, false))
                     {
                         Rola? rola = GetMetadata(file);
                         if (rola != null)
                         {
                             processedFilesCount++;
+                            onFileProcessed(processedFilesCount);
                             Rola? existingRola = _database.GetRolaByTitleAndPath(rola.GetTitle(), rola.GetPath());
                             if (existingRola == null)
                             {
@@ -46,14 +47,14 @@
                             }
                             else Console.WriteLine($"Rola '{rola.GetTitle()}' Already exists");
                         }
-                    } 
+                    }
                     else _log.Add($"Inaccessible file '{file}': Permission denied.");
                 }
             }
             var subDirectories = Directory.GetDirectories(path);
             foreach (var directory in subDirectories)
             {
-                if (HasReadAccess(directory, true)) Mine(directory);
+                if (HasReadAccess(directory, true)) Mine(directory, onFileProcessed);
                 else _log.Add($"Inaccessible subdirectory '{directory}': Permission denied.");
             }
             return true;
@@ -105,10 +106,7 @@
         public int InsertPerformerIfNotExists(string performer_name)
         {
             Performer? performer = _database.GetPerformerByName(performer_name);
-            if (performer != null)
-            { 
-                return performer.GetIdPerformer();
-            }
+            if (performer != null) return performer.GetIdPerformer();
             else
             {
                 performer = new Performer(performer_name);
@@ -122,10 +120,7 @@
         public int InsertAlbumIfNotExists(string album_name, string album_path, int year)
         {
             Album? album = _database.GetAlbumByName(album_name);
-            if (album != null)
-            {
-                return album.GetIdAlbum();
-            }
+            if (album != null) return album.GetIdAlbum();
             else
             {
                 album = new Album(album_path, album_name, year);
