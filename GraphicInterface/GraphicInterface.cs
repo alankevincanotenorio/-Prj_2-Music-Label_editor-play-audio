@@ -248,9 +248,7 @@ class GraphicInterface : Window
             List<string> rolasOptions = app.GetRolasOptions(rolaTitle);
             if (rolasOptions.Count == 0)
             {
-                MessageDialog errorDialog = new MessageDialog(editRola,
-                DialogFlags.Modal, MessageType.Error, ButtonsType.Ok,
-                "No rola found with that title. Please enter a valid title.");
+                MessageDialog errorDialog = new MessageDialog(editRola, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "No rola found with that title. Please enter a valid title.");
                 errorDialog.Run();
                 errorDialog.Destroy();
             }
@@ -336,6 +334,23 @@ class GraphicInterface : Window
 
         acceptButton.Clicked += (sender, eventArgs) =>
         {
+            MessageDialog errorDialog;
+            if (!int.TryParse(newTrackEntry.Text, out int trackNumber))
+            {
+                errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Track number must be an integer.");
+                errorDialog.Run();
+                errorDialog.Destroy();
+                return;
+            }
+
+            if (!int.TryParse(newYearEntry.Text, out int year))
+            {
+                errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Year must be an integer.");
+                errorDialog.Run();
+                errorDialog.Destroy();
+                return;
+            }
+
             app.UpdateRolaDetails(
                 rolaTitle,
                 rolaPath,
@@ -347,9 +362,7 @@ class GraphicInterface : Window
                 newAlbumEntry.Text
             );
 
-            MessageDialog successDialog = new MessageDialog(detailsWindow,
-            DialogFlags.Modal, MessageType.Info, ButtonsType.Ok,
-            "Rola updated successfully.");
+            MessageDialog successDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Rola updated successfully.");
             successDialog.Run();
             successDialog.Destroy();
 
@@ -359,13 +372,11 @@ class GraphicInterface : Window
         detailsWindow.ShowAll();
     }
 
-
     private void DisableNonMiningActions()
     {
         editRolaButton.Sensitive = false;
         searchButton.Sensitive = false;
         helpButton.Sensitive = false;
-        burgerButton.Sensitive = false;
     }
 
     private void AbleNonMiningActions()
@@ -373,7 +384,6 @@ class GraphicInterface : Window
         editRolaButton.Sensitive = true;
         searchButton.Sensitive = true;
         helpButton.Sensitive = true;
-        burgerButton.Sensitive = true;
     }
 
     public static void Main()
