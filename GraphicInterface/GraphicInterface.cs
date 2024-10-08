@@ -111,6 +111,7 @@ class GraphicInterface : Window
         // "Edit album"
         editAlbumButton = new Button("Edit album");
         editAlbumButton.SetSizeRequest(100, 40);
+        editAlbumButton.Clicked += OnEditAlbumButton!;
         buttonBox.PackStart(editAlbumButton, false, false, 0);
 
         // "Define performer"
@@ -233,7 +234,7 @@ class GraphicInterface : Window
         editRola.StyleContext.AddProvider(cssProvider, 800);
 
         Box vbox = new Box(Orientation.Vertical, 10);
-        Label instructionLabel = new Label("Enter the rola name:");
+        Label instructionLabel = new Label("Enter the rola title:");
         vbox.PackStart(instructionLabel, false, false, 5);
 
         Entry entry = new Entry();
@@ -370,6 +371,34 @@ class GraphicInterface : Window
         };
         detailsWindow.Add(detailsBox);
         detailsWindow.ShowAll();
+    }
+
+
+    void OnEditAlbumButton(object sender, EventArgs e)
+    {
+        Window editAlbum = new Window("Edit Album");
+        editAlbum.SetDefaultSize(300, 100);
+        editAlbum.SetPosition(WindowPosition.Center);
+        editAlbum.StyleContext.AddProvider(cssProvider, 800);
+
+        Box vbox = new Box(Orientation.Vertical, 10);
+        Label instructionLabel = new Label("Enter the album name:");
+        vbox.PackStart(instructionLabel, false, false, 5);
+        Entry entry = new Entry();
+        vbox.PackStart(entry, false, false, 5);
+        entry.StyleContext.AddProvider(cssProvider, uint.MaxValue);
+
+        Button confirm = new Button("Confirm");
+        vbox.PackStart(confirm, false, false, 5);
+
+        confirm.Clicked += (s, e) =>
+        {
+            string albumName = entry.Text;
+            
+        };
+
+        editAlbum.Add(vbox);
+        editAlbum.ShowAll();
     }
 
     private void DisableNonMiningActions()

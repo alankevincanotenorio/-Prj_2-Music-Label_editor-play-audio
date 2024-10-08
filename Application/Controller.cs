@@ -103,17 +103,6 @@
             return rolasInfo;
         }
 
-        public List<Rola> GetMatchedRolas(string title)
-        {
-            List<Rola> matchedRolas = new List<Rola>();
-            List<Rola> rolas = _database.GetAllRolas();
-            foreach(Rola rola in rolas)
-            {
-                if(rola.GetTitle() == title) matchedRolas.Add(rola);
-            }
-            return matchedRolas;
-        }
-
         public List<string> GetRolasOptions(string title)
         {
             List<Rola> matchedRolas = _database.GetAllRolas().Where(r => r.GetTitle() == title).ToList();
