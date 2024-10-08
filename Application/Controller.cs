@@ -112,7 +112,6 @@
         public List<string> GetRolaDetails(string title, string path)
         {
             Rola rola = _database.GetRolaByTitleAndPath(title, path);
-            if (rola == null) throw new Exception("Rola not found");
             List<string> rolaDetails = new List<string>
             {
                 rola.GetTitle(),
@@ -248,9 +247,15 @@
             }
         }
                 
-        public void showAlbumDetails()
+        public List<string> GetAlbumDetails(string name, string path)
         {
-
+            Album album = _database.GetAlbumByNameAndPath(name, path);
+            List<string> albumDetails = new List<string>
+            {
+                album.GetName(),
+                album.GetYear().ToString()
+            };
+            return albumDetails;
         }
 
         public void showPerformerDetails()

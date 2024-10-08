@@ -394,12 +394,117 @@ class GraphicInterface : Window
         confirm.Clicked += (s, e) =>
         {
             string albumName = entry.Text;
-            
-        };
+            List<string> albumsOptions = app.GetAlbumsOptions(albumName);
+            if(albumsOptions.Count == 0)
+            {
+                MessageDialog errorDialog = new MessageDialog(editAlbum, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "No album found with that name. Please enter a valid name.");
+                errorDialog.Run();
+                errorDialog.Destroy();
+            }
+            else if (albumsOptions.Count == 1)
+            {
+                editAlbum.Destroy();
+                List<string> albumDetails = app.GetAlbumDetails(albumName, albumsOptions.First());
+                ShowEditAlbumForm(albumName, albumsOptions.First(), albumDetails);
+            }
+            else
+            {
+                editAlbum.Destroy();
+                Window selectionWindow = new Window("Select Album");
+                selectionWindow.SetDefaultSize(400, 300);
+                selectionWindow.SetPosition(WindowPosition.Center);
+                selectionWindow.StyleContext.AddProvider(cssProvider, 800);
 
+                Box selectionVbox = new Box(Orientation.Vertical, 10);
+                Label selectLabel = new Label("Select the Album to edit:");
+                selectionVbox.PackStart(selectLabel, false, false, 5);
+
+                foreach (var albumPath in albumsOptions)
+                {
+                    List<string> albumDetails = app.GetAlbumDetails(albumName, albumsOptions.First());
+                    string albumInfo = $"Name: {albumDetails[0]} \nYear: {albumDetails[1]} \nPath: {albumPath}";
+                    Button albumButton = new Button(albumInfo);
+                    selectionVbox.PackStart(albumButton, false, false, 5);
+
+                    albumButton.Clicked += (sender, args) => 
+                    {
+                        selectionWindow.Destroy();
+                        ShowEditAlbumForm(albumName, albumPath, albumDetails);
+                    };
+                }
+                selectionWindow.Add(selectionVbox);
+                selectionWindow.ShowAll();
+            }
+        };
         editAlbum.Add(vbox);
         editAlbum.ShowAll();
     }
+
+
+    void ShowEditAlbumForm(string albumName, string albumPath, List<string> albumDetails)
+    {
+        Window detailsWindow = new Window("Edit Album");
+        detailsWindow.SetDefaultSize(300, 400);
+        detailsWindow.SetPosition(WindowPosition.Center);
+        detailsWindow.StyleContext.AddProvider(cssProvider, 800);
+
+        Box detailsBox = new Box(Orientation.Vertical, 10);
+
+        Entry newNameEntry = new Entry { Text = albumDetails[0] };
+        Entry newYearEntry = new Entry { Text = albumDetails[1] }; 
+
+        Label pathLabel = new Label($"Path: {albumPath}");
+        detailsBox.PackStart(new Label("Current Path:"), false, false, 5);
+        detailsBox.PackStart(pathLabel, false, false, 5);
+
+        detailsBox.PackStart(new Label("New Name:"), false, false, 5);
+        detailsBox.PackStart(newNameEntry, false, false, 5);
+
+        detailsBox.PackStart(new Label("New Year:"), false, false, 5);
+        detailsBox.PackStart(newYearEntry, false, false, 5);
+
+        Button acceptButton = new Button("Accept");
+        detailsBox.PackStart(acceptButton, false, false, 5);
+
+        acceptButton.Clicked += (sender, eventArgs) =>
+        {
+            MessageDialog errorDialog;
+            if (!int.TryParse(newYearEntry.Text, out int year))
+            {
+                errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Year must be an integer.");
+                errorDialog.Run();
+                errorDialog.Destroy();
+                return;
+            }
+
+            app.UpdateAlbumDetails(
+                albumName,
+                newNameEntry.Text,
+                albumPath,
+                newYearEntry.Text
+            );
+
+            MessageDialog successDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Rola updated successfully.");
+            successDialog.Run();
+            successDialog.Destroy();
+
+            detailsWindow.Destroy();
+        };
+        detailsWindow.Add(detailsBox);
+        detailsWindow.ShowAll();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
     private void DisableNonMiningActions()
     {
