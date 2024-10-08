@@ -114,6 +114,12 @@
             return matchedRolas;
         }
 
+        public List<string> GetRolasOptions(string title)
+        {
+            List<Rola> matchedRolas = _database.GetAllRolas().Where(r => r.GetTitle() == title).ToList();
+            return matchedRolas.Select(r => r.GetPath()).ToList();
+        }
+
         public void UpdateRolaDetails(string title, string path, string newTitle, string newGenre, string newTrack, string performerName, string year, string albumName)
         {
             Rola? rolaToEdit = _database.GetRolaByTitleAndPath(title, path);

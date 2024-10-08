@@ -11,7 +11,10 @@ class GraphicInterface : Window
     private TextView errorLogView;
     private Button changeDirButton;
     private Button miningButton;
-    private Button editButton;
+    private Button editRolaButton;
+    private Button editAlbumButton;
+    private Button definePerformerButton;
+    private Button addPersonButton;
     private Button searchButton;
     private Button helpButton;
     private Button burgerButton;
@@ -100,16 +103,26 @@ class GraphicInterface : Window
         buttonBox.PackStart(miningButton, false, false, 0);
         buttonBox.PackStart(progressBar, false, false, 0);
 
-        // "Edit"
-        editButton = new Button("Edit");
-        editButton.SetSizeRequest(100, 40);
-        editButton.Clicked += OnEditClick!;
-        buttonBox.PackStart(editButton, false, false, 0);
+        // "Edit Rola"
+        editRolaButton = new Button("Edit rola");
+        editRolaButton.SetSizeRequest(100, 40);
+        editRolaButton.Clicked += OnEditRolaClick!;
+        buttonBox.PackStart(editRolaButton, false, false, 0);
 
-        // "Help"
-        helpButton = new Button("Help");
-        helpButton.SetSizeRequest(100, 40);
-        buttonBox.PackStart(helpButton, false, false, 0);
+        // "Edit album"
+        editAlbumButton = new Button("Edit album");
+        editAlbumButton.SetSizeRequest(100, 40);
+        buttonBox.PackStart(editAlbumButton, false, false, 0);
+
+        // "Define performer"
+        definePerformerButton = new Button("Define Performer");
+        definePerformerButton.SetSizeRequest(100, 40);
+        buttonBox.PackStart(definePerformerButton, false, false, 0);
+
+        // "Add person to group"
+        addPersonButton = new Button("Add person to group");
+        addPersonButton.SetSizeRequest(100, 40);
+        buttonBox.PackStart(addPersonButton, false, false, 0);
 
         // "Search"
         searchButton = new Button();
@@ -118,12 +131,10 @@ class GraphicInterface : Window
         searchButton.SetSizeRequest(40, 40);
         buttonBox.PackStart(searchButton, false, false, 0);
 
-        // "Burger"
-        burgerButton = new Button();
-        Image burgerImage = new Image(Stock.Index, IconSize.Button);
-        burgerButton.Image = burgerImage;
-        burgerButton.SetSizeRequest(40, 40);
-        buttonBox.PackStart(burgerButton, false, false, 0);
+        // "Help"
+        helpButton = new Button("Help");
+        helpButton.SetSizeRequest(100, 40);
+        buttonBox.PackStart(helpButton, false, false, 0);
     
         // log view
         errorLogView = new TextView();
@@ -215,35 +226,8 @@ class GraphicInterface : Window
         miningButton.Sensitive = true;
     }
 
-    void OnEditClick(object sender, EventArgs e)
+    void OnEditRolaClick(object sender, EventArgs e)
     {
-        Window editWindow = new Window("Edit");
-        editWindow.SetDefaultSize(300, 100);
-        editWindow.SetPosition(WindowPosition.Center);
-        editWindow.StyleContext.AddProvider(cssProvider, 800);
-
-        Box vbox = new Box(Orientation.Vertical, 10);
-        Label instructionLabel = new Label("Select object to edit.");
-        vbox.PackStart(instructionLabel, false, false, 5);
-
-        Button editRola = new Button("Edit rola");
-        Button editAlbum = new Button("Edit album");
-        Button definePerformer = new Button("Define Performer");
-        Button addPerson = new Button("Add person to group");
-        vbox.PackStart(editRola, false, false, 5);
-        vbox.PackStart(editAlbum, false, false, 5);
-        vbox.PackStart(definePerformer, false, false, 5);
-        vbox.PackStart(addPerson, false, false, 5);
-
-        editRola.Clicked += (s, ev) => EditRola(editWindow);
-
-        editWindow.Add(vbox);
-        editWindow.ShowAll();
-    }
-
-    void EditRola(Window editWindow)
-    {
-        editWindow.Destroy();
         Window editRola = new Window("Edit Rola");
         editRola.SetDefaultSize(300, 100);
         editRola.SetPosition(WindowPosition.Center);
@@ -274,7 +258,7 @@ class GraphicInterface : Window
             else if (matchedRolas.Count == 1) ShowEditForm(matchedRolas.First());
             else
             {
-                Window selectRolaWindow = new Window("Select Rola to Edit");
+                Window selectRolaWindow = new Window("Select Rola to Edit"); //aqui podemos simplemente limpiar la pantalla en lugar de crear otra
                 selectRolaWindow.SetDefaultSize(400, 300);
                 selectRolaWindow.SetPosition(WindowPosition.Center);
                 selectRolaWindow.StyleContext.AddProvider(cssProvider, 800);
@@ -302,10 +286,11 @@ class GraphicInterface : Window
 
     void ShowEditForm(Rola rolaToEdit)
     {
-        Window detailsWindow = new Window("Edit Rola");
+        Window detailsWindow = new Window("Edit Rola"); //igual aca solo limpiar la pantalla
         detailsWindow.SetDefaultSize(300, 400);
         detailsWindow.SetPosition(WindowPosition.Center);
         detailsWindow.StyleContext.AddProvider(cssProvider, 800);
+        //aca hacer que se vean los atributos de la rola
 
         Box detailsBox = new Box(Orientation.Vertical, 10);
 
@@ -358,7 +343,6 @@ class GraphicInterface : Window
 
             detailsWindow.Destroy();
         };
-
         detailsWindow.Add(detailsBox);
         detailsWindow.ShowAll();
     }
@@ -366,7 +350,7 @@ class GraphicInterface : Window
 
     private void DisableNonMiningActions()
     {
-        editButton.Sensitive = false;
+        editRolaButton.Sensitive = false;
         searchButton.Sensitive = false;
         helpButton.Sensitive = false;
         burgerButton.Sensitive = false;
@@ -374,7 +358,7 @@ class GraphicInterface : Window
 
     private void AbleNonMiningActions()
     {
-        editButton.Sensitive = true;
+        editRolaButton.Sensitive = true;
         searchButton.Sensitive = true;
         helpButton.Sensitive = true;
         burgerButton.Sensitive = true;
