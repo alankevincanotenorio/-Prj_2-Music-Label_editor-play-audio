@@ -139,11 +139,10 @@
             }
             else rolaToEdit.SetIdPerformer(newPerformer.GetIdPerformer());
 
-            Album? album = _database.GetAlbumByName(albumName);
+            Album? album = _database.GetAlbumByNameAndPath(albumName, path);
             if (album == null)
             {
-                string albumPath = Directory.GetParent(rolaToEdit.GetPath())?.FullName ?? "Unknown";
-                int albumId = _miner.InsertAlbumIfNotExists(albumName, albumPath, rolaToEdit.GetYear());
+                int albumId = _miner.InsertAlbumIfNotExists(albumName, path, rolaToEdit.GetYear());
                 rolaToEdit.SetIdAlbum(albumId);
             }
             else rolaToEdit.SetIdAlbum(album.GetIdAlbum());
@@ -198,15 +197,60 @@
             return album != null ? album.GetName() : "Unknown Album";
         }
 
-        
+
+        public List<string> GetAlbumsOptions(string name)
+        {
+            List<Album> matchedAlbums = _database.GetAllAlbums().Where(r => r.GetName() == name).ToList();
+            return matchedAlbums.Select(r => r.GetPath()).ToList();
+        }
+
+        public void UpdateAlbumDetails(string oldName, string newName, string path, string year)
+        {
+            Album? albumToEdit = _database.GetAlbumByNameAndPath(oldName, path);
+            if (albumToEdit == null)
+            {
+                Console.WriteLine("Album not found.");
+                return;
+            }
+            if (!string.IsNullOrEmpty(newName)) 
+            {
+                Console.WriteLine($"Updating album name to: {newName}");
+                albumToEdit.SetName(newName);
+            }
+
+            if (!string.IsNullOrEmpty(year)) 
+            {
+                Console.WriteLine($"Updating album year to: {year}");
+                albumToEdit.SetYear(int.Parse(year));
+            }
+            bool isUpdated = _database.UpdateAlbum(albumToEdit);
+            if (isUpdated) Console.WriteLine("Album details successfully updated.");
+            else
+            {
+                Console.WriteLine("Failed to update album details.");
+                return;
+            }
+            UpdateRolasMetadataForAlbum(albumToEdit);
+        }
+
+        private void UpdateRolasMetadataForAlbum(Album album)
+        {
+            List<Rola> rolas = _database.GetAllRolas().Where(r => r.GetIdAlbum() == album.GetIdAlbum()).ToList();
+            if (rolas.Count == 0)
+            {
+                Console.WriteLine("No songs associated with this album.");
+                return;
+            }
+            foreach (var rola in rolas)
+            {
+                Console.WriteLine($"Updating metadata for song: {rola.GetTitle()}");
+                UpdateMp3Metadata(rola);
+            }
+        }
+                
         public void showAlbumDetails()
         {
 
-        }
-
-        public void editAlbumDetails(Album album)
-        {
-            _database.UpdateAlbum(album);
         }
 
         public void showPerformerDetails()

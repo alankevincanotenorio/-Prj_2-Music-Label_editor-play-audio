@@ -17,6 +17,7 @@ public class DataBaseTests
     {
         var database = DataBase.TestInstance();
         Performer test1 = new Performer("PerformerTest");
+        database.InsertPerformer(test1);
         bool secondResponse = database.InsertPerformer(test1);
         Assert.False(secondResponse);
     }
@@ -59,11 +60,12 @@ public class DataBaseTests
     public void TestInsertAlreadyRola()
     {
         var database = DataBase.TestInstance();
-        Performer performer = new Performer("Rola Performer"); 
+        Performer performer = new Performer("Rola Performer");
         database.InsertPerformer(performer);
         Album album = new Album("/path/to/album", "Rola Album", 2024);
         database.InsertAlbum(album);
         Rola rola = new Rola(performer.GetIdPerformer(), album.GetIdAlbum(), "/path/to/rola", "TestRola", 1, 2024, "Rock");
+        database.InsertRola(rola);
         bool secondResponse = database.InsertRola(rola);
         Assert.False(secondResponse);
     }
@@ -112,6 +114,7 @@ public class DataBaseTests
     {
         var database = DataBase.TestInstance();
         Album album = new Album("/path/to/album", "AlbumTest", 2024);
+        database.InsertAlbum(album);
         bool secondResponse = database.InsertAlbum(album);
         Assert.False(secondResponse);
     }
@@ -121,9 +124,8 @@ public class DataBaseTests
     {
         var database = DataBase.TestInstance();
         Album album = new Album("/path/to/album", "Album retrieved", 2024);
-        bool response = database.InsertAlbum(album);
-        Assert.True(response);
-        Album? retrievedAlbum = database.GetAlbumByName("Album retrieved");
+        database.InsertAlbum(album);
+        Album? retrievedAlbum = database.GetAlbumByNameAndPath("Album retrieved", "/path/to/album");
         Assert.NotNull(retrievedAlbum);
         Assert.Equal(album.GetIdAlbum(), retrievedAlbum?.GetIdAlbum());
         Assert.Equal(album.GetPath(), retrievedAlbum?.GetPath());
@@ -135,7 +137,7 @@ public class DataBaseTests
     public void TestGetInexistentAlbumByName()
     {
         var database = DataBase.TestInstance();
-        Album? retrieved = database.GetAlbumByName("NonExistent");
+        Album? retrieved = database.GetAlbumByNameAndPath("NonExistent", "path/non/existent");
         Assert.Null(retrieved);
     }
 

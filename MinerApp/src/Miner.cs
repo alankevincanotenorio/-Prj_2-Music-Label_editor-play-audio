@@ -95,8 +95,7 @@
 
             int performerId = InsertPerformerIfNotExists(performer);
 
-            string albumPath = Directory.GetParent(rola_str)?.FullName ?? "Unknown";
-            int albumId = InsertAlbumIfNotExists(album, albumPath, (int)year);
+            int albumId = InsertAlbumIfNotExists(album, rola_str, (int)year);
 
             rola = new Rola(performerId, albumId, rola_str, title, (int)track, (int)year, genre);
             return rola;
@@ -119,7 +118,7 @@
         // insert album
         public int InsertAlbumIfNotExists(string album_name, string album_path, int year)
         {
-            Album? album = _database.GetAlbumByName(album_name);
+            Album? album = _database.GetAlbumByNameAndPath(album_name, album_path);
             if (album != null) return album.GetIdAlbum();
             else
             {

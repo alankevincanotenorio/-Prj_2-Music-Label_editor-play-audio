@@ -107,26 +107,40 @@ class ControllerMain
                 case "5":
                     Console.Write("Enter album name to edit: ");
                     string? albumName = Console.ReadLine();
-                    Album? albumToEdit = app.GetDataBase().GetAlbumByName(albumName);
-
-                    if (albumToEdit != null)
-                    {
-                        Console.WriteLine("Editing Album Details:");
-                        Console.Write("New Album Name: ");
-                        string? newAlbumName = Console.ReadLine();
-                        Console.Write("New Year: ");
-                        string? newYear = Console.ReadLine();
-                        if (!string.IsNullOrEmpty(newAlbumName)) albumToEdit.SetName(newAlbumName);
-                        if (!string.IsNullOrEmpty(newYear)) albumToEdit.SetYear(int.Parse(newYear));
-                        app.editAlbumDetails(albumToEdit);
-                        Console.WriteLine("Album details updated.");
-                    }
+                    List<string> albumsOptions = app.GetAlbumsOptions(albumName);
+                    if (albumsOptions.Count == 0) Console.WriteLine("Album not found.");
+                    else if (albumsOptions.Count == 1) editAlbumDetails(albumName, albumsOptions.First());
                     else
                     {
-                        Console.WriteLine("Album not found.");
+                        Console.WriteLine("Multiple albums found with the same Name:");
+                        for (int i = 0; i < albumsOptions.Count; i++)
+                        {
+                            Console.WriteLine($"{i + 1}. Path: {albumsOptions[i]}");
+                        }
+                        Console.Write("Select the album number to edit: ");
+                        if (int.TryParse(Console.ReadLine(), out int selectedOption) && selectedOption >= 1 && selectedOption <= albumsOptions.Count)
+                        {
+                            editAlbumDetails(albumName, albumsOptions[selectedOption - 1]);
+                        }
+                        else Console.WriteLine("Invalid selection.");
+                    }
+                    void editAlbumDetails(string name, string path)
+                    {
+                        Console.WriteLine("Editing Album Details:");
+                        Console.Write("New name: ");
+                        string? newName = Console.ReadLine();
+                        Console.Write("New Year: ");
+                        string? year = Console.ReadLine();
+
+                        app.UpdateAlbumDetails(
+                            name,
+                            newName ?? string.Empty,
+                            path,
+                            year ?? string.Empty
+                        );
+                        Console.WriteLine("Album details updated.");
                     }
                     break;
-
                 case "6":
                     Console.Write("Enter the performer name to edit: ");
                     string? performer = Console.ReadLine();

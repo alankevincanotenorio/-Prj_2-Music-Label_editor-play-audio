@@ -264,7 +264,7 @@
         public bool InsertAlbum(Album album)
         {
             bool isAdded = false;            
-            Album? existingAlbum = GetAlbumByName(album.GetName());
+            Album? existingAlbum = GetAlbumByNameAndPath(album.GetName(), album.GetPath());
             if (existingAlbum != null && existingAlbum.GetPath() == album.GetPath())
             {
                 Console.WriteLine($"Album '{album.GetName()}' already exists with ID: {existingAlbum.GetIdAlbum()}");
@@ -385,22 +385,23 @@
         }
 
         //get album by name
-        public Album? GetAlbumByName(string name)
+        public Album? GetAlbumByNameAndPath(string name, string path)
         {
             Album? album = null;
-            string query = "SELECT * FROM albums WHERE name = @name";
+            string query = "SELECT * FROM albums WHERE name = @name AND path = @path";
             using (SQLiteCommand command = new SQLiteCommand(query, _connection))
             {
                 command.Parameters.AddWithValue("@name", name);
+                command.Parameters.AddWithValue("@path", path);
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
                         int idAlbum = reader.GetInt32(0);
-                        string path = reader.GetString(1);
+                        string albumPath = reader.GetString(1);
                         string albumName = reader.GetString(2);
                         int year = reader.GetInt32(3);
-                        album = new Album(idAlbum, path, albumName, year);
+                        album = new Album(idAlbum, albumPath, albumName, year);
                     }
                 }
             }
@@ -433,10 +434,9 @@
         public bool UpdateAlbum(Album album)
         {
             bool isUpdated = false;
-            string query = "UPDATE albums SET path = @path, name = @name, year = @year WHERE id_album = @id_album";
+            string query = "UPDATE albums SET name = @name, year = @year WHERE id_album = @id_album";
             using (SQLiteCommand command = new SQLiteCommand(query, _connection))
             {
-                command.Parameters.AddWithValue("@path", album.GetPath());
                 command.Parameters.AddWithValue("@name", album.GetName());
                 command.Parameters.AddWithValue("@year", album.GetYear());
                 command.Parameters.AddWithValue("@id_album", album.GetIdAlbum());
@@ -444,6 +444,13 @@
                 isUpdated = rowsAffected > 0;
                 if(isUpdated) Console.WriteLine("Album updated successfully.");
                 else Console.WriteLine("Album not updated.");
+            }
+            string updateRolasQuery = "UPDATE rolas SET id_album = @id_album WHERE id_album = @id_album";
+            using (SQLiteCommand command = new SQLiteCommand(updateRolasQuery, _connection))
+            {
+                command.Parameters.AddWithValue("@id_album", album.GetIdAlbum());
+                int rowsAffected = command.ExecuteNonQuery();
+                Console.WriteLine($"{rowsAffected} rolas updated with new album details.");
             }
             return isUpdated;
         }
