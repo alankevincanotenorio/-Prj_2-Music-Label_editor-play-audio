@@ -17,7 +17,6 @@ class GraphicInterface : Window
     private Button addPersonButton;
     private Button searchButton;
     private Button helpButton;
-    private Button burgerButton;
 
     private ProgressBar progressBar;
     private int totalFiles = 0;
@@ -246,8 +245,8 @@ class GraphicInterface : Window
 
         confirm.Clicked += (s, e) => {
             string rolaTitle = entry.Text;
-            List<Rola> matchedRolas = app.GetMatchedRolas(rolaTitle);
-            if (matchedRolas.Count == 0)
+            List<string> rolasOptions = app.GetRolasOptions(rolaTitle);
+            if (rolasOptions.Count == 0)
             {
                 MessageDialog errorDialog = new MessageDialog(editRola,
                 DialogFlags.Modal, MessageType.Error, ButtonsType.Ok,
@@ -255,51 +254,64 @@ class GraphicInterface : Window
                 errorDialog.Run();
                 errorDialog.Destroy();
             }
-            else if (matchedRolas.Count == 1) ShowEditForm(matchedRolas.First());
+            else if (rolasOptions.Count == 1)
+            {
+                editRola.Destroy();
+                List<string> rolaDetails = app.GetRolaDetails(rolaTitle, rolasOptions.First());
+                ShowEditForm(rolaTitle, rolasOptions.First(), rolaDetails);
+            }
             else
             {
-                Window selectRolaWindow = new Window("Select Rola to Edit"); //aqui podemos simplemente limpiar la pantalla en lugar de crear otra
-                selectRolaWindow.SetDefaultSize(400, 300);
-                selectRolaWindow.SetPosition(WindowPosition.Center);
-                selectRolaWindow.StyleContext.AddProvider(cssProvider, 800);
+                editRola.Destroy();
+                Window selectionWindow = new Window("Select Rola");
+                selectionWindow.SetDefaultSize(400, 300);
+                selectionWindow.SetPosition(WindowPosition.Center);
+                selectionWindow.StyleContext.AddProvider(cssProvider, 800);
 
-                Box rolaSelectionBox = new Box(Orientation.Vertical, 10);
+                Box selectionVbox = new Box(Orientation.Vertical, 10);
                 Label selectLabel = new Label("Select the Rola to edit:");
-                rolaSelectionBox.PackStart(selectLabel, false, false, 5);
-                foreach (var rola in matchedRolas)
+                selectionVbox.PackStart(selectLabel, false, false, 5);
+
+                foreach (var rolaPath in rolasOptions)
                 {
-                    Button rolaButton = new Button($"{rola.GetTitle()} - Path: {rola.GetPath()}");
-                    rolaSelectionBox.PackStart(rolaButton, false, false, 5);
-                    rolaButton.Clicked += (sender, args) =>
+                    List<string> rolaDetails = app.GetRolaDetails(rolaTitle, rolaPath);
+                    string rolaInfo = $"Title: {rolaDetails[0]} \nGenre: {rolaDetails[1]} \nTrack: {rolaDetails[2]} \nPerformer: {rolaDetails[3]} \nYear: {rolaDetails[4]} \nAlbum: {rolaDetails[5]} \nPath: {rolaPath}";
+                    Button rolaButton = new Button(rolaInfo);
+                    selectionVbox.PackStart(rolaButton, false, false, 5);
+
+                    rolaButton.Clicked += (sender, args) => 
                     {
-                        selectRolaWindow.Destroy();
-                        ShowEditForm(rola);
+                        selectionWindow.Destroy();
+                        ShowEditForm(rolaTitle, rolaPath, rolaDetails);
                     };
                 }
-                selectRolaWindow.Add(rolaSelectionBox);
-                selectRolaWindow.ShowAll();
+                selectionWindow.Add(selectionVbox);
+                selectionWindow.ShowAll();
             }
         };
         editRola.Add(vbox);
         editRola.ShowAll();
     }
 
-    void ShowEditForm(Rola rolaToEdit)
+    void ShowEditForm(string rolaTitle, string rolaPath, List<string> rolaDetails)
     {
-        Window detailsWindow = new Window("Edit Rola"); //igual aca solo limpiar la pantalla
+        Window detailsWindow = new Window("Edit Rola");
         detailsWindow.SetDefaultSize(300, 400);
         detailsWindow.SetPosition(WindowPosition.Center);
         detailsWindow.StyleContext.AddProvider(cssProvider, 800);
-        //aca hacer que se vean los atributos de la rola
 
         Box detailsBox = new Box(Orientation.Vertical, 10);
 
-        Entry newTitleEntry = new Entry { Text = rolaToEdit.GetTitle() };
-        Entry newGenreEntry = new Entry { Text = rolaToEdit.GetGenre() };
-        Entry newTrackEntry = new Entry { Text = rolaToEdit.GetTrack().ToString() };
-        Entry performerEntry = new Entry();
-        Entry newYearEntry = new Entry { Text = rolaToEdit.GetYear().ToString() };
-        Entry newAlbumEntry = new Entry();
+        Entry newTitleEntry = new Entry { Text = rolaDetails[0] };
+        Entry newGenreEntry = new Entry { Text = rolaDetails[1] };
+        Entry newTrackEntry = new Entry { Text = rolaDetails[2] };
+        Entry performerEntry = new Entry { Text = rolaDetails[3] };
+        Entry newYearEntry = new Entry { Text = rolaDetails[4] };
+        Entry newAlbumEntry = new Entry { Text = rolaDetails[5] }; 
+
+        Label pathLabel = new Label($"Path: {rolaPath}");
+        detailsBox.PackStart(new Label("Current Path:"), false, false, 5);
+        detailsBox.PackStart(pathLabel, false, false, 5);
 
         detailsBox.PackStart(new Label("New Title:"), false, false, 5);
         detailsBox.PackStart(newTitleEntry, false, false, 5);
@@ -325,8 +337,8 @@ class GraphicInterface : Window
         acceptButton.Clicked += (sender, eventArgs) =>
         {
             app.UpdateRolaDetails(
-                rolaToEdit.GetTitle(), 
-                rolaToEdit.GetPath(),
+                rolaTitle,
+                rolaPath,
                 newTitleEntry.Text, 
                 newGenreEntry.Text, 
                 newTrackEntry.Text, 

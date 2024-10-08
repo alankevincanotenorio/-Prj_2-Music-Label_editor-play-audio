@@ -94,9 +94,9 @@
             foreach (Rola rola in rolas_in_path)
             {
                 string performerName = GetPerformerName(rola.GetIdPerformer());
-                string albumNameame = GetalbumNameame(rola.GetIdAlbum());
+                string albumNameame = GetAlbumName(rola.GetIdAlbum());
                 string rolaInfo = $"{rola.GetTitle()}, - Performer: {GetPerformerName(rola.GetIdPerformer())}, " +
-                                  $" - Album: {GetalbumNameame(rola.GetIdAlbum())}, Year: {rola.GetYear()}, " +
+                                  $" - Album: {GetAlbumName(rola.GetIdAlbum())}, Year: {rola.GetYear()}, " +
                                   $" - Track: {rola.GetTrack()} -  Genre: {rola.GetGenre()}";
                 rolasInfo.Add(rolaInfo);
             }
@@ -118,6 +118,23 @@
         {
             List<Rola> matchedRolas = _database.GetAllRolas().Where(r => r.GetTitle() == title).ToList();
             return matchedRolas.Select(r => r.GetPath()).ToList();
+        }
+    
+        public List<string> GetRolaDetails(string title, string path)
+        {
+            Rola rola = _database.GetRolaByTitleAndPath(title, path);
+            if (rola == null) throw new Exception("Rola not found");
+            List<string> rolaDetails = new List<string>
+            {
+                rola.GetTitle(),
+                rola.GetGenre(),
+                rola.GetTrack().ToString(),
+                GetPerformerName(rola.GetIdPerformer()),
+                rola.GetYear().ToString(),
+                GetAlbumName(rola.GetIdAlbum())
+            };
+
+            return rolaDetails;
         }
 
         public void UpdateRolaDetails(string title, string path, string newTitle, string newGenre, string newTrack, string performerName, string year, string albumName)
@@ -157,7 +174,7 @@
             var file = TagLib.File.Create(rola.GetPath());
             file.Tag.Title = rola.GetTitle();
             file.Tag.Performers = new[] { GetPerformerName(rola.GetIdPerformer()) };
-            file.Tag.Album = GetalbumNameame(rola.GetIdAlbum());
+            file.Tag.Album = GetAlbumName(rola.GetIdAlbum());
             file.Tag.Year = (uint)rola.GetYear();
             file.Tag.Track = (uint)rola.GetTrack();
             file.Tag.Genres = new[] { rola.GetGenre() };
@@ -168,7 +185,7 @@
         public string ShowRolaDetails(Rola rola)
         {
             string performerName = GetPerformerName(rola.GetIdPerformer());
-            string albumNameame = GetalbumNameame(rola.GetIdAlbum());
+            string albumNameame = GetAlbumName(rola.GetIdAlbum());
             
             return $"Title: {rola.GetTitle()}\n" +
                 $"Performer: {performerName}\n" +
@@ -185,7 +202,7 @@
             return performer != null ? performer.GetName() : "Unknown Performer";
         }
 
-        private string GetalbumNameame(int albumId)
+        private string GetAlbumName(int albumId)
         {
             List<Album> albums = _database.GetAllAlbums();
             Album? album = albums.Find(a => a.GetIdAlbum() == albumId);
