@@ -95,7 +95,9 @@
 
             int performerId = InsertPerformerIfNotExists(performer);
 
-            int albumId = InsertAlbumIfNotExists(album, rola_str, (int)year);
+
+            string albumPath = Directory.GetParent(rola_str)?.FullName ?? "Unknown";
+            int albumId = InsertAlbumIfNotExists(album, albumPath, (int)year);
 
             rola = new Rola(performerId, albumId, rola_str, title, (int)track, (int)year, genre);
             return rola;
