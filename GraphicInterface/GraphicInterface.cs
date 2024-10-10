@@ -386,18 +386,20 @@ class GraphicInterface : Window
         confirm.Clicked += (s, e) =>
         {
             string albumName = entry.Text;
-            List<string> albumsOptions = app.GetAlbumsOptions(albumName);
-            if(albumsOptions.Count == 0)
+            List<string> albumInfoList = app.GetAlbumDetailsWithOptions(albumName);
+            if(albumInfoList.Count == 0)
             {
                 MessageDialog errorDialog = new MessageDialog(editAlbum, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "No album found with that name. Please enter a valid name.");
                 errorDialog.Run();
                 errorDialog.Hide();
             }
-            else if (albumsOptions.Count == 1)
+            else if (albumInfoList.Count == 1)
             {
                 editAlbum.Hide();
-                List<string> albumDetails = app.GetAlbumDetails(albumName, albumsOptions.First());
-                ShowEditAlbumForm(albumName, albumsOptions.First(), albumDetails);
+                string[] albumInfoParts = albumInfoList.First().Split('\n');
+                string albumPath = albumInfoParts.Last().Split(": ")[1];
+                List<string> albumDetails = app.GetAlbumDetails(albumName, albumPath);
+                ShowEditAlbumForm(albumName, albumPath, albumDetails);
             }
             else
             {
@@ -411,17 +413,18 @@ class GraphicInterface : Window
                 Label selectLabel = new Label("Select the Album to edit:");
                 selectionVbox.PackStart(selectLabel, false, false, 5);
 
-                foreach (var albumPath in albumsOptions)
+                foreach (var albumInfo in albumInfoList)
                 {
-                    List<string> albumDetails = app.GetAlbumDetails(albumName, albumsOptions.First());
-                    string albumInfo = $"Name: {albumDetails[0]} \nYear: {albumDetails[1]} \nPath: {albumPath}";
+                    string[] albumInfoParts = albumInfo.Split('\n');
+                    string extractedAlbumPath = albumInfoParts.Last().Split(": ")[1]; 
+                    List<string> albumDetails = app.GetAlbumDetails(albumName, extractedAlbumPath);
                     Button albumButton = new Button(albumInfo);
                     selectionVbox.PackStart(albumButton, false, false, 5);
 
                     albumButton.Clicked += (sender, args) => 
                     {
                         selectionWindow.Hide();
-                        ShowEditAlbumForm(albumName, albumPath, albumDetails);
+                        ShowEditAlbumForm(albumName, extractedAlbumPath, albumDetails);
                     };
                 }
                 selectionWindow.Add(selectionVbox);
@@ -460,32 +463,31 @@ class GraphicInterface : Window
 
         acceptButton.Clicked += (sender, eventArgs) =>
         {
-            MessageDialog errorDialog;
-            if (!int.TryParse(newYearEntry.Text, out int year))
-            {
-                errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Year must be an integer.");
-                errorDialog.Run();
-                errorDialog.Hide();
-                return;
-            }
-
-            app.UpdateAlbumDetails(
-                albumName,
-                newNameEntry.Text,
-                albumPath,
-                newYearEntry.Text
+            bool isUpdated = app.UpdateAlbumDetails(
+            albumName,
+            newNameEntry.Text,
+            albumPath,
+            newYearEntry.Text
             );
 
-            MessageDialog successDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Rola updated successfully.");
-            successDialog.Run();
-            successDialog.Hide();
+            if (isUpdated)
+            {
+                MessageDialog successDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Album updated successfully.");
+                successDialog.Run();
+                successDialog.Hide();
 
-            detailsWindow.Hide();
+                detailsWindow.Hide();
+            }
+            else
+            {
+                MessageDialog errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Failed to update album. Please check the input values (year must be an integer).");
+                errorDialog.Run();
+                errorDialog.Hide();
+            }
         };
         detailsWindow.Add(detailsBox);
         detailsWindow.ShowAll();
     }
-
 
     void OnDefinePerformerButton(object sender, EventArgs e)
     {

@@ -285,13 +285,13 @@
             return matchedAlbums.Select(r => r.GetPath()).ToList();
         }
 
-        public void UpdateAlbumDetails(string oldName, string newName, string path, string year)
+        public bool UpdateAlbumDetails(string oldName, string newName, string path, string year)
         {
             Album? albumToEdit = _database.GetAlbumByNameAndPath(oldName, path);
             if (albumToEdit == null)
             {
                 Console.WriteLine("Album not found.");
-                return;
+                return false;
             }
             if (!string.IsNullOrEmpty(newName)) 
             {
@@ -301,17 +301,23 @@
 
             if (!string.IsNullOrEmpty(year)) 
             {
+                if (!int.TryParse(year, out int yearNumber)) 
+                {
+                    Console.WriteLine("Year must be an integer.");
+                    return false;
+                }
                 Console.WriteLine($"Updating album year to: {year}");
-                albumToEdit.SetYear(int.Parse(year));
+                albumToEdit.SetYear(yearNumber);
             }
             bool isUpdated = _database.UpdateAlbum(albumToEdit);
             if (isUpdated) Console.WriteLine("Album details successfully updated.");
             else
             {
                 Console.WriteLine("Failed to update album details.");
-                return;
+                return false;
             }
             UpdateRolasMetadataForAlbum(albumToEdit);
+            return true;
         }
 
         private void UpdateRolasMetadataForAlbum(Album album)
@@ -329,6 +335,20 @@
             }
         }
                 
+        public List<string> GetAlbumDetailsWithOptions(string albumName)
+        {
+            List<Album> matchedAlbums = _database.GetAllAlbums().Where(r => r.GetName() == albumName).ToList();
+
+            if (matchedAlbums.Count == 0) return new List<string>();
+
+            List<string> albumInfo = new List<string>();
+            foreach (var album in matchedAlbums)
+            {
+                albumInfo.Add($"Name: {album.GetName()} \nYear: {album.GetYear()} \nPath: {album.GetPath()}");
+            }
+            return albumInfo;
+        }
+
         public List<string> GetAlbumDetails(string name, string path)
         {
             Album album = _database.GetAlbumByNameAndPath(name, path);
@@ -339,6 +359,7 @@
             };
             return albumDetails;
         }
+
 
         public List<string> ShowPerformerDetails(string performerName)
         {
