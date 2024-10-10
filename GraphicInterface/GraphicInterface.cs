@@ -500,12 +500,18 @@ class GraphicInterface : Window
 
     void OnDefinePerformerButton(object sender, EventArgs e)
     {
-        Window definePerformer = new Window("define Performer");
-        definePerformer.SetDefaultSize(300, 100);
+        Window definePerformer = new Window("Define Performer");
+        definePerformer.SetDefaultSize(300, 200);
         definePerformer.SetPosition(WindowPosition.Center);
         definePerformer.StyleContext.AddProvider(cssProvider, 800);
 
         Box vbox = new Box(Orientation.Vertical, 10);
+
+        Label performerLabel = new Label("Enter performer name:");
+        Entry performerEntry = new Entry();
+        vbox.PackStart(performerLabel, false, false, 5);
+        vbox.PackStart(performerEntry, false, false, 5);
+
         Label instructionLabel = new Label("Define performer as:");
         vbox.PackStart(instructionLabel, false, false, 5);
 
@@ -517,27 +523,206 @@ class GraphicInterface : Window
 
         personButton.Clicked += (s, e) =>
         {
+            string performerName = performerEntry.Text;
+            if (!string.IsNullOrEmpty(performerName) && app.ExistsPerformer(performerName))
+            {
+                if(app.IsDefined(performerName))
+                {
+                    if(app.GetTypePerformer(performerName) == 1)
+                    {
+                        MessageDialog redefine = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo, "This performer is already defined as group");
+                        redefine.Run();
+                        redefine.Hide();   
+                    }
+                    else 
+                    {
+                        MessageDialog redefineDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo, "This performer is already defined. Do you want to redefine it?");
+                        ResponseType response = (ResponseType)redefineDialog.Run();
+                        redefineDialog.Hide();
 
+                        if(response == ResponseType.Yes)
+                        {
+                            definePerformer.Hide();
+                            DefinePerson(performerName);
+                        }
+                        else definePerformer.Hide();
+                    }
+                }
+                definePerformer.Hide();
+                DefinePerson(performerName);
+            }
+            else
+            {
+                MessageDialog errorDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please enter a valid performer name.");
+                errorDialog.Run();
+                errorDialog.Hide();
+            }
         };
 
         groupButton.Clicked += (s, e) =>
         {
-            
+            string performerName = performerEntry.Text;
+            if (!string.IsNullOrEmpty(performerName) && app.ExistsPerformer(performerName))
+            {
+                if(app.IsDefined(performerName))
+                {
+                     if(app.GetTypePerformer(performerName) == 0)
+                    {
+                        MessageDialog redefinen = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo, "This performer is already defined as person");
+                        redefinen.Run();
+                        redefinen.Hide();
+                    }
+                    else
+                    {
+                        MessageDialog redefineDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo, "This performer is already defined. Do you want to redefine it?");
+                        ResponseType response = (ResponseType)redefineDialog.Run();
+                        redefineDialog.Hide();
+
+                        if(response == ResponseType.Yes)
+                        {
+                            definePerformer.Hide();
+                            DefineGroup(performerName);
+                        }
+                        else definePerformer.Hide();
+                    }
+                }
+                else
+                {
+                    definePerformer.Hide();
+                    DefineGroup(performerName);
+                }
+            }
+            else
+            {
+                MessageDialog errorDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please enter a  valid performer name.");
+                errorDialog.Run();
+                errorDialog.Hide();
+            }
         };
 
         definePerformer.Add(vbox);
         definePerformer.ShowAll();
     }
 
+    void DefinePerson(string performerName)
+    {
+        Window personWindow = new Window("Define Person");
+        personWindow.SetDefaultSize(300, 400);
+        personWindow.SetPosition(WindowPosition.Center);
+        personWindow.StyleContext.AddProvider(cssProvider, 800);
 
+        Box detailsBox = new Box(Orientation.Vertical, 10);
+        Label stageNameLabel = new Label("Stage Name:");
+        Entry stageNameEntry = new Entry
+        {
+            Text = performerName,
+            Sensitive = false
+        };
+        detailsBox.PackStart(stageNameLabel, false, false, 5);
+        detailsBox.PackStart(stageNameEntry, false, false, 5);
 
+        Label realNameLabel = new Label("Real Name:");
+        Entry realNameEntry = new Entry();
+        detailsBox.PackStart(realNameLabel, false, false, 5);
+        detailsBox.PackStart(realNameEntry, false, false, 5);
 
+        Label birthDateLabel = new Label("Birth Date:");
+        Entry birthDateEntry = new Entry();
+        detailsBox.PackStart(birthDateLabel, false, false, 5);
+        detailsBox.PackStart(birthDateEntry, false, false, 5);
 
+        Label deathDateLabel = new Label("Death Date (optional):");
+        Entry deathDateEntry = new Entry();
+        detailsBox.PackStart(deathDateLabel, false, false, 5);
+        detailsBox.PackStart(deathDateEntry, false, false, 5);
 
+        Button confirmButton = new Button("Confirm");
+        detailsBox.PackStart(confirmButton, false, false, 5);
 
+        
+        confirmButton.Clicked += (s, e) =>
+        {
+            string stageName = stageNameEntry.Text;
+            string realName = realNameEntry.Text;
+            string birthDate = birthDateEntry.Text;
+            string deathDate = deathDateEntry.Text;
 
+            if (!string.IsNullOrEmpty(stageName) && !string.IsNullOrEmpty(realName) && !string.IsNullOrEmpty(birthDate))
+            {
+                app.DefinePerformerAsPerson(performerName, stageName, realName, birthDate, deathDate);
+                MessageDialog successDialog = new MessageDialog(personWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Performer defined as person.");
+                successDialog.Run();
+                successDialog.Hide();
+                personWindow.Hide();
+            }
+            else
+            {
+                MessageDialog errorDialog = new MessageDialog(personWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please fill in all required fields.");
+                errorDialog.Run();
+                errorDialog.Hide();
+            }
+        };
 
+        personWindow.Add(detailsBox);
+        personWindow.ShowAll();
+    }
 
+    void DefineGroup(string performerName)
+    {
+        Window groupWindow = new Window("Define Group");
+        groupWindow.SetDefaultSize(300, 400);
+        groupWindow.SetPosition(WindowPosition.Center);
+        groupWindow.StyleContext.AddProvider(cssProvider, 800);
+
+        Box detailsBox = new Box(Orientation.Vertical, 10);
+
+        Label groupNameLabel = new Label("Group Name:");
+        Entry groupNameEntry = new Entry
+        {
+            Text = performerName,
+            Sensitive = false
+        };
+        detailsBox.PackStart(groupNameLabel, false, false, 5);
+        detailsBox.PackStart(groupNameEntry, false, false, 5);
+
+        Label startDateLabel = new Label("Start Date:");
+        Entry startDateEntry = new Entry();
+        detailsBox.PackStart(startDateLabel, false, false, 5);
+        detailsBox.PackStart(startDateEntry, false, false, 5);
+
+        Label endDateLabel = new Label("End Date (optional):");
+        Entry endDateEntry = new Entry();
+        detailsBox.PackStart(endDateLabel, false, false, 5);
+        detailsBox.PackStart(endDateEntry, false, false, 5);
+
+        Button confirmButton = new Button("Confirm");
+        detailsBox.PackStart(confirmButton, false, false, 5);
+
+        confirmButton.Clicked += (s, e) =>
+        {
+            string groupName = groupNameEntry.Text;
+            string startDate = startDateEntry.Text;
+            string endDate = endDateEntry.Text;
+
+            if (!string.IsNullOrEmpty(groupName) && !string.IsNullOrEmpty(startDate))
+            {
+                app.DefinePerformerAsGroup(performerName, groupName, startDate, endDate);
+                MessageDialog successDialog = new MessageDialog(groupWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Performer defined as group.");
+                successDialog.Run();
+                successDialog.Hide();
+                groupWindow.Hide();
+            }
+            else
+            {
+                MessageDialog errorDialog = new MessageDialog(groupWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please fill in all required fields.");
+                errorDialog.Run();
+                errorDialog.Hide();
+            }
+        };
+
+        groupWindow.Add(detailsBox);
+        groupWindow.ShowAll();
+    }
 
     private void DisableNonMiningActions()
     {

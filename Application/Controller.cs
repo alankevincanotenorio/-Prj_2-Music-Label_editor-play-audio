@@ -152,8 +152,25 @@
                 if(rolasWithSamePerformer.Count == 1 && rolasWithSamePerformer[0].GetIdRola() == rolaToEdit.GetIdRola())
                 {
                     Performer p = performers.Find(p => p.GetIdPerformer() == rolaToEdit.GetIdPerformer());
+                    string oldName = p.GetName();
                     p.SetName(performerName);
                     _database.UpdatePerformer(p);
+                    if(p.GetIdType() == 0)
+                    {
+                        Person personToUpdate = _database.GetAllPersons().Find(person => person.GetStageName() == oldName);
+
+                        personToUpdate.SetStageName(performerName);
+                        _database.UpdatePerson(personToUpdate);
+                        Console.WriteLine("Person performer updated successfully.");
+                    }
+                    if(p.GetIdType() == 1)
+                    {
+                        Group groupToUpdate = _database.GetAllGroups().Find(group => group.GetName() == oldName);
+
+                        groupToUpdate.SetName(performerName);
+                        _database.UpdateGroup(groupToUpdate);
+                        Console.WriteLine("Group performer updated successfully.");
+                    }
                     return;
                 }
                 Performer newPerformer = new Performer(performerName);
@@ -189,7 +206,6 @@
             }
             else rolaToEdit.SetIdAlbum(existingAlbum.GetIdAlbum());
         }
-
 
         private void UpdateMp3Metadata(Rola rola)
         {
@@ -310,6 +326,12 @@
         {   
             Performer? performer = _database.GetPerformerByName(performerName);
             return performer.GetIdType() == 2 ? false : true;
+        }
+
+        public int GetTypePerformer(string performerName)
+        {
+            Performer? performer = _database.GetPerformerByName(performerName);
+            return performer.GetIdType();
         }
 
         public void DefinePerformerAsPerson(string performerName, string stage_name, string real_name, string birth_date, string death_date)

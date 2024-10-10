@@ -145,62 +145,52 @@ class ControllerMain
                     Console.Write("Enter the performer name to edit: ");
                     string? performer = Console.ReadLine();
                     Performer? performerToEdit = app.GetDataBase().GetPerformerByName(performer);
-
-                    if (performerToEdit != null)
+                    Console.Write("Enter 0 if is a person, 1 if is a group: ");
+                    string? response = Console.ReadLine();
+                    switch (response)
                     {
-                        Console.Write("Enter 0 if is a person, 1 if is a group: ");
-                        string? response = Console.ReadLine();
-                        bool isAdded = false;
+                        case "0":
+                            Console.Write("Stage name: ");
+                            string? stageName = Console.ReadLine();
+                            Console.Write("Real name: ");
+                            string? realName = Console.ReadLine();
+                            Console.Write("Birth date: ");
+                            string? birthDate = Console.ReadLine();
+                            Console.Write("Death date: ");
+                            string? deathDate = Console.ReadLine();
 
-                        switch (response)
-                        {
-                            case "0":
-                                Console.Write("Stage name: ");
-                                string? stageName = Console.ReadLine();
-                                Console.Write("Real name: ");
-                                string? realName = Console.ReadLine();
-                                Console.Write("Birth date: ");
-                                string? birthDate = Console.ReadLine();
-                                Console.Write("Death date: ");
-                                string? deathDate = Console.ReadLine();
+                            app.DefinePerformerAsPerson(
+                                performer,
+                                stageName ?? string.Empty,
+                                realName ?? string.Empty,
+                                birthDate ?? string.Empty,
+                                deathDate ?? string.Empty
+                            );
+                            Console.WriteLine("Performer defined as a person.");
+                            break;
+                        case "1":
+                            Console.Write("Group name: ");
+                            string? groupName = Console.ReadLine();
+                            Console.Write("Start date: ");
+                            string? startDate = Console.ReadLine();
+                            Console.Write("End date: ");
+                            string? endDate = Console.ReadLine();
 
-                                Person person = new Person(stageName, realName, birthDate, deathDate);
-                                isAdded = app.GetDataBase().InsertPerson(person);
-                                performerToEdit.SetIdType(PerformerType.Person);
-                                app.GetDataBase().UpdatePerformer(performerToEdit);
+                            app.DefinePerformerAsGroup(
+                                performer,
+                                groupName ?? string.Empty,
+                                startDate ?? string.Empty,
+                                endDate ?? string.Empty
+                            );
+                            Console.WriteLine("Performer defined as a group.");
+                            break;
 
-                                if (isAdded) Console.WriteLine("Performer defined as person.");
-                                else Console.WriteLine("Error defining performer.");
-                                break;
-
-                            case "1":
-                                Console.Write("Group name: ");
-                                string? groupName = Console.ReadLine();
-                                Console.Write("Start date: ");
-                                string? startDate = Console.ReadLine();
-                                Console.Write("End date: ");
-                                string? endDate = Console.ReadLine();
-
-                                Group group = new Group(groupName, startDate, endDate);
-                                isAdded = app.GetDataBase().InsertGroup(group);
-                                performerToEdit.SetIdType(PerformerType.Group);
-                                app.GetDataBase().UpdatePerformer(performerToEdit);
-
-                                if (isAdded) Console.WriteLine("Performer defined as group.");
-                                else Console.WriteLine("Error defining performer.");
-                                break;
-
-                            default:
-                                Console.WriteLine("Invalid option.");
-                                break;
-                        }
+                        default:
+                            Console.WriteLine("Invalid option.");
+                            break;
                     }
-                    else
-                    {
-                        Console.WriteLine("Performer not found.");
-                    }
+                
                     break;
-
                 case "7":
                     exit = true;
                     Console.WriteLine("Exiting the program...");

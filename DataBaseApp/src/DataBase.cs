@@ -547,6 +547,106 @@
             return albums;
         }
 
+        public List<Person> GetAllPersons()
+        {
+            List<Person> persons = new List<Person>();
+            string query = "SELECT * FROM persons";
+            
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idPerson = reader.GetInt32(0);
+                        string stageName = reader.GetString(1);
+                        string realName = reader.GetString(2);
+                        string birthDate = reader.GetString(3);
+                        string deathDate = reader.GetString(4);
+                        
+                        Person person = new Person(idPerson, stageName, realName, birthDate, deathDate);
+                        persons.Add(person);
+                    }
+                }
+            }
+            
+            return persons;
+        }
+
+        public bool UpdatePerson(Person person)
+        {
+            bool isUpdated = false;
+            string query = "UPDATE persons SET stage_name = @stage_name, real_name = @real_name, birth_date = @birth_date, death_date = @death_date WHERE id_person = @id_person";
+            
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@stage_name", person.GetStageName());
+                command.Parameters.AddWithValue("@real_name", person.GetRealName());
+                command.Parameters.AddWithValue("@birth_date", person.GetBirthDate());
+                command.Parameters.AddWithValue("@death_date", person.GetDeathDate());
+                command.Parameters.AddWithValue("@id_person", person.GetIdPerson());
+
+                int rowsAffected = command.ExecuteNonQuery();
+                isUpdated = rowsAffected > 0;
+
+                if (isUpdated) 
+                    Console.WriteLine("Person updated successfully.");
+                else 
+                    Console.WriteLine("Person not updated.");
+            }
+
+            return isUpdated;
+        }
+
+        public bool UpdateGroup(Group group)
+        {
+            bool isUpdated = false;
+            string query = "UPDATE groups SET name = @name, start_date = @start_date, end_date = @end_date WHERE id_group = @id_group";
+            
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@name", group.GetName());
+                command.Parameters.AddWithValue("@start_date", group.GetStartDate());
+                command.Parameters.AddWithValue("@end_date", group.GetEndDate());
+                command.Parameters.AddWithValue("@id_group", group.GetIdGroup());
+
+                int rowsAffected = command.ExecuteNonQuery();
+                isUpdated = rowsAffected > 0;
+
+                if (isUpdated) 
+                    Console.WriteLine("Group updated successfully.");
+                else 
+                    Console.WriteLine("Group not updated.");
+            }
+
+            return isUpdated;
+        }
+
+        public List<Group> GetAllGroups()
+        {
+            List<Group> groups = new List<Group>();
+            string query = "SELECT * FROM groups";
+            
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idGroup = reader.GetInt32(0);
+                        string groupName = reader.GetString(1);
+                        string startDate = reader.GetString(2);
+                        string endDate = reader.IsDBNull(3) ? null : reader.GetString(3); // Puede ser nulo
+                        
+                        Group group = new Group(idGroup, groupName, startDate, endDate);
+                        groups.Add(group);
+                    }
+                }
+            }
+            
+            return groups;
+        }
+
         public bool DeleteRola(int idRola)
         {
             string query = "DELETE FROM rolas WHERE id_rola = @id_rola";
