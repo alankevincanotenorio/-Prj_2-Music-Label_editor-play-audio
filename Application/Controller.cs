@@ -130,21 +130,15 @@
             Rola? rolaToEdit = _database.GetRolaByTitleAndPath(title, path);
             if (rolaToEdit == null) return;
             
-            Performer? newPerformer = _database.GetPerformerByName(performerName);
-            if (newPerformer == null)
-            {
-                int performerId = _miner.InsertPerformerIfNotExists(performerName);
-                rolaToEdit.SetIdPerformer(performerId);
-            }
-            else rolaToEdit.SetIdPerformer(newPerformer.GetIdPerformer());
+            List<Performer> performers = _database.GetAllPerformers();
+            Performer rolaPerformer = performers.Find(p => p.GetIdPerformer() == rolaToEdit.GetIdPerformer());
+            rolaPerformer.SetName(performerName);
+            _database.UpdatePerformer(rolaPerformer);
 
-            Album? album = _database.GetAlbumByNameAndPath(albumName, path);
-            if (album == null)
-            {
-                int albumId = _miner.InsertAlbumIfNotExists(albumName, path, rolaToEdit.GetYear());
-                rolaToEdit.SetIdAlbum(albumId);
-            }
-            else rolaToEdit.SetIdAlbum(album.GetIdAlbum());
+            List<Album> albums = _database.GetAllAlbums();
+            Album rolaAlbum = albums.Find(a => a.GetIdAlbum() == rolaToEdit.GetIdAlbum());
+            rolaAlbum.SetName(albumName);
+            _database.UpdateAlbum(rolaAlbum);
 
             if (!string.IsNullOrEmpty(newTitle)) rolaToEdit.SetTitle(newTitle);
             if (!string.IsNullOrEmpty(newGenre)) rolaToEdit.SetGenre(newGenre);
@@ -182,6 +176,7 @@
                 $"Genre: {rola.GetGenre()}";
         }
 
+        //aux method for Update metadata
         private string GetPerformerName(int performerId)
         {
             List<Performer> performers = _database.GetAllPerformers();
@@ -189,6 +184,7 @@
             return performer != null ? performer.GetName() : "Unknown Performer";
         }
 
+        //aux method for Update metadata
         private string GetAlbumName(int albumId)
         {
             List<Album> albums = _database.GetAllAlbums();
