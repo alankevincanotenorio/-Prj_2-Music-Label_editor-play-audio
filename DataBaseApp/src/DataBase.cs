@@ -558,5 +558,27 @@
             }
         }
 
+        public bool DeleteAlbum(int idAlbum)
+        {
+            string query = "DELETE FROM albums WHERE id_album = @id_album";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@id_album", idAlbum);
+                int rowsAffected = command.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
+
+        public bool DeletePerformer(int idPerformer)
+        {
+            string query = "DELETE FROM performers WHERE id_performer = @id_performer";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@id_performer", idPerformer);
+                int rowsAffected = command.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
+
     }
 }

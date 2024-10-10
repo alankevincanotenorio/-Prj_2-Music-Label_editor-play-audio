@@ -132,14 +132,69 @@
             
             List<Performer> performers = _database.GetAllPerformers();
             Performer rolaPerformer = performers.Find(p => p.GetIdPerformer() == rolaToEdit.GetIdPerformer());
-            rolaPerformer.SetName(performerName);
-            _database.UpdatePerformer(rolaPerformer);
-
+            
+            List<Rola> rolasWithSamePerformer = _database.GetAllRolas().Where(r => r.GetIdPerformer() == rolaPerformer.GetIdPerformer()).ToList();
+            if (rolasWithSamePerformer.Count == 1)
+            {
+                Performer? existingPerformer = performers.Find(p => p.GetName() == performerName);
+                if(existingPerformer == null)
+                {
+                    Performer newPerformer = new Performer(performerName);
+                    _database.InsertPerformer(newPerformer);
+                    rolaToEdit.SetIdPerformer(newPerformer.GetIdPerformer());    
+                    _database.DeletePerformer(rolaPerformer.GetIdPerformer());
+                    Console.WriteLine("Performer unico eliminado y rola se le asigno un performer nuevo");
+                }
+                else
+                {
+                    rolaToEdit.SetIdPerformer(existingPerformer.GetIdPerformer());
+                    _database.DeletePerformer(rolaPerformer.GetIdPerformer());
+                    Console.WriteLine("Performer unico eliminado y rola se le asigno un performer existente");
+                }
+            }
+            else if (rolasWithSamePerformer.Count > 1)
+            {
+                Performer? existingP = performers.Find(p => p.GetName() == performerName);
+                if(existingP == null)
+                {
+                    Performer newP = new Performer(performerName);
+                    _database.InsertPerformer(newP);
+                    rolaToEdit.SetIdPerformer(newP.GetIdPerformer());    
+                    Console.WriteLine("rola se le asigno un performer nuevo");
+                }
+                else
+                {
+                    rolaToEdit.SetIdPerformer(existingP.GetIdPerformer());
+                    Console.WriteLine("rola se le asigno un performer existente");
+                }
+            }
+    
+            // Ahora aplicar la lógica análoga para el álbum
             List<Album> albums = _database.GetAllAlbums();
             Album rolaAlbum = albums.Find(a => a.GetIdAlbum() == rolaToEdit.GetIdAlbum());
-            rolaAlbum.SetName(albumName);
-            _database.UpdateAlbum(rolaAlbum);
+            
+            if (rolaAlbum.GetName() != albumName)
+            {
+                Album? existingAlbum = albums.Find(a => a.GetName() == albumName && a.GetPath() == rolaAlbum.GetPath());
+                if (existingAlbum != null)
+                {
+                    // Eliminar el álbum actual si no tiene más rolas asociadas y asignar el ID del álbum existente
+                    List<Rola> rolasWithSameAlbum = _database.GetAllRolas().Where(r => r.GetIdAlbum() == rolaAlbum.GetIdAlbum()).ToList();
+                    if (rolasWithSameAlbum.Count == 1)
+                    {
+                        _database.DeleteAlbum(rolaAlbum.GetIdAlbum());
+                    }
+                    rolaToEdit.SetIdAlbum(existingAlbum.GetIdAlbum());
+                }
+                else
+                {
+                    // Si no hay un álbum duplicado, actualizar el nombre del álbum actual
+                    rolaAlbum.SetName(albumName);
+                    _database.UpdateAlbum(rolaAlbum);
+                }
+            }
 
+            // Actualizar el resto de los detalles de la rola
             if (!string.IsNullOrEmpty(newTitle)) rolaToEdit.SetTitle(newTitle);
             if (!string.IsNullOrEmpty(newGenre)) rolaToEdit.SetGenre(newGenre);
             if (!string.IsNullOrEmpty(newTrack)) rolaToEdit.SetTrack(int.Parse(newTrack));
@@ -147,8 +202,10 @@
 
             _database.UpdateRola(rolaToEdit);
 
+            // Actualizar los metadatos del archivo MP3
             UpdateMp3Metadata(rolaToEdit);
         }
+
 
         private void UpdateMp3Metadata(Rola rola)
         {
@@ -199,7 +256,7 @@
             return matchedAlbums.Select(r => r.GetPath()).ToList();
         }
 
-        public void UpdateAlbumDetails(string oldName, string newName, string path, string year)
+        public void UpdateAlbumDetails(string oldName, string newName, string path, string year) //if the album has the same path like other, erase one
         {
             Album? albumToEdit = _database.GetAlbumByNameAndPath(oldName, path);
             if (albumToEdit == null)
