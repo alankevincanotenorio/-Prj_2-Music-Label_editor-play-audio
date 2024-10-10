@@ -1,9 +1,11 @@
 using ControllerApp;
+using CompilerClass;
 
 class ControllerMain
 {
     static void Main(string[] args)
     {
+        Compiler compiler = new Compiler();
         Controller app = new Controller();
         bool exit = false;
         while (!exit)
@@ -17,8 +19,9 @@ class ControllerMain
             Console.WriteLine("5. Edit Album Details");
             Console.WriteLine("6. Define Performer as Person or Group");
             Console.WriteLine("7. Add person in group");
-            Console.WriteLine("8. Exit");
-            Console.Write("Choose an option (1-7): ");
+            Console.WriteLine("8. Search");
+            Console.WriteLine("9. Exit");
+            Console.Write("Choose an option (1-9): ");
             string? input = Console.ReadLine();
 
             switch (input)
@@ -138,6 +141,13 @@ class ControllerMain
                     break;
 
                 case "8":
+                    Console.WriteLine("Serach rola\nInsert a query");
+                    string query = Console.ReadLine();
+                    bool isValid = compiler.IsValidQuery(query);
+                    Console.WriteLine(isValid);
+                    break;
+
+                case "9":
                     exit = true;
                     Console.WriteLine("Exiting the program...");
                     break;
