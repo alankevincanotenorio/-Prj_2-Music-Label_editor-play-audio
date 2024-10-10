@@ -47,6 +47,7 @@
         public List<string> GetLog() => _miner.GetLog();
         public int GetTotalMp3FilesInPath() => _miner.GetTotalMp3FilesCount(_currentPath);
         public List<Rola> GetAllRolasInDB() => _database.GetAllRolas();
+        public float GetProgress(float processedFiles, int totalFiles) => processedFiles / totalFiles;
 
         public void SetProcessedFilesNumber(int count) => _miner.SetProcessedFilesCount(count);
 
@@ -125,20 +126,48 @@
             return rolaDetails;
         }
 
-        public void UpdateRolaDetails(string title, string path, string newTitle, string newGenre, string newTrack, string performerName, string year, string albumName)
+      public bool UpdateRolaDetails(string title, string path, string newTitle, string newGenre, string newTrack, string performerName, string year, string albumName)
         {
             Rola? rolaToEdit = _database.GetRolaByTitleAndPath(title, path);
-            if (rolaToEdit == null) return;
-            if (!string.IsNullOrEmpty(newTitle))rolaToEdit.SetTitle(newTitle);
-            if (!string.IsNullOrEmpty(newGenre))rolaToEdit.SetGenre(newGenre);
-            if (!string.IsNullOrEmpty(newTrack)) rolaToEdit.SetTrack(int.Parse(newTrack));
-            if (!string.IsNullOrEmpty(year)) rolaToEdit.SetYear(int.Parse(year));
+            if (rolaToEdit == null)
+            {
+                Console.WriteLine("Rola not found.");
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(newTrack))
+            {
+                if (!int.TryParse(newTrack, out int trackNumber))
+                {
+                    Console.WriteLine("Track number must be an integer.");
+                    return false;
+                }
+                rolaToEdit.SetTrack(trackNumber);
+            }
+
+            if (!string.IsNullOrEmpty(year))
+            {
+                if (!int.TryParse(year, out int yearNumber))
+                {
+                    Console.WriteLine("Year must be an integer.");
+                    return false;
+                }
+                rolaToEdit.SetYear(yearNumber);
+            }
+
+            if (!string.IsNullOrEmpty(newTitle)) rolaToEdit.SetTitle(newTitle);
+            if (!string.IsNullOrEmpty(newGenre)) rolaToEdit.SetGenre(newGenre);
+
             if (!string.IsNullOrEmpty(performerName)) UpdatePerformer(rolaToEdit, performerName);
+
             if (!string.IsNullOrEmpty(albumName)) UpdateAlbum(rolaToEdit, albumName);
+
             _database.UpdateRola(rolaToEdit);
 
             UpdateMp3Metadata(rolaToEdit);
+            return true;
         }
+
 
         private void UpdatePerformer(Rola rolaToEdit, string performerName)
         {
@@ -407,7 +436,7 @@
 
         public void addPersonToGroup()
         {
-
+            //verificar si la persona ya esta en el grupo
         }
         //this method is for the compiler
         public void search()

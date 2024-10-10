@@ -213,7 +213,7 @@ class GraphicInterface : Window
             {
                 Application.Invoke(delegate
                 {
-                    float progress = (float)processedFiles / totalFiles;
+                    float progress = app.GetProgress((float)processedFiles, totalFiles);
                     progressBar.Fraction = progress;
                     progressBar.Text = $"{(int)(progress * 100)}%";
                 });
@@ -223,7 +223,7 @@ class GraphicInterface : Window
         List<string> rolas = app.GetRolasInfoInPath();
         rolasList.Buffer.Text = string.Join("\n", rolas);
         if (app.GetLog().Count > 0)
-            errorLogView.Buffer.Text = "Log:\n" + string.Join("\n", app.GetMiner().GetLog());
+            errorLogView.Buffer.Text = "Log:\n" + string.Join("\n", app.GetLog());
         miningButton.Sensitive = true;
     }
 
@@ -336,24 +336,7 @@ class GraphicInterface : Window
 
         acceptButton.Clicked += (sender, eventArgs) =>
         {
-            MessageDialog errorDialog;
-            if (!int.TryParse(newTrackEntry.Text, out int trackNumber))
-            {
-                errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Track number must be an integer.");
-                errorDialog.Run();
-                errorDialog.Hide();
-                return;
-            }
-
-            if (!int.TryParse(newYearEntry.Text, out int year))
-            {
-                errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Year must be an integer.");
-                errorDialog.Run();
-                errorDialog.Hide();
-                return;
-            }
-
-            app.UpdateRolaDetails(
+            bool success = app.UpdateRolaDetails(
                 rolaTitle,
                 rolaPath,
                 newTitleEntry.Text, 
@@ -364,18 +347,24 @@ class GraphicInterface : Window
                 newAlbumEntry.Text
             );
 
-            MessageDialog successDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Rola updated successfully.");
-            successDialog.Run();
-            successDialog.Hide();
+            if (!success)
+            {   
+                MessageDialog errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Failed to update rola. Please check the input values (year and track must be int).");
+                errorDialog.Run();
+                errorDialog.Hide();
+            }
+            else{
+                MessageDialog successDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Rola updated successfully.");
+                successDialog.Run();
+                successDialog.Hide();
 
-            detailsWindow.Hide();
-            detailsWindow.Dispose(); // Liberar recursos de la ventana
-
+                detailsWindow.Hide();
+                detailsWindow.Dispose(); // Liberar recursos de la ventana
+            }
         };
         detailsWindow.Add(detailsBox);
         detailsWindow.ShowAll();
     }
-
 
     void OnEditAlbumButton(object sender, EventArgs e)
     {
@@ -721,6 +710,18 @@ class GraphicInterface : Window
         groupWindow.Add(detailsBox);
         groupWindow.ShowAll();
     }
+
+
+
+
+
+    //verificar si existe el person
+    //verificar si existe el group
+    //verificar si existe dentro del grupo
+    
+
+
+
 
     private void DisableNonMiningActions()
     {
