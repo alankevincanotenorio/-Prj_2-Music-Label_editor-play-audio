@@ -217,7 +217,7 @@
             return matchedAlbums.Select(r => r.GetPath()).ToList();
         }
 
-        public void UpdateAlbumDetails(string oldName, string newName, string path, string year) //if the album has the same path like other, erase one
+        public void UpdateAlbumDetails(string oldName, string newName, string path, string year)
         {
             Album? albumToEdit = _database.GetAlbumByNameAndPath(oldName, path);
             if (albumToEdit == null)

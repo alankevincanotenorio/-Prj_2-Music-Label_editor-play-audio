@@ -117,6 +117,7 @@ class GraphicInterface : Window
         // "Define performer"
         definePerformerButton = new Button("Define Performer");
         definePerformerButton.SetSizeRequest(100, 40);
+        definePerformerButton.Clicked += OnDefinePerformerButton!;
         buttonBox.PackStart(definePerformerButton, false, false, 0);
 
         // "Add person to group"
@@ -497,6 +498,36 @@ class GraphicInterface : Window
     }
 
 
+    void OnDefinePerformerButton(object sender, EventArgs e)
+    {
+        Window definePerformer = new Window("define Performer");
+        definePerformer.SetDefaultSize(300, 100);
+        definePerformer.SetPosition(WindowPosition.Center);
+        definePerformer.StyleContext.AddProvider(cssProvider, 800);
+
+        Box vbox = new Box(Orientation.Vertical, 10);
+        Label instructionLabel = new Label("Define performer as:");
+        vbox.PackStart(instructionLabel, false, false, 5);
+
+        Button personButton = new Button("Person");
+        vbox.PackStart(personButton, false, false, 5);
+
+        Button groupButton = new Button("Group");
+        vbox.PackStart(groupButton, false, false, 5);
+
+        personButton.Clicked += (s, e) =>
+        {
+
+        };
+
+        groupButton.Clicked += (s, e) =>
+        {
+            
+        };
+
+        definePerformer.Add(vbox);
+        definePerformer.ShowAll();
+    }
 
 
 
