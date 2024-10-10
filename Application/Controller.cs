@@ -339,7 +339,7 @@
             Performer? performer = _database.GetPerformerByName(performerName);
             List<Person> allPersons = _database.GetAllPersons();
 
-            Person? existingPerson = allPersons.FirstOrDefault(p => p.GetStageName() == stage_name);
+            Person? existingPerson = allPersons.Find(p => p.GetStageName() == stage_name);
 
             if (existingPerson != null)
             {
@@ -361,8 +361,20 @@
         public void DefinePerformerAsGroup(string performerName, string name, string start_date, string end_date)
         {
             Performer? performer = _database.GetPerformerByName(performerName);
-            Group group = new Group(name, start_date, end_date);
-            _database.InsertGroup(group);
+            List<Group> allGroups = _database.GetAllGroups();
+            Group? existingGroup = allGroups.Find(p => p.GetName() == name);
+            if(existingGroup != null)
+            {
+                existingGroup.SetName(name);
+                existingGroup.SetStartDate(start_date);
+                existingGroup.SetEndDate(end_date);
+                _database.UpdateGroup(existingGroup);
+            }
+            else
+            {
+                Group group = new Group(name, start_date, end_date);
+                _database.InsertGroup(group);
+            }
             performer.SetIdType(PerformerType.Group);
             _database.UpdatePerformer(performer);
         }

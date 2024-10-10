@@ -528,32 +528,34 @@ class GraphicInterface : Window
             {
                 if(app.IsDefined(performerName))
                 {
-                    if(app.GetTypePerformer(performerName) == 1)
+                     if(app.GetTypePerformer(performerName) == 1)
                     {
-                        MessageDialog redefine = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo, "This performer is already defined as group");
-                        redefine.Run();
-                        redefine.Hide();   
+                        MessageDialog r = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "This performer is already defined as group");
+                        r.Run();
+                        r.Hide();
                     }
-                    else 
+                    else
                     {
-                        MessageDialog redefineDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo, "This performer is already defined. Do you want to redefine it?");
-                        ResponseType response = (ResponseType)redefineDialog.Run();
-                        redefineDialog.Hide();
+                        MessageDialog d = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo, "This performer is already defined. Do you want to redefine it?");
+                        ResponseType response = (ResponseType)d.Run();
+                        d.Hide();
 
                         if(response == ResponseType.Yes)
                         {
                             definePerformer.Hide();
                             DefinePerson(performerName);
                         }
-                        else definePerformer.Hide();
                     }
                 }
-                definePerformer.Hide();
-                DefinePerson(performerName);
+                else
+                {
+                    definePerformer.Hide();
+                    DefinePerson(performerName);
+                }
             }
             else
             {
-                MessageDialog errorDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please enter a valid performer name.");
+                MessageDialog errorDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please enter a  valid performer name.");
                 errorDialog.Run();
                 errorDialog.Hide();
             }
@@ -568,7 +570,7 @@ class GraphicInterface : Window
                 {
                      if(app.GetTypePerformer(performerName) == 0)
                     {
-                        MessageDialog redefinen = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo, "This performer is already defined as person");
+                        MessageDialog redefinen = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "This performer is already defined as person");
                         redefinen.Run();
                         redefinen.Hide();
                     }
@@ -583,7 +585,6 @@ class GraphicInterface : Window
                             definePerformer.Hide();
                             DefineGroup(performerName);
                         }
-                        else definePerformer.Hide();
                     }
                 }
                 else
@@ -612,6 +613,7 @@ class GraphicInterface : Window
         personWindow.StyleContext.AddProvider(cssProvider, 800);
 
         Box detailsBox = new Box(Orientation.Vertical, 10);
+
         Label stageNameLabel = new Label("Stage Name:");
         Entry stageNameEntry = new Entry
         {
@@ -646,21 +648,11 @@ class GraphicInterface : Window
             string realName = realNameEntry.Text;
             string birthDate = birthDateEntry.Text;
             string deathDate = deathDateEntry.Text;
-
-            if (!string.IsNullOrEmpty(stageName) && !string.IsNullOrEmpty(realName) && !string.IsNullOrEmpty(birthDate))
-            {
-                app.DefinePerformerAsPerson(performerName, stageName, realName, birthDate, deathDate);
-                MessageDialog successDialog = new MessageDialog(personWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Performer defined as person.");
-                successDialog.Run();
-                successDialog.Hide();
-                personWindow.Hide();
-            }
-            else
-            {
-                MessageDialog errorDialog = new MessageDialog(personWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please fill in all required fields.");
-                errorDialog.Run();
-                errorDialog.Hide();
-            }
+            app.DefinePerformerAsPerson(performerName, stageName, realName, birthDate, deathDate);
+            MessageDialog successDialog = new MessageDialog(personWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Performer defined as person.");
+            successDialog.Run();
+            successDialog.Hide();
+            personWindow.Hide();
         };
 
         personWindow.Add(detailsBox);
@@ -703,21 +695,11 @@ class GraphicInterface : Window
             string groupName = groupNameEntry.Text;
             string startDate = startDateEntry.Text;
             string endDate = endDateEntry.Text;
-
-            if (!string.IsNullOrEmpty(groupName) && !string.IsNullOrEmpty(startDate))
-            {
                 app.DefinePerformerAsGroup(performerName, groupName, startDate, endDate);
                 MessageDialog successDialog = new MessageDialog(groupWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Performer defined as group.");
                 successDialog.Run();
                 successDialog.Hide();
                 groupWindow.Hide();
-            }
-            else
-            {
-                MessageDialog errorDialog = new MessageDialog(groupWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please fill in all required fields.");
-                errorDialog.Run();
-                errorDialog.Hide();
-            }
         };
 
         groupWindow.Add(detailsBox);
