@@ -638,6 +638,15 @@ class GraphicInterface : Window
         detailsBox.PackStart(deathDateLabel, false, false, 5);
         detailsBox.PackStart(deathDateEntry, false, false, 5);
 
+        List<string> performerDetails = app.ShowPerformerDetails(performerName);
+        if (performerDetails.Count > 0)
+        {
+            realNameEntry.Text = performerDetails[1];
+            birthDateEntry.Text = performerDetails[2];
+            deathDateEntry.Text = performerDetails[3];
+        }
+
+
         Button confirmButton = new Button("Confirm");
         detailsBox.PackStart(confirmButton, false, false, 5);
 
@@ -686,6 +695,13 @@ class GraphicInterface : Window
         Entry endDateEntry = new Entry();
         detailsBox.PackStart(endDateLabel, false, false, 5);
         detailsBox.PackStart(endDateEntry, false, false, 5);
+
+        List<string> performerDetails = app.ShowPerformerDetails(performerName);
+        if (performerDetails.Count > 0)
+        {
+            startDateEntry.Text = performerDetails[1];
+            endDateEntry.Text = performerDetails[2];
+        }
 
         Button confirmButton = new Button("Confirm");
         detailsBox.PackStart(confirmButton, false, false, 5);

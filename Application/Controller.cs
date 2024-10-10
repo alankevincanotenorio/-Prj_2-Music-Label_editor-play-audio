@@ -311,10 +311,36 @@
             return albumDetails;
         }
 
-        public void showPerformerDetails()
+        public List<string> ShowPerformerDetails(string performerName)
         {
+            List<string> performerDetails = new List<string>();
 
+            Performer? performer = _database.GetPerformerByName(performerName);
+            if (performer == null) return performerDetails;
+            if (performer.GetIdType() == 0)
+            {
+                Person person = _database.GetAllPersons().Find(p => p.GetStageName() == performerName);
+                if (person != null)
+                {
+                    performerDetails.Add(person.GetStageName());
+                    performerDetails.Add(person.GetRealName());
+                    performerDetails.Add(person.GetBirthDate());
+                    performerDetails.Add(person.GetDeathDate());
+                }
+            }
+            else if (performer.GetIdType() == 1)
+            {
+                Group group = _database.GetAllGroups().Find(g => g.GetName() == performerName);
+                if (group != null)
+                {
+                    performerDetails.Add(group.GetName());
+                    performerDetails.Add(group.GetStartDate());
+                    performerDetails.Add(group.GetEndDate());
+                }
+            }
+            return performerDetails;
         }
+
 
         public bool ExistsPerformer(string performerName)
         {

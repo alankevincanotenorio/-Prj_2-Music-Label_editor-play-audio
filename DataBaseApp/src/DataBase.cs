@@ -636,8 +636,7 @@
                         int idGroup = reader.GetInt32(0);
                         string groupName = reader.GetString(1);
                         string startDate = reader.GetString(2);
-                        string endDate = reader.IsDBNull(3) ? null : reader.GetString(3); // Puede ser nulo
-                        
+                        string endDate = reader.GetString(3);
                         Group group = new Group(idGroup, groupName, startDate, endDate);
                         groups.Add(group);
                     }
