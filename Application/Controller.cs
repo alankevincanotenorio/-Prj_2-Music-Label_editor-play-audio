@@ -147,6 +147,15 @@
 
             if (existingPerformer == null)
             {
+                List<Rola> rolas = _database.GetAllRolas();
+                List<Rola> rolasWithSamePerformer = rolas.Where(r => r.GetIdPerformer() == rolaToEdit.GetIdPerformer()).ToList();
+                if(rolasWithSamePerformer.Count == 1 && rolasWithSamePerformer[0].GetIdRola() == rolaToEdit.GetIdRola())
+                {
+                    Performer p = performers.Find(p => p.GetIdPerformer() == rolaToEdit.GetIdPerformer());
+                    p.SetName(performerName);
+                    _database.UpdatePerformer(p);
+                    return;
+                }
                 Performer newPerformer = new Performer(performerName);
                 _database.InsertPerformer(newPerformer);
                 rolaToEdit.SetIdPerformer(newPerformer.GetIdPerformer());
@@ -154,19 +163,33 @@
             else rolaToEdit.SetIdPerformer(existingPerformer.GetIdPerformer());
         }
 
-        private void UpdateAlbum(Rola rolaToEdit, string albumName)
+       private void UpdateAlbum(Rola rolaToEdit, string albumName)
         {
             List<Album> albums = _database.GetAllAlbums();
             Album rolaAlbum = albums.Find(a => a.GetIdAlbum() == rolaToEdit.GetIdAlbum());
+
             Album? existingAlbum = albums.Find(a => a.GetName() == albumName && a.GetPath() == rolaAlbum.GetPath());
+
             if (existingAlbum == null)
             {
+                List<Rola> rolas = _database.GetAllRolas();
+                List<Rola> rolasWithSameAlbumAndPath = rolas.Where(r => r.GetIdAlbum() == rolaToEdit.GetIdAlbum()).ToList();
+                if (rolasWithSameAlbumAndPath.Count == 1 && rolasWithSameAlbumAndPath[0].GetIdRola() == rolaToEdit.GetIdRola())
+                {
+                    rolaAlbum.SetName(albumName);
+                    _database.UpdateAlbum(rolaAlbum);
+                    Console.WriteLine($"Album updated to {albumName}.");
+                    return;
+                }
+
                 Album newAlbum = new Album(rolaAlbum.GetPath(), albumName, rolaAlbum.GetYear());
                 _database.InsertAlbum(newAlbum);
                 rolaToEdit.SetIdAlbum(newAlbum.GetIdAlbum());
+                Console.WriteLine($"New album {albumName} created and assigned to the song.");
             }
             else rolaToEdit.SetIdAlbum(existingAlbum.GetIdAlbum());
         }
+
 
         private void UpdateMp3Metadata(Rola rola)
         {
@@ -277,9 +300,49 @@
 
         }
 
-        public void definePerformer()
+        public bool ExistsPerformer(string performerName)
         {
+            Performer? performer = _database.GetPerformerByName(performerName);
+            return performer != null ? true : false;
+        }
 
+        public bool IsDefined(string performerName)
+        {   
+            Performer? performer = _database.GetPerformerByName(performerName);
+            return performer.GetIdType() == 2 ? false : true;
+        }
+
+        public void DefinePerformerAsPerson(string performerName, string stage_name, string real_name, string birth_date, string death_date)
+        {
+            Performer? performer = _database.GetPerformerByName(performerName);
+            List<Person> allPersons = _database.GetAllPersons();
+
+            Person? existingPerson = allPersons.FirstOrDefault(p => p.GetStageName() == stage_name);
+
+            if (existingPerson != null)
+            {
+                existingPerson.SetRealName(real_name);
+                existingPerson.SetBirthDate(birth_date);
+                existingPerson.SetDeathDate(death_date);
+                _database.UpdatePerson(existingPerson);
+            }
+            else
+            {
+                Person newPerson = new Person(stage_name, real_name, birth_date, death_date);
+                _database.InsertPerson(newPerson);
+            }
+            performer.SetIdType(PerformerType.Person);
+            _database.UpdatePerformer(performer);
+        }
+
+
+        public void DefinePerformerAsGroup(string performerName, string name, string start_date, string end_date)
+        {
+            Performer? performer = _database.GetPerformerByName(performerName);
+            Group group = new Group(name, start_date, end_date);
+            _database.InsertGroup(group);
+            performer.SetIdType(PerformerType.Group);
+            _database.UpdatePerformer(performer);
         }
 
         public void addPersonToGroup()
