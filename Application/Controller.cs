@@ -142,13 +142,13 @@
                     {
 
                         Performer? existingP = performers.Find(p => p.GetName() == performerName);
-                        if(existingP == null) // listo
+                        if(existingP == null) 
                         {
                             rolaPerformer.SetName(performerName);
                             _database.UpdatePerformer(rolaPerformer);
                             Console.WriteLine("se le cambio el nombre al performer");
                         }
-                        else if(existingP != null && existingP.GetName() == performerName) // listo
+                        else if(existingP.GetName() == performerName)
                         {
                             _database.DeletePerformer(rolaPerformer.GetIdPerformer());
                             rolaToEdit.SetIdPerformer(existingP.GetIdPerformer());
@@ -174,48 +174,48 @@
                 }
             }
     
-            try{
-                List<Album> albums = _database.GetAllAlbums();
+            List<Album> albums = _database.GetAllAlbums();
             Album rolaAlbum = albums.Find(a => a.GetIdAlbum() == rolaToEdit.GetIdAlbum());
             
-            List<Rola> rolasWithSameAlbumInPath = _database.GetAllRolas().Where(r => r.GetIdAlbum() == rolaAlbum.GetIdAlbum() && r.GetPath() == rolaToEdit.GetPath()).ToList();
-            if (rolasWithSameAlbumInPath.Count == 1)
+            List<Rola> rolasWithSameAlbum = _database.GetAllRolas().Where(r => r.GetIdAlbum() == rolaAlbum.GetIdAlbum()).ToList();
+            if (rolasWithSameAlbum.Count >= 1)
             {
-                Album? existingAlbum = albums.Find(p => p.GetName() == albumName);
-                if(existingAlbum == null)
+                if(rolasWithSameAlbum.Count == 1)
                 {
-                    Album newAlbum = new Album(rolaToEdit.GetPath(), albumName, rolaToEdit.GetYear());
-                    _database.InsertAlbum(newAlbum);
-                    rolaToEdit.SetIdAlbum(newAlbum.GetIdAlbum());
-                    _database.DeleteAlbum(rolaAlbum.GetIdAlbum());
-                    Console.WriteLine("Album unico eliminado en el path y rola se le asigno un album nuevo");
+                    if(rolasWithSameAlbum[0].GetIdRola() == rolaToEdit.GetIdRola()) //verificamos que solo este asociada a la rola a editar
+                    {
+                        Album? existingA = albums.Find(a => a.GetName() == albumName && a.GetPath() == rolaAlbum.GetPath());
+                        if(existingA == null)
+                        {
+                            rolaAlbum.SetName(albumName);
+                            _database.UpdateAlbum(rolaAlbum);
+                            Console.WriteLine("se le cambio el nombre al album"); //listo
+                        }
+                        else
+                        {
+                            _database.DeleteAlbum(rolaAlbum.GetIdAlbum());
+                            rolaToEdit.SetIdAlbum(existingA.GetIdAlbum());
+                            Console.WriteLine("rola se le asigno un album existente y se elimino el album solito");
+                            //listo
+                        }
+                    }
                 }
                 else
                 {
-                    rolaToEdit.SetIdAlbum(existingAlbum.GetIdAlbum());
-                    Console.WriteLine("se renombro el nombre del album unico");
+                    Album? existingB = albums.Find(a => a.GetName() == albumName && a.GetPath() == rolaAlbum.GetPath());
+                    if(existingB == null)
+                    {
+                        Album newAlbum = new Album(rolaAlbum.GetPath(), albumName, rolaAlbum.GetYear());
+                        _database.InsertAlbum(newAlbum);
+                        rolaToEdit.SetIdAlbum(newAlbum.GetIdAlbum());
+                        Console.WriteLine("rola se le asigno un album nuevo"); // listo
+                    }
+                    else
+                    {
+                        rolaToEdit.SetIdAlbum(existingB.GetIdAlbum());
+                        Console.WriteLine("se le cambio el id album a la rola"); // listo
+                    }                        
                 }
-            }
-            else if (rolasWithSameAlbumInPath.Count > 1)
-            {
-                Album? existingA = albums.Find(p => p.GetName() == albumName);
-                if(existingA == null)
-                {
-                    Album newAlbum = new Album(rolaToEdit.GetPath(), albumName, rolaToEdit.GetYear());
-                    _database.InsertAlbum(newAlbum);
-                    rolaToEdit.SetIdAlbum(newAlbum.GetIdAlbum());   
-                    Console.WriteLine("rola se le asigno un album nuevo");
-                }
-                else
-                {
-                    rolaToEdit.SetIdAlbum(existingA.GetIdAlbum());
-                    Console.WriteLine("rola se le asigno un Album existente");
-                }
-            }
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine("album");
             }
 
             // Actualizar el resto de los detalles de la rola
