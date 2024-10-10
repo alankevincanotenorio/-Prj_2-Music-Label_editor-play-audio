@@ -515,85 +515,55 @@ class GraphicInterface : Window
         personButton.Clicked += (s, e) =>
         {
             string performerName = performerEntry.Text;
-            if (!string.IsNullOrEmpty(performerName) && app.ExistsPerformer(performerName))
-            {
-                if(app.IsDefined(performerName))
-                {
-                     if(app.GetTypePerformer(performerName) == 1)
-                    {
-                        MessageDialog r = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "This performer is already defined as group");
-                        r.Run();
-                        r.Hide();
-                    }
-                    else
-                    {
-                        MessageDialog d = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo, "This performer is already defined. Do you want to redefine it?");
-                        ResponseType response = (ResponseType)d.Run();
-                        d.Hide();
+            string result = app.CheckPerformer(performerName, "Person");
 
-                        if(response == ResponseType.Yes)
-                        {
-                            definePerformer.Hide();
-                            DefinePerson(performerName);
-                        }
-                    }
-                }
-                else
-                {
-                    definePerformer.Hide();
-                    DefinePerson(performerName);
-                }
-            }
-            else
-            {
-                MessageDialog errorDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please enter a  valid performer name.");
-                errorDialog.Run();
-                errorDialog.Hide();
-            }
+            HandlePerformerResult(result, definePerformer, performerName, DefinePerson);
         };
 
         groupButton.Clicked += (s, e) =>
         {
             string performerName = performerEntry.Text;
-            if (!string.IsNullOrEmpty(performerName) && app.ExistsPerformer(performerName))
-            {
-                if(app.IsDefined(performerName))
-                {
-                     if(app.GetTypePerformer(performerName) == 0)
-                    {
-                        MessageDialog redefinen = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "This performer is already defined as person");
-                        redefinen.Run();
-                        redefinen.Hide();
-                    }
-                    else
-                    {
-                        MessageDialog redefineDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo, "This performer is already defined. Do you want to redefine it?");
-                        ResponseType response = (ResponseType)redefineDialog.Run();
-                        redefineDialog.Hide();
+            string result = app.CheckPerformer(performerName, "Group");
 
-                        if(response == ResponseType.Yes)
-                        {
-                            definePerformer.Hide();
-                            DefineGroup(performerName);
-                        }
-                    }
-                }
-                else
-                {
-                    definePerformer.Hide();
-                    DefineGroup(performerName);
-                }
-            }
-            else
-            {
-                MessageDialog errorDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please enter a  valid performer name.");
-                errorDialog.Run();
-                errorDialog.Hide();
-            }
+            HandlePerformerResult(result, definePerformer, performerName, DefineGroup);
         };
 
         definePerformer.Add(vbox);
         definePerformer.ShowAll();
+    }
+
+    // aux method
+    void HandlePerformerResult(string result, Window definePerformer, string performerName, Action<string> defineAction)
+    {
+        if (result == "NotFound")
+        {
+            MessageDialog errorDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please enter a valid performer name.");
+            errorDialog.Run();
+            errorDialog.Hide();
+        }
+        else if (result == "Redefine")
+        {
+            MessageDialog redefineDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo, "This performer is already defined. Do you want to redefine it?");
+            ResponseType response = (ResponseType)redefineDialog.Run();
+            redefineDialog.Hide();
+
+            if (response == ResponseType.Yes)
+            {
+                definePerformer.Hide();
+                defineAction(performerName);
+            }
+        }
+        else if (result == "Person" || result == "Group")
+        {
+            MessageDialog errorDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, $"This performer is already defined as {result}");
+            errorDialog.Run();
+            errorDialog.Hide();
+        }
+        else
+        {
+            definePerformer.Hide();
+            defineAction(performerName);
+        }
     }
 
     void DefinePerson(string performerName)
@@ -637,10 +607,8 @@ class GraphicInterface : Window
             deathDateEntry.Text = performerDetails[3];
         }
 
-
         Button confirmButton = new Button("Confirm");
         detailsBox.PackStart(confirmButton, false, false, 5);
-
         
         confirmButton.Clicked += (s, e) =>
         {

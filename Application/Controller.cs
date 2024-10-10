@@ -392,6 +392,21 @@
         }
 
 
+        public string CheckPerformer(string performerName, string typeToDefineAs)
+        {
+            if (string.IsNullOrEmpty(performerName) || !ExistsPerformer(performerName)) return "NotFound";
+            if (IsDefined(performerName))
+            {
+                int performerType = GetTypePerformer(performerName);
+                if ((performerType == 0 && typeToDefineAs == "Group")) return "Person";   
+                if (performerType == 1 && typeToDefineAs == "Person") return "Group";
+                return "Redefine";
+            }
+            return "NotDefined";
+        }
+
+
+
         public bool ExistsPerformer(string performerName)
         {
             Performer? performer = _database.GetPerformerByName(performerName);
