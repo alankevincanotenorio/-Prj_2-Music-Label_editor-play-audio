@@ -686,13 +686,65 @@ class GraphicInterface : Window
 
     void OnAddPersonGroup(object sender, EventArgs e)
     {
+        Window addPersonGroup = new Window("Add person in a group");
+        addPersonGroup.SetDefaultSize(300, 200);
+        addPersonGroup.SetPosition(WindowPosition.Center);
+        addPersonGroup.StyleContext.AddProvider(cssProvider, 800);
 
+        Box vbox = new Box(Orientation.Vertical, 10);
+
+        Label personLabel = new Label("Enter person name:");
+        Entry personEntry = new Entry();
+        vbox.PackStart(personLabel, false, false, 5);
+        vbox.PackStart(personEntry, false, false, 5);
+
+        Label groupLabel = new Label("Enter group name:");
+        Entry groupEntry = new Entry();
+        vbox.PackStart(groupLabel, false, false, 5);
+        vbox.PackStart(groupEntry, false, false, 5);
+
+        Button confirmButton = new Button("Confirm");
+        vbox.PackStart(confirmButton, false, false, 5);
+
+        confirmButton.Clicked += (s, e) =>
+        {
+            string result = app.CheckPersonAndGroup(personEntry.Text, groupEntry.Text);
+            HandleResult(result, addPersonGroup, personEntry.Text, groupEntry.Text);
+        };
+        addPersonGroup.Add(vbox);
+        addPersonGroup.ShowAll();
+    }
+
+    void HandleResult(string result, Window addPersonGroup, string personName, string groupName)
+    {
+        if (result == "Person not found")
+        {
+            MessageDialog errorPerson = new MessageDialog(addPersonGroup, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please enter a valid person name.");
+            errorPerson.Run();
+            errorPerson.Hide();
+        }
+        else if (result == "Group not found")
+        {
+            MessageDialog errorGroup = new MessageDialog(addPersonGroup, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please enter a valid group name.");
+            errorGroup.Run();
+            errorGroup.Hide();
+        }
+        else if (result == "Person already in group")
+        {
+            MessageDialog alreadyInGroupDialog = new MessageDialog(addPersonGroup, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "This person is already in the group.");
+            alreadyInGroupDialog.Run();
+            alreadyInGroupDialog.Hide();
+        }
+        else
+        {
+            app.AddPersonToGroup(personName, groupName);
+            MessageDialog success = new MessageDialog(addPersonGroup, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Person added to a group");
+            success.Run();
+            success.Hide();
+            addPersonGroup.Hide();
+        }
     }
     
-
-
-
-
     private void DisableNonMiningActions()
     {
         editRolaButton.Sensitive = false;

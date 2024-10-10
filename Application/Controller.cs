@@ -472,21 +472,32 @@
 
         public void AddPersonToGroup(string personName, string groupName)
         {
+            Person person = _database.GetAllPersons().Find(p => p.GetStageName() == personName);
+            Group group = _database.GetAllGroups().Find(g => g.GetName() == groupName);
+            bool isAdded = _database.AddInGroup(person, group);
+            if (isAdded) Console.WriteLine("Person added to the group successfully.");
+            else Console.WriteLine("The person is already in the group or an error occurred.");
+        }
+
+        public string CheckPersonAndGroup(string personName, string groupName)
+        {
             Person? person = _database.GetAllPersons().Find(p => p.GetStageName() == personName);
             if (person == null)
             {
                 Console.WriteLine("Person not found.");
-                return;
+                return "Person not found";
             }
+
             Group? group = _database.GetAllGroups().Find(g => g.GetName() == groupName);
             if (group == null)
             {
                 Console.WriteLine("Group not found.");
-                return;
+                return "Group not found";
             }
-            bool isAdded = _database.AddInGroup(person, group);
-            if (isAdded) Console.WriteLine("Person added to the group successfully.");
-            else Console.WriteLine("The person is already in the group or an error occurred.");
+
+            bool alreadyInGroup = _database.CheckPersonInGroup(person, group);
+            if (alreadyInGroup) return "Person already in group";
+            return "success";
         }
 
         //this method is for the compiler
