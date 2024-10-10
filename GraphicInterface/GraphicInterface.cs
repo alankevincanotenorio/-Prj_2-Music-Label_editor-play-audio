@@ -123,6 +123,7 @@ class GraphicInterface : Window
         // "Add person to group"
         addPersonButton = new Button("Add person to group");
         addPersonButton.SetSizeRequest(100, 40);
+        addPersonButton.Clicked += OnAddPersonGroup!;
         buttonBox.PackStart(addPersonButton, false, false, 0);
 
         // "Search"
@@ -683,11 +684,10 @@ class GraphicInterface : Window
 
 
 
+    void OnAddPersonGroup(object sender, EventArgs e)
+    {
 
-
-    //verificar si existe el person
-    //verificar si existe el group
-    //verificar si existe dentro del grupo
+    }
     
 
 

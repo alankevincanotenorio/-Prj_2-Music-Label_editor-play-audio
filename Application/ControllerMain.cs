@@ -1,4 +1,5 @@
 using ControllerApp;
+
 class ControllerMain
 {
     static void Main(string[] args)
@@ -15,7 +16,8 @@ class ControllerMain
             Console.WriteLine("4. Edit Song Details");
             Console.WriteLine("5. Edit Album Details");
             Console.WriteLine("6. Define Performer as Person or Group");
-            Console.WriteLine("7. Exit");
+            Console.WriteLine("7. Add person in group");
+            Console.WriteLine("8. Exit");
             Console.Write("Choose an option (1-7): ");
             string? input = Console.ReadLine();
 
@@ -31,18 +33,20 @@ class ControllerMain
                     }
                     else Console.WriteLine("Invalid path.");
                     break;
+
                 case "2":
                     Console.WriteLine("Starting mining...");
                     int totalFiles = app.GetTotalMp3FilesInPath();
-                    if(totalFiles == 0) Console.WriteLine("Mining process 100%");
+                    if (totalFiles == 0) Console.WriteLine("Mining process 100%");
                     Console.WriteLine($"Total MP3 Files: {totalFiles}");
                     app.StartMining((processedFiles) =>
                     {
-                        float progress = (float)processedFiles / totalFiles;
+                        float progress = app.GetProgress((float)processedFiles, totalFiles);
                         Console.WriteLine($"Mining Progress: {processedFiles}/{totalFiles} ({(int)(progress * 100)}%)");
                     });
                     Console.WriteLine("Mining finished.");
                     break;
+
                 case "3":
                     List<string> songs = app.GetRolasInfoInPath();
                     Console.WriteLine("Mined Songs:");
@@ -55,6 +59,7 @@ class ControllerMain
                         }
                     }
                     break;
+
                 case "4":
                     Console.Write("Enter song title to edit: ");
                     string? rolaTitle = Console.ReadLine();
@@ -75,41 +80,14 @@ class ControllerMain
                         }
                         else Console.WriteLine("Invalid selection.");
                     }
-                    void EditRolaDetails(string title, string path)
-                    {
-                        Console.WriteLine("Editing Song Details:");
-                        Console.Write("New Title: ");
-                        string? newTitle = Console.ReadLine();
-                        Console.Write("New Genre: ");
-                        string? newGenre = Console.ReadLine();
-                        Console.Write("New Track Number: ");
-                        string? newTrack = Console.ReadLine();
-                        Console.Write("New Performer Name: ");
-                        string? performerName = Console.ReadLine();
-                        Console.Write("New Year: ");
-                        string? year = Console.ReadLine();
-                        Console.Write("New Album Name: ");
-                        string? albumN = Console.ReadLine();
-
-                        app.UpdateRolaDetails(
-                            title,
-                            path,
-                            newTitle ?? string.Empty,
-                            newGenre ?? string.Empty,
-                            newTrack ?? string.Empty,
-                            performerName ?? string.Empty,
-                            year ?? string.Empty,
-                            albumN ?? string.Empty
-                        );
-                        Console.WriteLine("Song details updated.");
-                    }
                     break;
+
                 case "5":
                     Console.Write("Enter album name to edit: ");
                     string? albumName = Console.ReadLine();
                     List<string> albumsOptions = app.GetAlbumsOptions(albumName);
                     if (albumsOptions.Count == 0) Console.WriteLine("Album not found.");
-                    else if (albumsOptions.Count == 1) editAlbumDetails(albumName, albumsOptions.First());
+                    else if (albumsOptions.Count == 1) EditAlbumDetails(albumName, albumsOptions.First());
                     else
                     {
                         Console.WriteLine("Multiple albums found with the same Name:");
@@ -120,78 +98,46 @@ class ControllerMain
                         Console.Write("Select the album number to edit: ");
                         if (int.TryParse(Console.ReadLine(), out int selectedOption) && selectedOption >= 1 && selectedOption <= albumsOptions.Count)
                         {
-                            editAlbumDetails(albumName, albumsOptions[selectedOption - 1]);
+                            EditAlbumDetails(albumName, albumsOptions[selectedOption - 1]);
                         }
                         else Console.WriteLine("Invalid selection.");
                     }
-                    void editAlbumDetails(string name, string path)
-                    {
-                        Console.WriteLine("Editing Album Details:");
-                        Console.Write("New name: ");
-                        string? newName = Console.ReadLine();
-                        Console.Write("New Year: ");
-                        string? year = Console.ReadLine();
-
-                        app.UpdateAlbumDetails(
-                            name,
-                            newName ?? string.Empty,
-                            path,
-                            year ?? string.Empty
-                        );
-                        Console.WriteLine("Album details updated.");
-                    }
                     break;
+
                 case "6":
-                    Console.Write("Enter the performer name to edit: ");
-                    string? performer = Console.ReadLine();
-                    Performer? performerToEdit = app.GetDataBase().GetPerformerByName(performer);
-                    Console.Write("Enter 0 if is a person, 1 if is a group: ");
-                    string? response = Console.ReadLine();
-                    switch (response)
+                    Console.Write("Enter the performer name to define: ");
+                    string? performerName = Console.ReadLine();
+                    if (string.IsNullOrEmpty(performerName))
                     {
-                        case "0":
-                            Console.Write("Stage name: ");
-                            string? stageName = Console.ReadLine();
-                            Console.Write("Real name: ");
-                            string? realName = Console.ReadLine();
-                            Console.Write("Birth date: ");
-                            string? birthDate = Console.ReadLine();
-                            Console.Write("Death date: ");
-                            string? deathDate = Console.ReadLine();
-
-                            app.DefinePerformerAsPerson(
-                                performer,
-                                stageName ?? string.Empty,
-                                realName ?? string.Empty,
-                                birthDate ?? string.Empty,
-                                deathDate ?? string.Empty
-                            );
-                            Console.WriteLine("Performer defined as a person.");
-                            break;
-                        case "1":
-                            Console.Write("Group name: ");
-                            string? groupName = Console.ReadLine();
-                            Console.Write("Start date: ");
-                            string? startDate = Console.ReadLine();
-                            Console.Write("End date: ");
-                            string? endDate = Console.ReadLine();
-
-                            app.DefinePerformerAsGroup(
-                                performer,
-                                groupName ?? string.Empty,
-                                startDate ?? string.Empty,
-                                endDate ?? string.Empty
-                            );
-                            Console.WriteLine("Performer defined as a group.");
-                            break;
-
-                        default:
-                            Console.WriteLine("Invalid option.");
-                            break;
+                        Console.WriteLine("Invalid performer name.");
+                        break;
                     }
-                
+
+                    Console.Write("Enter 0 if the performer is a person, or 1 if it is a group: ");
+                    string? response = Console.ReadLine();
+
+                    if (response == "0") DefinePerson(performerName);
+                    else if (response == "1") DefineGroup(performerName);
+                    else Console.WriteLine("Invalid option.");
                     break;
+
                 case "7":
+                        Console.WriteLine("Insert the person's stage name to add to a group:");
+                        string? personName = Console.ReadLine();
+                        Console.WriteLine("Insert the group's name:");
+                        string? groupName = Console.ReadLine();
+
+                        if (!string.IsNullOrEmpty(personName) && !string.IsNullOrEmpty(groupName))
+                        {
+                            app.AddPersonToGroup(personName, groupName);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid input. Both person and group names are required.");
+                        }
+                    break;
+
+                case "8":
                     exit = true;
                     Console.WriteLine("Exiting the program...");
                     break;
@@ -199,6 +145,95 @@ class ControllerMain
                 default:
                     Console.WriteLine("Invalid option. Please try again.");
                     break;
+            }
+
+            void EditRolaDetails(string title, string path)
+            {
+                Console.WriteLine("Editing Song Details:");
+                Console.Write("New Title: ");
+                string? newTitle = Console.ReadLine();
+                Console.Write("New Genre: ");
+                string? newGenre = Console.ReadLine();
+                Console.Write("New Track Number: ");
+                string? newTrack = Console.ReadLine();
+                Console.Write("New Performer Name: ");
+                string? performerName = Console.ReadLine();
+                Console.Write("New Year: ");
+                string? year = Console.ReadLine();
+                Console.Write("New Album Name: ");
+                string? albumN = Console.ReadLine();
+
+                bool success = app.UpdateRolaDetails(
+                    title,
+                    path,
+                    newTitle ?? string.Empty,
+                    newGenre ?? string.Empty,
+                    newTrack ?? string.Empty,
+                    performerName ?? string.Empty,
+                    year ?? string.Empty,
+                    albumN ?? string.Empty
+                );
+
+                if (success) Console.WriteLine("Song details updated.");
+                else Console.WriteLine("Failed to update song details. Please check the input.");
+            }
+
+            void EditAlbumDetails(string name, string path)
+            {
+                Console.WriteLine("Editing Album Details:");
+                Console.Write("New Name: ");
+                string? newName = Console.ReadLine();
+                Console.Write("New Year: ");
+                string? year = Console.ReadLine();
+
+                bool success = app.UpdateAlbumDetails(
+                    name,
+                    newName ?? string.Empty,
+                    path,
+                    year ?? string.Empty
+                );
+
+                if (success) Console.WriteLine("Album details updated.");
+                else Console.WriteLine("Failed to update album details.");
+            }
+
+            void DefinePerson(string performerName)
+            {
+                Console.Write("Stage name: ");
+                string? stageName = Console.ReadLine();
+                Console.Write("Real name: ");
+                string? realName = Console.ReadLine();
+                Console.Write("Birth date: ");
+                string? birthDate = Console.ReadLine();
+                Console.Write("Death date (optional): ");
+                string? deathDate = Console.ReadLine();
+
+                app.DefinePerformerAsPerson(
+                    performerName,
+                    stageName ?? string.Empty,
+                    realName ?? string.Empty,
+                    birthDate ?? string.Empty,
+                    deathDate ?? string.Empty
+                );
+                Console.WriteLine("Performer defined as person.");
+            }
+
+            void DefineGroup(string performerName)
+            {
+                Console.Write("Group name: ");
+                string? groupName = Console.ReadLine();
+                Console.Write("Start date: ");
+                string? startDate = Console.ReadLine();
+                Console.Write("End date (optional): ");
+                string? endDate = Console.ReadLine();
+
+                app.DefinePerformerAsGroup(
+                    performerName,
+                    groupName ?? string.Empty,
+                    startDate ?? string.Empty,
+                    endDate ?? string.Empty
+                );
+                Console.WriteLine("Performer defined as group.");
             }
         }
     }

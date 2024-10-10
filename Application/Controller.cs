@@ -470,10 +470,25 @@
             _database.UpdatePerformer(performer);
         }
 
-        public void addPersonToGroup()
+        public void AddPersonToGroup(string personName, string groupName)
         {
-            //verificar si la persona ya esta en el grupo
+            Person? person = _database.GetAllPersons().Find(p => p.GetStageName() == personName);
+            if (person == null)
+            {
+                Console.WriteLine("Person not found.");
+                return;
+            }
+            Group? group = _database.GetAllGroups().Find(g => g.GetName() == groupName);
+            if (group == null)
+            {
+                Console.WriteLine("Group not found.");
+                return;
+            }
+            bool isAdded = _database.AddInGroup(person, group);
+            if (isAdded) Console.WriteLine("Person added to the group successfully.");
+            else Console.WriteLine("The person is already in the group or an error occurred.");
         }
+
         //this method is for the compiler
         public void search()
         {

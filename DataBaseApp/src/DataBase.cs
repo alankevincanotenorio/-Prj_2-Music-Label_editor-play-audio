@@ -656,5 +656,36 @@
                 return rowsAffected > 0;
             }
         }
+
+        public bool AddInGroup(Person person, Group group)
+        {
+            bool isInserted = false;
+            string query = "INSERT INTO in_group (id_person, id_group) VALUES (@id_person, @id_group)";
+            string checkQuery = "SELECT COUNT(*) FROM in_group WHERE id_person = @id_person AND id_group = @id_group";
+            using (SQLiteCommand checkCommand = new SQLiteCommand(checkQuery, _connection))
+            {
+                checkCommand.Parameters.AddWithValue("@id_person", person.GetIdPerson());
+                checkCommand.Parameters.AddWithValue("@id_group", group.GetIdGroup());
+
+                long count = (long)checkCommand.ExecuteScalar();
+                if (count > 0)
+                {
+                    Console.WriteLine("The person is already in the group.");
+                    return false;
+                }
+            }
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@id_person", person.GetIdPerson());
+                command.Parameters.AddWithValue("@id_group", group.GetIdGroup());
+                int rowsAffected = command.ExecuteNonQuery();
+                isInserted = rowsAffected > 0;
+                if (isInserted) Console.WriteLine("Person successfully added to group.");
+                else Console.WriteLine("Failed to add person to group.");
+            }
+
+            return isInserted;
+        }
+        
     }
 }
