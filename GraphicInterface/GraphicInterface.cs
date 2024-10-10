@@ -181,14 +181,14 @@ class GraphicInterface : Window
             bool isValidPath = app.SetCurrentPath(pathEntry.Text);
             if(!isValidPath)
             {
-                changePathWindow.Destroy();
+                changePathWindow.Hide();
                 MessageDialog errorDialog = new MessageDialog(this,DialogFlags.Modal,MessageType.Error,ButtonsType.Ok,"Invalid path. Please enter a valid directory.");
                 errorDialog.Run();
-                errorDialog.Destroy();
+                errorDialog.Hide();
                 return;
             }
             currentPathLabel.Text = $"Current Path: {pathEntry.Text}";
-            changePathWindow.Destroy();
+            changePathWindow.Hide();
         };
         vbox.PackStart(confirmButton, false, false, 5);
         changePathWindow.Add(vbox);
@@ -251,17 +251,17 @@ class GraphicInterface : Window
             {
                 MessageDialog errorDialog = new MessageDialog(editRola, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "No rola found with that title. Please enter a valid title.");
                 errorDialog.Run();
-                errorDialog.Destroy();
+                errorDialog.Hide();
             }
             else if (rolasOptions.Count == 1)
             {
-                editRola.Destroy();
+                editRola.Hide();
                 List<string> rolaDetails = app.GetRolaDetails(rolaTitle, rolasOptions.First());
                 ShowEditForm(rolaTitle, rolasOptions.First(), rolaDetails);
             }
             else
             {
-                editRola.Destroy();
+                editRola.Hide();
                 Window selectionWindow = new Window("Select Rola");
                 selectionWindow.SetDefaultSize(400, 300);
                 selectionWindow.SetPosition(WindowPosition.Center);
@@ -280,7 +280,7 @@ class GraphicInterface : Window
 
                     rolaButton.Clicked += (sender, args) => 
                     {
-                        selectionWindow.Destroy();
+                        selectionWindow.Hide();
                         ShowEditForm(rolaTitle, rolaPath, rolaDetails);
                     };
                 }
@@ -340,7 +340,7 @@ class GraphicInterface : Window
             {
                 errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Track number must be an integer.");
                 errorDialog.Run();
-                errorDialog.Destroy();
+                errorDialog.Hide();
                 return;
             }
 
@@ -348,7 +348,7 @@ class GraphicInterface : Window
             {
                 errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Year must be an integer.");
                 errorDialog.Run();
-                errorDialog.Destroy();
+                errorDialog.Hide();
                 return;
             }
 
@@ -365,9 +365,11 @@ class GraphicInterface : Window
 
             MessageDialog successDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Rola updated successfully.");
             successDialog.Run();
-            successDialog.Destroy();
+            successDialog.Hide();
 
-            detailsWindow.Destroy();
+            detailsWindow.Hide();
+            detailsWindow.Dispose(); // Liberar recursos de la ventana
+
         };
         detailsWindow.Add(detailsBox);
         detailsWindow.ShowAll();
@@ -399,17 +401,17 @@ class GraphicInterface : Window
             {
                 MessageDialog errorDialog = new MessageDialog(editAlbum, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "No album found with that name. Please enter a valid name.");
                 errorDialog.Run();
-                errorDialog.Destroy();
+                errorDialog.Hide();
             }
             else if (albumsOptions.Count == 1)
             {
-                editAlbum.Destroy();
+                editAlbum.Hide();
                 List<string> albumDetails = app.GetAlbumDetails(albumName, albumsOptions.First());
                 ShowEditAlbumForm(albumName, albumsOptions.First(), albumDetails);
             }
             else
             {
-                editAlbum.Destroy();
+                editAlbum.Hide();
                 Window selectionWindow = new Window("Select Album");
                 selectionWindow.SetDefaultSize(400, 300);
                 selectionWindow.SetPosition(WindowPosition.Center);
@@ -428,7 +430,7 @@ class GraphicInterface : Window
 
                     albumButton.Clicked += (sender, args) => 
                     {
-                        selectionWindow.Destroy();
+                        selectionWindow.Hide();
                         ShowEditAlbumForm(albumName, albumPath, albumDetails);
                     };
                 }
@@ -473,7 +475,7 @@ class GraphicInterface : Window
             {
                 errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Year must be an integer.");
                 errorDialog.Run();
-                errorDialog.Destroy();
+                errorDialog.Hide();
                 return;
             }
 
@@ -486,9 +488,9 @@ class GraphicInterface : Window
 
             MessageDialog successDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Rola updated successfully.");
             successDialog.Run();
-            successDialog.Destroy();
+            successDialog.Hide();
 
-            detailsWindow.Destroy();
+            detailsWindow.Hide();
         };
         detailsWindow.Add(detailsBox);
         detailsWindow.ShowAll();
