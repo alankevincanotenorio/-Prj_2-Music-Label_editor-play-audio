@@ -275,7 +275,7 @@ class GraphicInterface : Window
                 foreach (var rolaPath in rolasOptions)
                 {
                     List<string> rolaDetails = app.GetRolaDetails(rolaTitle, rolaPath);
-                    string rolaInfo = $"Title: {rolaDetails[0]} \nGenre: {rolaDetails[1]} \nTrack: {rolaDetails[2]} \nPerformer: {rolaDetails[3]} \nYear: {rolaDetails[4]} \nAlbum: {rolaDetails[5]} \nPath: {rolaPath}";
+                    string rolaInfo = app.ShowRolaDetails(rolaDetails, rolaPath);
                     Button rolaButton = new Button(rolaInfo);
                     selectionVbox.PackStart(rolaButton, false, false, 5);
 

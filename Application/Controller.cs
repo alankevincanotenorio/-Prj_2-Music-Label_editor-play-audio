@@ -249,17 +249,17 @@
             Console.WriteLine("MP3 metadata updated.");
         }
 
-        public string ShowRolaDetails(Rola rola)
+        public string ShowRolaDetails(List<string> rolaDetails, string rolaPath)
         {
-            string performerName = GetPerformerName(rola.GetIdPerformer());
-            string albumNameame = GetAlbumName(rola.GetIdAlbum());
-            
-            return $"Title: {rola.GetTitle()}\n" +
-                $"Performer: {performerName}\n" +
-                $"Album: {albumNameame}\n" +
-                $"Track: {rola.GetTrack()}\n" +
-                $"Year: {rola.GetYear()}\n" +
-                $"Genre: {rola.GetGenre()}";
+            string rolaInfo = $"Title: {rolaDetails[0]}\n" +
+                            $"Genre: {rolaDetails[1]}\n" +
+                            $"Track: {rolaDetails[2]}\n" +
+                            $"Performer: {rolaDetails[3]}\n" +
+                            $"Year: {rolaDetails[4]}\n" +
+                            $"Album: {rolaDetails[5]}\n" +
+                            $"Path: {rolaPath}\n";;
+
+            return rolaInfo;
         }
 
         //aux method for Update metadata
