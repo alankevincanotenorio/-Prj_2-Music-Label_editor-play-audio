@@ -1,5 +1,5 @@
 using ControllerApp;
-using CompilerClass;
+using CompilerApp;
 
 class ControllerMain
 {

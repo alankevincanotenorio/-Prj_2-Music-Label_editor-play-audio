@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="../../libs/libs.csproj" />
     <ProjectReference Include="..\MinerApp\MinerApp.csproj" />
+    <ProjectReference Include="../compiler/compiler.csproj" /> 
   </ItemGroup>
 
   <PropertyGroup>

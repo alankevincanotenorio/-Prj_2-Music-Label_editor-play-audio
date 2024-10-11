@@ -2,7 +2,7 @@
 {
     using MinerApp;
     using DataBaseApp;
-    using CompilerClass;
+    using CompilerApp;
     public class Controller
     {
         private string _currentPath;
