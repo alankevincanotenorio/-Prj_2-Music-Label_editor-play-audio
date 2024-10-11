@@ -769,6 +769,23 @@ class GraphicInterface : Window
                 MessageDialog success = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Query Valid");
                 success.Run();
                 success.Hide();
+                
+                List<string> searchResults = app.Search(userEntry.Text);
+
+                if (searchResults.Count > 0)
+                {
+                    string resultText = "Rolas Found:\n" + string.Join("\n", searchResults);
+                    MessageDialog resultsDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, resultText);
+                    resultsDialog.Run();
+                    resultsDialog.Hide();
+                }
+                else
+                {
+                    MessageDialog noResultsDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "No rolas found.");
+                    noResultsDialog.Run();
+                    noResultsDialog.Hide();
+                }
+                           
             }
             else
             {
@@ -780,11 +797,6 @@ class GraphicInterface : Window
         searchWindow.Add(vbox);
         searchWindow.ShowAll();
     }
-
-
-
-
-
     
     private void DisableNonMiningActions()
     {

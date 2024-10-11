@@ -48,7 +48,7 @@ rm -rf **/bin **/obj
 This will delete all bin and obj directories recursively throughout the project.
 
 To search in the program:
-You may type:    |Title:"name of the song"|Performer:"name performer"|Year:"año en numero int solamente"
+You may type:    |Title:"name of the song"|Performer:"name performer"|Album:"nombre del album"
 
 in any order and with any parameter you want.
 to search to any parameter combined: |Performer:"1"|Performer:"2"

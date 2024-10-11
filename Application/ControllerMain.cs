@@ -143,8 +143,7 @@ class ControllerMain
                 case "8":
                     Console.WriteLine("Serach rola\nInsert a query");
                     string query = Console.ReadLine();
-                    bool isValid = compiler.IsValidQuery(query);
-                    Console.WriteLine(isValid);
+                    // app.Search(query);
                     break;
 
                 case "9":

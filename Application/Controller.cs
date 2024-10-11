@@ -506,5 +506,23 @@
 
         public bool IsQueryValid(string query) => _compiler.IsValidQuery(query);
 
+        public List<string> Search(string query)
+        {
+            _compiler.SetQuery(query);
+            _compiler.SearchRolas();
+
+            List<Rola> rolasFound = _compiler.GetRolasFounded();
+            List<string> searchResults = new List<string>();
+
+            if (rolasFound.Count > 0)
+            {
+                foreach (var rola in rolasFound)
+                {
+                    string result = $"Title: {rola.GetTitle()}, Performer: {GetPerformerName(rola.GetIdPerformer())}, Album: {GetAlbumName(rola.GetIdAlbum())}";
+                    searchResults.Add(result);
+                }
+            }
+            return searchResults;
+        }
     }
 }
