@@ -52,10 +52,7 @@ class GraphicInterface : Window
                 border-width: 1px;
                 border-color: #444444;
             }
-            label.path-label {
-                color : #d3d3d3;
-            }
-            label.rola-label {
+            label.Child-label {
                 color : #d3d3d3;
             }
         ");
@@ -173,7 +170,7 @@ class GraphicInterface : Window
 
         Box vbox = new Box(Orientation.Vertical, 10);
         Label instructionLabel = new Label("Insert the new path:");
-        instructionLabel.StyleContext.AddClass("path-label");
+        instructionLabel.StyleContext.AddClass("Child-label");
         vbox.PackStart(instructionLabel, false, false, 5);
 
         Entry pathEntry = new Entry();
@@ -250,7 +247,7 @@ class GraphicInterface : Window
             var rolaLabel = new Label();
             rolaLabel.Text = rolaInfo;
             rolaLabel.SetAlignment(0, 0.5f);
-            rolaLabel.StyleContext.AddClass("rola-label");
+            rolaLabel.StyleContext.AddClass("Child-label");
             rolaBox.PackStart(albumImage, false, false, 5);
             rolaBox.PackStart(rolaLabel, true, true, 5);
             rolasBox.PackStart(rolaBox, false, false, 10);
@@ -272,7 +269,7 @@ class GraphicInterface : Window
             var rolaLabel = new Label();
             rolaLabel.Text = rolaInfo;
             rolaLabel.SetAlignment(0, 0.5f);
-            rolaLabel.StyleContext.AddClass("rola-label");
+            rolaLabel.StyleContext.AddClass("Child-label");
             rolaBox.PackStart(albumImage, false, false, 5);
             rolaBox.PackStart(rolaLabel, true, true, 5);
             rolasBox.PackStart(rolaBox, false, false, 10);
