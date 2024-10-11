@@ -621,5 +621,40 @@
             else result.Add("No rolas found for this performer.");
             return result;
         }
+
+        public List<string> SearchRolas(string query)
+        {
+            _compiler.SetQuery(query);
+            _compiler.SearchRolas();
+            List<string> results = new List<string>();
+            foreach (Rola rola in _compiler.GetRolasFounded())
+            {
+                if (rola != null)
+                {
+                    string rolaInfo = $"Title: {rola.GetTitle()}, Genre: {rola.GetGenre()}, Track: {rola.GetTrack()}, " +
+                                    $"Performer: {GetPerformerName(rola.GetIdPerformer())}, Year: {rola.GetYear()}, " +
+                                    $"Album: {GetAlbumName(rola.GetIdAlbum())}, Path: {rola.GetPath()}";
+
+                    results.Add(rolaInfo);
+                }
+            }
+            return results;
+        }
+
+        public bool OnlyContainsPerformer(string query)
+        {
+            return query.Contains("Performer:") && 
+                !query.Contains("Album:") && 
+                !query.Contains("Title:") && 
+                !query.Contains("InTitle:");
+        }
+
+        public bool OnlyContainsAlbum(string query)
+        {
+            return query.Contains("Album:") && 
+                !query.Contains("Performer:") && 
+                !query.Contains("Title:") && 
+                !query.Contains("InTitle:");
+        }
     }
 }

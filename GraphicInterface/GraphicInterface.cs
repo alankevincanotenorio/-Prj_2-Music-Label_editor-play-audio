@@ -743,7 +743,7 @@ class GraphicInterface : Window
             addPersonGroup.Hide();
         }
     }
-
+        
     void OnSearchButton(object sender, EventArgs e)
     {
         Window searchWindow = new Window("Search");
@@ -753,7 +753,8 @@ class GraphicInterface : Window
 
         Box vbox = new Box(Orientation.Vertical, 10);
 
-        Label searchLabel = new Label("Enter the query to search (Remember, this must be like: |Album:\"name\" or |Performer:\"name\"):");
+        Label searchLabel = new Label("Enter the query to search (e.g., |Album:\"name\" ^ Performer:\"name\" ^ Title:\"song\" ^ InTitle:\"word\"):");
+
         Entry userEntry = new Entry();
         vbox.PackStart(searchLabel, false, false, 5);
         vbox.PackStart(userEntry, false, false, 5);
@@ -765,65 +766,62 @@ class GraphicInterface : Window
         {
             string query = userEntry.Text;
             bool response = app.IsQueryValid(query);
-            if(response)
+
+            if (response)
             {
                 MessageDialog success = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Query Valid");
                 success.Run();
                 success.Hide();
-
-                if (query.Contains("Album:"))
+                if (app.OnlyContainsAlbum(query))
                 {
                     List<string> results = app.SearchAlbums(query);
-                    if (results.Count > 0)
-                    {
-                        string resultText = "Albums Found:\n" + string.Join("\n", results);
-                        MessageDialog resultsDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, false, "{0}", resultText);
-                        resultsDialog.Run();
-                        resultsDialog.Hide();
-                    }
-                    else
-                    {
-                        MessageDialog noResultsDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "No albums found.");
-                        noResultsDialog.Run();
-                        noResultsDialog.Hide();
-                    }
+                    DisplayResults(searchWindow, results, "Albums Found:", "No albums found.");
                 }
-                else if (query.Contains("Performer:"))
+                else if (app.OnlyContainsPerformer(query))
                 {
                     List<string> results = app.SearchPerformers(query);
-                    if (results.Count > 0)
-                    {
-                        string resultText = "Performers Found:\n" + string.Join("\n", results);
-                        MessageDialog resultsDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, false, "{0}", resultText);
-                        resultsDialog.Run();
-                        resultsDialog.Hide();
-                    }
-                    else
-                    {
-                        MessageDialog noResultsDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "No performers found.");
-                        noResultsDialog.Run();
-                        noResultsDialog.Hide();
-                    }
+                    DisplayResults(searchWindow, results, "Performers Found:", "No performers found.");
+                }
+                else if (query.Contains("Title:") || query.Contains("InTitle:") || query.Contains("Performer:") || query.Contains("Album:"))
+                {
+                    List<string> results = app.SearchRolas(query);
+                    DisplayResults(searchWindow, results, "Rolas Found:", "No rolas found.");
                 }
                 else
                 {
-                    MessageDialog invalid = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Unknown search type.");
-                    invalid.Run();
-                    invalid.Hide();
+                    MessageDialog unknownTypeDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Unknown search type.");
+                    unknownTypeDialog.Run();
+                    unknownTypeDialog.Hide();
                 }
             }
             else
             {
-                MessageDialog invalid = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Invalid query");
-                invalid.Run();
-                invalid.Hide();
+                MessageDialog invalidDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Invalid query");
+                invalidDialog.Run();
+                invalidDialog.Hide();
             }
         };
         searchWindow.Add(vbox);
         searchWindow.ShowAll();
     }
 
-    
+    void DisplayResults(Window searchWindow, List<string> results, string successMessage, string failureMessage)
+    {
+        if (results.Count > 0)
+        {
+            string resultText = successMessage + "\n" + string.Join("\n", results);
+            MessageDialog resultsDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, false, "{0}", resultText);
+            resultsDialog.Run();
+            resultsDialog.Hide();
+        }
+        else
+        {
+            MessageDialog noResultsDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, failureMessage);
+            noResultsDialog.Run();
+            noResultsDialog.Hide();
+        }
+    }
+        
     private void DisableNonMiningActions()
     {
         editRolaButton.Sensitive = false;

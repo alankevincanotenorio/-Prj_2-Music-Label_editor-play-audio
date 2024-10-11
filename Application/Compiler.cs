@@ -17,7 +17,7 @@ namespace CompilerClass
 
         public bool IsValidQuery(string query)
         {
-            string[] parts = query.Split('|', StringSplitOptions.RemoveEmptyEntries);
+            string[] parts = query.Split(new[] { '|', '^' }, StringSplitOptions.RemoveEmptyEntries);
             bool hasValidField = false;
 
             foreach (string part in parts)
@@ -132,6 +132,43 @@ namespace CompilerClass
                     }
                 }
             }
+        }
+
+
+        public void SearchRolas()
+        {
+            _rolasFounded.Clear();
+            string[] parts = _query.Split('^', StringSplitOptions.RemoveEmptyEntries);
+            List<Rola> filteredRolas = _database.GetAllRolas();
+            foreach (string part in parts)
+            {
+                string trimmedPart = part.Trim(); 
+                if (trimmedPart.StartsWith("Title:"))
+                {
+                    string title = trimmedPart.Substring(trimmedPart.IndexOf(":") + 1).Trim().Trim('"');
+                    filteredRolas = filteredRolas.Where(r => r.GetTitle() == title).ToList();
+                }
+                else if (trimmedPart.StartsWith("InTitle:"))
+                {
+                    string partOfTitle = trimmedPart.Substring(trimmedPart.IndexOf(":") + 1).Trim().Trim('"');
+                    filteredRolas = filteredRolas.Where(r => r.GetTitle().Contains(partOfTitle)).ToList();
+                }
+                else if (trimmedPart.StartsWith("Performer:"))
+                {
+                    string performerName = trimmedPart.Substring(trimmedPart.IndexOf(":") + 1).Trim().Trim('"');
+                    List<Performer> performers = _database.GetAllPerformers().Where(p => p.GetName() == performerName).ToList();
+                    List<int> performerIds = performers.Select(p => p.GetIdPerformer()).ToList();
+                    filteredRolas = filteredRolas.Where(r => performerIds.Contains(r.GetIdPerformer())).ToList();
+                }
+                else if (trimmedPart.StartsWith("Album:"))
+                {
+                    string albumName = trimmedPart.Substring(trimmedPart.IndexOf(":") + 1).Trim().Trim('"');
+                    List<Album> albums = _database.GetAllAlbums().Where(a => a.GetName() == albumName).ToList();
+                    List<int> albumIds = albums.Select(a => a.GetIdAlbum()).ToList();
+                    filteredRolas = filteredRolas.Where(r => albumIds.Contains(r.GetIdAlbum())).ToList();
+                }
+            }
+            _rolasFounded.AddRange(filteredRolas);
         }
     }
 }
