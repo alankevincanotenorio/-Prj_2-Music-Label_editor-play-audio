@@ -384,7 +384,6 @@ namespace ControllerApp
             return albumDetails;
         }
 
-
         public List<string> ShowPerformerDetails(string performerName)
         {
             List<string> performerDetails = new List<string>();
@@ -415,7 +414,6 @@ namespace ControllerApp
             return performerDetails;
         }
 
-
         public string CheckPerformer(string performerName, string typeToDefineAs)
         {
             if (string.IsNullOrEmpty(performerName) || !ExistsPerformer(performerName)) return "NotFound";
@@ -428,7 +426,6 @@ namespace ControllerApp
             }
             return "NotDefined";
         }
-
 
 
         public bool ExistsPerformer(string performerName)
@@ -471,7 +468,6 @@ namespace ControllerApp
             performer.SetIdType(PerformerType.Person);
             _database.UpdatePerformer(performer);
         }
-
 
         public void DefinePerformerAsGroup(string performerName, string name, string start_date, string end_date)
         {

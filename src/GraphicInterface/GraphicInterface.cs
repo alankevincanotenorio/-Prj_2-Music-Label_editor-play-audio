@@ -161,10 +161,12 @@ class GraphicInterface : Window
     void OnChangeDirClick(object sender, EventArgs args)
     {
         Window changePathWindow = new Window("Change Path");
-        changePathWindow.SetDefaultSize(300, 100);
+        changePathWindow.SetDefaultSize(600, 100);
         changePathWindow.SetPosition(WindowPosition.Center);
         changePathWindow.TransientFor = this;
         changePathWindow.Modal = true;
+
+        changePathWindow.Resizable = false;
     
         changePathWindow.StyleContext.AddProvider(cssProvider, 800);
 
@@ -281,14 +283,16 @@ class GraphicInterface : Window
         rolasBox.ShowAll();
     }
 
+    //ready
     void OnEditRolaClick(object sender, EventArgs e)
     {
         Window editRola = new Window("Edit Rola");
-        editRola.SetDefaultSize(300, 100);
+        editRola.SetDefaultSize(600, 100);
         editRola.SetPosition(WindowPosition.Center);
         editRola.StyleContext.AddProvider(cssProvider, 800);
         editRola.TransientFor = this;
         editRola.Modal = true;
+        editRola.Resizable = false;
 
         Box vbox = new Box(Orientation.Vertical, 10);
         Label instructionLabel = new Label("Enter the rola title:");
@@ -335,6 +339,7 @@ class GraphicInterface : Window
 
                 Box selectionVbox = new Box(Orientation.Vertical, 10);
                 Label selectLabel = new Label("Select the Rola to edit:");
+                selectLabel.Xalign = 0.0f;
                 selectLabel.StyleContext.AddClass("Child-label");
                 selectionVbox.PackStart(selectLabel, false, false, 5);
 
@@ -474,6 +479,13 @@ class GraphicInterface : Window
 
                 detailsWindow.Hide();
                 detailsWindow.Dispose();
+
+                foreach (Widget child in rolasBox.Children)
+                {
+                    rolasBox.Remove(child);
+                }
+
+                ShowRolasWithCoverArt(); 
             }
         };
         scrolledWindow.Add(detailsBox);
@@ -487,6 +499,9 @@ class GraphicInterface : Window
         editAlbum.SetDefaultSize(300, 100);
         editAlbum.SetPosition(WindowPosition.Center);
         editAlbum.StyleContext.AddProvider(cssProvider, 800);
+        editAlbum.TransientFor = this;
+        editAlbum.Modal = true;
+        editAlbum.Resizable = false;
 
         Box vbox = new Box(Orientation.Vertical, 10);
         Label instructionLabel = new Label("Enter the album name:");
