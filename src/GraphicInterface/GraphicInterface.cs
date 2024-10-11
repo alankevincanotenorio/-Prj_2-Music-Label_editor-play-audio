@@ -44,6 +44,7 @@ class GraphicInterface : Window
             entry {
                 background-color: #3b3b3b;
                 color: #d3d3d3;
+                caret-color: #ffffff;
             }
             frame {
                 background-color: #3b3b3b;
@@ -484,7 +485,6 @@ class GraphicInterface : Window
                 {
                     rolasBox.Remove(child);
                 }
-
                 ShowRolasWithCoverArt(); 
             }
         };
@@ -496,7 +496,7 @@ class GraphicInterface : Window
     void OnEditAlbumButton(object sender, EventArgs e)
     {
         Window editAlbum = new Window("Edit Album");
-        editAlbum.SetDefaultSize(300, 100);
+        editAlbum.SetDefaultSize(600, 100);
         editAlbum.SetPosition(WindowPosition.Center);
         editAlbum.StyleContext.AddProvider(cssProvider, 800);
         editAlbum.TransientFor = this;
@@ -505,6 +505,7 @@ class GraphicInterface : Window
 
         Box vbox = new Box(Orientation.Vertical, 10);
         Label instructionLabel = new Label("Enter the album name:");
+        instructionLabel.StyleContext.AddClass("Child-label");
         vbox.PackStart(instructionLabel, false, false, 5);
         Entry entry = new Entry();
         vbox.PackStart(entry, false, false, 5);
@@ -541,6 +542,8 @@ class GraphicInterface : Window
 
                 Box selectionVbox = new Box(Orientation.Vertical, 10);
                 Label selectLabel = new Label("Select the Album to edit:");
+                selectLabel.Xalign = 0.0f;
+                selectLabel.StyleContext.AddClass("Child-label");
                 selectionVbox.PackStart(selectLabel, false, false, 5);
 
                 foreach (var albumInfo in albumInfoList)
@@ -578,14 +581,19 @@ class GraphicInterface : Window
         Entry newNameEntry = new Entry { Text = albumDetails[0] };
         Entry newYearEntry = new Entry { Text = albumDetails[1] }; 
 
-        Label pathLabel = new Label($"Path: {albumPath}");
+       Label pathLabel = new Label($"Path: {albumPath}");
+        pathLabel.StyleContext.AddClass("Child-label");
         detailsBox.PackStart(new Label("Current Path:"), false, false, 5);
         detailsBox.PackStart(pathLabel, false, false, 5);
 
-        detailsBox.PackStart(new Label("New Name:"), false, false, 5);
+        Label NewName = new Label("New Name:");
+        NewName.StyleContext.AddClass("Child-label");
+        detailsBox.PackStart(NewName, false, false, 5);
         detailsBox.PackStart(newNameEntry, false, false, 5);
 
-        detailsBox.PackStart(new Label("New Year:"), false, false, 5);
+        Label newYearLabel = new Label("New Year:");
+        newYearLabel.StyleContext.AddClass("Child-label");
+        detailsBox.PackStart(newYearLabel, false, false, 5);
         detailsBox.PackStart(newYearEntry, false, false, 5);
 
         Button acceptButton = new Button("Accept");
