@@ -1,6 +1,6 @@
+#nullable disable
 using ControllerApp;
 using CompilerApp;
-
 class ControllerMain
 {
     public static void Main(string[] args)
@@ -22,13 +22,13 @@ class ControllerMain
             Console.WriteLine("8. Search");
             Console.WriteLine("9. Exit");
             Console.Write("Choose an option (1-9): ");
-            string? input = Console.ReadLine();
+            string input = Console.ReadLine();
 
             switch (input)
             {
                 case "1":
                     Console.Write("Enter new path: ");
-                    string? newPath = Console.ReadLine();
+                    string newPath = Console.ReadLine();
                     if (!string.IsNullOrEmpty(newPath))
                     {
                         app.SetCurrentPath(newPath);
@@ -65,7 +65,7 @@ class ControllerMain
 
                 case "4":
                     Console.Write("Enter song title to edit: ");
-                    string? rolaTitle = Console.ReadLine();
+                    string rolaTitle = Console.ReadLine();
                     List<string> rolasOptions = app.GetRolasOptions(rolaTitle);
                     if (rolasOptions.Count == 0) Console.WriteLine("Song not found.");
                     else if (rolasOptions.Count == 1) EditRolaDetails(rolaTitle, rolasOptions.First());
@@ -87,7 +87,7 @@ class ControllerMain
 
                 case "5":
                     Console.Write("Enter album name to edit: ");
-                    string? albumName = Console.ReadLine();
+                    string albumName = Console.ReadLine();
                     List<string> albumsOptions = app.GetAlbumsOptions(albumName);
                     if (albumsOptions.Count == 0) Console.WriteLine("Album not found.");
                     else if (albumsOptions.Count == 1) EditAlbumDetails(albumName, albumsOptions.First());
@@ -109,7 +109,7 @@ class ControllerMain
 
                 case "6":
                     Console.Write("Enter the performer name to define: ");
-                    string? performerName = Console.ReadLine();
+                    string performerName = Console.ReadLine();
                     if (string.IsNullOrEmpty(performerName))
                     {
                         Console.WriteLine("Invalid performer name.");
@@ -117,7 +117,7 @@ class ControllerMain
                     }
 
                     Console.Write("Enter 0 if the performer is a person, or 1 if it is a group: ");
-                    string? response = Console.ReadLine();
+                    string response = Console.ReadLine();
 
                     if (response == "0") DefinePerson(performerName);
                     else if (response == "1") DefineGroup(performerName);
@@ -126,9 +126,9 @@ class ControllerMain
 
                 case "7":
                         Console.WriteLine("Insert the person's stage name to add to a group:");
-                        string? personName = Console.ReadLine();
+                        string personName = Console.ReadLine();
                         Console.WriteLine("Insert the group's name:");
-                        string? groupName = Console.ReadLine();
+                        string groupName = Console.ReadLine();
 
                         if (!string.IsNullOrEmpty(personName) && !string.IsNullOrEmpty(groupName))
                         {
@@ -160,17 +160,17 @@ class ControllerMain
             {
                 Console.WriteLine("Editing Song Details:");
                 Console.Write("New Title: ");
-                string? newTitle = Console.ReadLine();
+                string newTitle = Console.ReadLine();
                 Console.Write("New Genre: ");
-                string? newGenre = Console.ReadLine();
+                string newGenre = Console.ReadLine();
                 Console.Write("New Track Number: ");
-                string? newTrack = Console.ReadLine();
+                string newTrack = Console.ReadLine();
                 Console.Write("New Performer Name: ");
-                string? performerName = Console.ReadLine();
+                string performerName = Console.ReadLine();
                 Console.Write("New Year: ");
-                string? year = Console.ReadLine();
+                string year = Console.ReadLine();
                 Console.Write("New Album Name: ");
-                string? albumN = Console.ReadLine();
+                string albumN = Console.ReadLine();
 
                 bool success = app.UpdateRolaDetails(
                     title,
@@ -191,9 +191,9 @@ class ControllerMain
             {
                 Console.WriteLine("Editing Album Details:");
                 Console.Write("New Name: ");
-                string? newName = Console.ReadLine();
+                string newName = Console.ReadLine();
                 Console.Write("New Year: ");
-                string? year = Console.ReadLine();
+                string year = Console.ReadLine();
 
                 bool success = app.UpdateAlbumDetails(
                     name,
@@ -209,13 +209,13 @@ class ControllerMain
             void DefinePerson(string performerName)
             {
                 Console.Write("Stage name: ");
-                string? stageName = Console.ReadLine();
+                string stageName = Console.ReadLine();
                 Console.Write("Real name: ");
-                string? realName = Console.ReadLine();
+                string realName = Console.ReadLine();
                 Console.Write("Birth date: ");
-                string? birthDate = Console.ReadLine();
+                string birthDate = Console.ReadLine();
                 Console.Write("Death date (optional): ");
-                string? deathDate = Console.ReadLine();
+                string deathDate = Console.ReadLine();
 
                 app.DefinePerformerAsPerson(
                     performerName,
@@ -230,11 +230,11 @@ class ControllerMain
             void DefineGroup(string performerName)
             {
                 Console.Write("Group name: ");
-                string? groupName = Console.ReadLine();
+                string groupName = Console.ReadLine();
                 Console.Write("Start date: ");
-                string? startDate = Console.ReadLine();
+                string startDate = Console.ReadLine();
                 Console.Write("End date (optional): ");
-                string? endDate = Console.ReadLine();
+                string endDate = Console.ReadLine();
 
                 app.DefinePerformerAsGroup(
                     performerName,

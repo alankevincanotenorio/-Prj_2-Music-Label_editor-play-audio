@@ -3,8 +3,6 @@
     using TagLib;
     using DataBaseApp;
     using System.Collections;
-    using System.Collections.Generic;
-    using System.IO;
     public class Miner
     {
         private DataBase _database = DataBase.Instance();

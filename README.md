@@ -23,13 +23,15 @@ This will compile the entire project and generate the binaries.
 How to Run the Application
 After compiling, you can run the miner or databasae application using the following command:
 
-miner:
-dotnet run --project ./MinerApp/MinerApp.csproj
 
-database:
-dotnet run --project ./DataBaseApp/DataBaseApp.csproj
+This will launch the graphical interface where you can interact with the music database:
 
-This will launch the graphical interface where you can interact with the music database.
+dotnet run --project src/GraphicInterface/GraphicInterface.csproj
+
+
+in terminal mode:
+dotnet run --project src/Controller/Controller.csproj
+
 
 Running Tests:
 To run the tests, use the following command:

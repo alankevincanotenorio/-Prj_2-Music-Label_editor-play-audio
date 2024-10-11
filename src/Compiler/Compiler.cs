@@ -1,3 +1,4 @@
+#nullable disable
 namespace CompilerApp
 {
     using DataBaseApp;

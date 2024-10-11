@@ -1,4 +1,5 @@
-﻿namespace ControllerApp
+﻿#nullable disable
+namespace ControllerApp
 {
     using MinerApp;
     using DataBaseApp;
@@ -131,7 +132,7 @@
 
       public bool UpdateRolaDetails(string title, string path, string newTitle, string newGenre, string newTrack, string performerName, string year, string albumName)
         {
-            Rola? rolaToEdit = _database.GetRolaByTitleAndPath(title, path);
+            Rola rolaToEdit = _database.GetRolaByTitleAndPath(title, path);
             if (rolaToEdit == null)
             {
                 Console.WriteLine("Rola not found.");
@@ -175,7 +176,7 @@
         private void UpdatePerformer(Rola rolaToEdit, string performerName)
         {
             List<Performer> performers = _database.GetAllPerformers();
-            Performer? existingPerformer = performers.Find(p => p.GetName() == performerName);
+            Performer existingPerformer = performers.Find(p => p.GetName() == performerName);
 
             if (existingPerformer == null)
             {
@@ -217,7 +218,7 @@
             List<Album> albums = _database.GetAllAlbums();
             Album rolaAlbum = albums.Find(a => a.GetIdAlbum() == rolaToEdit.GetIdAlbum());
 
-            Album? existingAlbum = albums.Find(a => a.GetName() == albumName && a.GetPath() == rolaAlbum.GetPath());
+            Album existingAlbum = albums.Find(a => a.GetName() == albumName && a.GetPath() == rolaAlbum.GetPath());
 
             if (existingAlbum == null)
             {
@@ -269,7 +270,7 @@
         private string GetPerformerName(int performerId)
         {
             List<Performer> performers = _database.GetAllPerformers();
-            Performer? performer = performers.Find(p => p.GetIdPerformer() == performerId);
+            Performer performer = performers.Find(p => p.GetIdPerformer() == performerId);
             return performer != null ? performer.GetName() : "Unknown Performer";
         }
 
@@ -277,7 +278,7 @@
         private string GetAlbumName(int albumId)
         {
             List<Album> albums = _database.GetAllAlbums();
-            Album? album = albums.Find(a => a.GetIdAlbum() == albumId);
+            Album album = albums.Find(a => a.GetIdAlbum() == albumId);
             return album != null ? album.GetName() : "Unknown Album";
         }
 
@@ -290,7 +291,7 @@
 
         public bool UpdateAlbumDetails(string oldName, string newName, string path, string year)
         {
-            Album? albumToEdit = _database.GetAlbumByNameAndPath(oldName, path);
+            Album albumToEdit = _database.GetAlbumByNameAndPath(oldName, path);
             if (albumToEdit == null)
             {
                 Console.WriteLine("Album not found.");
@@ -368,7 +369,7 @@
         {
             List<string> performerDetails = new List<string>();
 
-            Performer? performer = _database.GetPerformerByName(performerName);
+            Performer performer = _database.GetPerformerByName(performerName);
             if (performer == null) return performerDetails;
             if (performer.GetIdType() == 0)
             {
@@ -412,28 +413,28 @@
 
         public bool ExistsPerformer(string performerName)
         {
-            Performer? performer = _database.GetPerformerByName(performerName);
+            Performer performer = _database.GetPerformerByName(performerName);
             return performer != null ? true : false;
         }
 
         public bool IsDefined(string performerName)
         {   
-            Performer? performer = _database.GetPerformerByName(performerName);
+            Performer performer = _database.GetPerformerByName(performerName);
             return performer.GetIdType() == 2 ? false : true;
         }
 
         public int GetTypePerformer(string performerName)
         {
-            Performer? performer = _database.GetPerformerByName(performerName);
+            Performer performer = _database.GetPerformerByName(performerName);
             return performer.GetIdType();
         }
 
         public void DefinePerformerAsPerson(string performerName, string stage_name, string real_name, string birth_date, string death_date)
         {
-            Performer? performer = _database.GetPerformerByName(performerName);
+            Performer performer = _database.GetPerformerByName(performerName);
             List<Person> allPersons = _database.GetAllPersons();
 
-            Person? existingPerson = allPersons.Find(p => p.GetStageName() == stage_name);
+            Person existingPerson = allPersons.Find(p => p.GetStageName() == stage_name);
 
             if (existingPerson != null)
             {
@@ -454,9 +455,9 @@
 
         public void DefinePerformerAsGroup(string performerName, string name, string start_date, string end_date)
         {
-            Performer? performer = _database.GetPerformerByName(performerName);
+            Performer performer = _database.GetPerformerByName(performerName);
             List<Group> allGroups = _database.GetAllGroups();
-            Group? existingGroup = allGroups.Find(p => p.GetName() == name);
+            Group existingGroup = allGroups.Find(p => p.GetName() == name);
             if(existingGroup != null)
             {
                 existingGroup.SetName(name);
@@ -484,14 +485,14 @@
 
         public string CheckPersonAndGroup(string personName, string groupName)
         {
-            Person? person = _database.GetAllPersons().Find(p => p.GetStageName() == personName);
+            Person person = _database.GetAllPersons().Find(p => p.GetStageName() == personName);
             if (person == null)
             {
                 Console.WriteLine("Person not found.");
                 return "Person not found";
             }
 
-            Group? group = _database.GetAllGroups().Find(g => g.GetName() == groupName);
+            Group group = _database.GetAllGroups().Find(g => g.GetName() == groupName);
             if (group == null)
             {
                 Console.WriteLine("Group not found.");

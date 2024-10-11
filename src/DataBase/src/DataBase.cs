@@ -1,8 +1,8 @@
-﻿namespace DataBaseApp
+﻿#nullable disable
+namespace DataBaseApp
 {
     using System;
     using System.Data.SQLite;
-    using System.IO;
     public class DataBase
     {
         private static DataBase _instance = null!;
@@ -18,7 +18,7 @@
         //Initialize the database
         private void Initialize(string dbPath)
         {
-            string? directoryPath = Path.GetDirectoryName(dbPath);
+            string directoryPath = Path.GetDirectoryName(dbPath);
             if (dbPath != ":memory:" && directoryPath != null && !Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
@@ -144,7 +144,7 @@
         public bool InsertPerformer(Performer performer)
         {
             bool isAdded = false;
-            Performer? existingPerformer = GetPerformerByName(performer.GetName());
+            Performer existingPerformer = GetPerformerByName(performer.GetName());
             if (existingPerformer != null)
             {
                 Console.WriteLine($"Performer '{performer.GetName()}' already exists with ID: {existingPerformer.GetIdPerformer()}");
@@ -171,7 +171,7 @@
         public bool InsertRola(Rola rola)
         {   
             bool isAdded = false;
-            Rola? existingRola = GetRolaByTitleAndPath(rola.GetTitle(), rola.GetPath());
+            Rola existingRola = GetRolaByTitleAndPath(rola.GetTitle(), rola.GetPath());
             if (existingRola != null && existingRola.GetPath() == rola.GetPath())
             {
                 Console.WriteLine($"Rola '{rola.GetTitle()}' already exists with ID: {existingRola.GetIdRola()}");
@@ -204,7 +204,7 @@
         public bool InsertPerson(Person person)
         {
             bool isAdded = false;
-            Person? existingPerson = GetPersonByStageName(person.GetStageName());
+            Person existingPerson = GetPersonByStageName(person.GetStageName());
             if (existingPerson != null)
             {
                 Console.WriteLine($"Person '{person.GetStageName()}' already exists with ID: {existingPerson.GetIdPerson()}");
@@ -233,7 +233,7 @@
         public bool InsertGroup(Group group)
         {
             bool isAdded = false;
-            Group? existingGroup = GetGroupByName(group.GetName());
+            Group existingGroup = GetGroupByName(group.GetName());
             if (existingGroup != null) 
             {
                 Console.WriteLine($"Group '{group.GetName()}' already exists with ID: {existingGroup.GetIdGroup()}");
@@ -258,13 +258,11 @@
             return isAdded;
         }
 
-        //addInGroup
-
         //addAlbum
         public bool InsertAlbum(Album album)
         {
             bool isAdded = false;            
-            Album? existingAlbum = GetAlbumByNameAndPath(album.GetName(), album.GetPath());
+            Album existingAlbum = GetAlbumByNameAndPath(album.GetName(), album.GetPath());
             if (existingAlbum != null && existingAlbum.GetPath() == album.GetPath())
             {
                 Console.WriteLine($"Album '{album.GetName()}' already exists with ID: {existingAlbum.GetIdAlbum()}");
@@ -289,9 +287,9 @@
         }
 
         //get performer by name
-        public Performer? GetPerformerByName(string name)
+        public Performer GetPerformerByName(string name)
         {
-            Performer? performer = null;
+            Performer performer = null;
             string query = "SELECT * FROM performers WHERE name = @name";
             using (SQLiteCommand command = new SQLiteCommand(query, _connection))
             {
@@ -310,9 +308,9 @@
         }
 
         //get rola by name and path
-        public Rola? GetRolaByTitleAndPath(string title, string path)
+        public Rola GetRolaByTitleAndPath(string title, string path)
         {
-            Rola? rola = null;
+            Rola rola = null;
             string query = "SELECT * FROM rolas WHERE title = @title AND path = @path";
             using (SQLiteCommand command = new SQLiteCommand(query, _connection))
             {
@@ -338,9 +336,9 @@
         }
 
         //get person by stage name
-        public Person? GetPersonByStageName(string stage_name)
+        public Person GetPersonByStageName(string stage_name)
         {
-            Person? person  = null;
+            Person person  = null;
             string query = "SELECT * FROM persons WHERE stage_name = @stage_name";
             using (SQLiteCommand command = new SQLiteCommand(query, _connection))
             {
@@ -362,9 +360,9 @@
         }
 
         //get group by name
-        public Group? GetGroupByName(string name)
+        public Group GetGroupByName(string name)
         {
-            Group? group = null;
+            Group group = null;
             string query = "SELECT * FROM groups WHERE name = @name";
             using (SQLiteCommand command = new SQLiteCommand(query, _connection))
             {
@@ -385,9 +383,9 @@
         }
 
         //get album by name
-        public Album? GetAlbumByNameAndPath(string name, string path)
+        public Album GetAlbumByNameAndPath(string name, string path)
         {
-            Album? album = null;
+            Album album = null;
             string query = "SELECT * FROM albums WHERE name = @name AND path = @path";
             using (SQLiteCommand command = new SQLiteCommand(query, _connection))
             {
