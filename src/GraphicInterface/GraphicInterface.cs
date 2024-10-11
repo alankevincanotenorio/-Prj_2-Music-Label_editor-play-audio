@@ -246,7 +246,8 @@ class GraphicInterface : Window
 
             var rolaLabel = new Label();
             rolaLabel.Text = rolaInfo;
-            rolaLabel.SetAlignment(0, 0.5f);
+            rolaLabel.Xalign = 0.0f;
+            rolaLabel.Yalign = 0.5f;
             rolaLabel.StyleContext.AddClass("Child-label");
             rolaBox.PackStart(albumImage, false, false, 5);
             rolaBox.PackStart(rolaLabel, true, true, 5);
@@ -268,7 +269,8 @@ class GraphicInterface : Window
             Gtk.Image albumImage = new Gtk.Image(albumCover.ScaleSimple(100, 100, Gdk.InterpType.Bilinear));
             var rolaLabel = new Label();
             rolaLabel.Text = rolaInfo;
-            rolaLabel.SetAlignment(0, 0.5f);
+            rolaLabel.Xalign = 0.0f;
+            rolaLabel.Yalign = 0.5f;
             rolaLabel.StyleContext.AddClass("Child-label");
             rolaBox.PackStart(albumImage, false, false, 5);
             rolaBox.PackStart(rolaLabel, true, true, 5);
