@@ -324,32 +324,48 @@ class GraphicInterface : Window
                 editRola.Hide();
                 editRola.Dispose();
                 Window selectionWindow = new Window("Select Rola");
-                selectionWindow.SetDefaultSize(400, 300);
+                selectionWindow.SetDefaultSize(800, 600);
                 selectionWindow.SetPosition(WindowPosition.Center);
                 selectionWindow.StyleContext.AddProvider(cssProvider, 800);
                 selectionWindow.TransientFor = this;
                 selectionWindow.Modal = true;
+                selectionWindow.Resizable = false;
+
+                ScrolledWindow scrolledWindow = new ScrolledWindow{Vexpand = true, Hexpand = true};
 
                 Box selectionVbox = new Box(Orientation.Vertical, 10);
                 Label selectLabel = new Label("Select the Rola to edit:");
                 selectLabel.StyleContext.AddClass("Child-label");
                 selectionVbox.PackStart(selectLabel, false, false, 5);
 
+                var rolasWithCovers = app.GetRolasInfoWithCovers();
                 foreach (var rolaPath in rolasOptions)
                 {
-                    List<string> rolaDetails = app.GetRolaDetails(rolaTitle, rolaPath);
-                    string rolaInfo = app.ShowRolaDetails(rolaDetails, rolaPath);
-                    Button rolaButton = new Button(rolaInfo);
-                    selectionVbox.PackStart(rolaButton, false, false, 5);
-
-                    rolaButton.Clicked += (sender, args) => 
+                    var rolaWithCover = rolasWithCovers.FirstOrDefault(rola => rola.rolaInfo.Contains(rolaPath));
+                    if (rolaWithCover != default)
                     {
-                        selectionWindow.Hide();
-                        selectionWindow.Dispose();
-                        ShowEditForm(rolaTitle, rolaPath, rolaDetails);
-                    };
+                        Box rolaBox = new Box(Orientation.Horizontal, 10);
+                        Gtk.Image albumImage = new Gtk.Image(rolaWithCover.albumCover.ScaleSimple(100, 100, Gdk.InterpType.Bilinear));
+                        Label rolaLabel = new Label(rolaWithCover.rolaInfo);
+                        rolaLabel.Xalign = 0.0f;
+                        rolaLabel.Yalign = 0.5f;
+                        
+                        Button rolaButton = new Button();
+                        
+                        rolaButton.Add(rolaBox);
+                        rolaBox.PackStart(albumImage, false, false, 5);
+                        rolaBox.PackStart(rolaLabel, true, true, 5);
+                        selectionVbox.PackStart(rolaButton, false, false, 10);
+                        rolaButton.Clicked += (sender, args) => 
+                        {
+                            selectionWindow.Hide();
+                            selectionWindow.Dispose();
+                            ShowEditForm(rolaTitle, rolaPath, app.GetRolaDetails(rolaTitle, rolaPath));
+                        };
+                    }
                 }
-                selectionWindow.Add(selectionVbox);
+                scrolledWindow.Add(selectionVbox);
+                selectionWindow.Add(scrolledWindow);
                 selectionWindow.ShowAll();
             }
         };
@@ -357,6 +373,7 @@ class GraphicInterface : Window
         editRola.ShowAll();
     }
 
+    //ready
     void ShowEditForm(string rolaTitle, string rolaPath, List<string> rolaDetails)
     {
         Window detailsWindow = new Window("Edit Rola");
