@@ -261,7 +261,7 @@ class GraphicInterface : Window
         rolasScrolledWindow.ShowAll();
         if (app.GetLog().Count > 0)
             errorLogView.Buffer.Text = "Log:\n" + string.Join("\n", app.GetLog());
-        miningButton.Sensitive = true;
+        EnableNonMiningActions();
     }
 
     // ready
@@ -961,15 +961,19 @@ class GraphicInterface : Window
     private void DisableNonMiningActions()
     {
         editRolaButton.Sensitive = false;
+        editAlbumButton.Sensitive = false;
+        definePerformerButton.Sensitive = false;
+        addPersonButton.Sensitive = false;
         searchButton.Sensitive = false;
-        helpButton.Sensitive = false;
     }
 
-    private void AbleNonMiningActions()
+    private void EnableNonMiningActions()
     {
         editRolaButton.Sensitive = true;
+        editAlbumButton.Sensitive = true;
+        definePerformerButton.Sensitive = true;
+        addPersonButton.Sensitive = true;
         searchButton.Sensitive = true;
-        helpButton.Sensitive = true;
     }
 
     public static void Main()
