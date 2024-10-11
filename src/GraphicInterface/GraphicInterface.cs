@@ -198,6 +198,7 @@ class GraphicInterface : Window
         changePathWindow.ShowAll();
     }
 
+    // ready
     private async void OnStartMiningClick(object sender, EventArgs e)
     {
         miningButton.Sensitive = false;
@@ -240,11 +241,11 @@ class GraphicInterface : Window
         }
         foreach (var (rolaInfo, albumCover) in rolasWithCovers)
         {
-            var rolaBox = new Box(Orientation.Horizontal, 10);
+            Box rolaBox = new Box(Orientation.Horizontal, 10);
 
             Gtk.Image albumImage = new Gtk.Image(albumCover.ScaleSimple(100, 100, Gdk.InterpType.Bilinear));
 
-            var rolaLabel = new Label();
+            Label rolaLabel = new Label();
             rolaLabel.Text = rolaInfo;
             rolaLabel.Xalign = 0.0f;
             rolaLabel.Yalign = 0.5f;
@@ -260,6 +261,7 @@ class GraphicInterface : Window
         miningButton.Sensitive = true;
     }
 
+    // ready
     private void ShowRolasWithCoverArt()
     {
         List<(string rolaInfo, Gdk.Pixbuf albumCover)> rolasWithCovers = app.GetRolasInfoWithCovers();
@@ -267,7 +269,7 @@ class GraphicInterface : Window
         {
             Box rolaBox = new Box(Orientation.Horizontal, 10);
             Gtk.Image albumImage = new Gtk.Image(albumCover.ScaleSimple(100, 100, Gdk.InterpType.Bilinear));
-            var rolaLabel = new Label();
+            Label rolaLabel = new Label();
             rolaLabel.Text = rolaInfo;
             rolaLabel.Xalign = 0.0f;
             rolaLabel.Yalign = 0.5f;
@@ -285,9 +287,12 @@ class GraphicInterface : Window
         editRola.SetDefaultSize(300, 100);
         editRola.SetPosition(WindowPosition.Center);
         editRola.StyleContext.AddProvider(cssProvider, 800);
+        editRola.TransientFor = this;
+        editRola.Modal = true;
 
         Box vbox = new Box(Orientation.Vertical, 10);
         Label instructionLabel = new Label("Enter the rola title:");
+        instructionLabel.StyleContext.AddClass("Child-label");
         vbox.PackStart(instructionLabel, false, false, 5);
 
         Entry entry = new Entry();
@@ -319,9 +324,12 @@ class GraphicInterface : Window
                 selectionWindow.SetDefaultSize(400, 300);
                 selectionWindow.SetPosition(WindowPosition.Center);
                 selectionWindow.StyleContext.AddProvider(cssProvider, 800);
+                selectionWindow.TransientFor = this;
+                selectionWindow.Modal = true;
 
                 Box selectionVbox = new Box(Orientation.Vertical, 10);
                 Label selectLabel = new Label("Select the Rola to edit:");
+                selectLabel.StyleContext.AddClass("Child-label");
                 selectionVbox.PackStart(selectLabel, false, false, 5);
 
                 foreach (var rolaPath in rolasOptions)
@@ -351,6 +359,8 @@ class GraphicInterface : Window
         detailsWindow.SetDefaultSize(300, 400);
         detailsWindow.SetPosition(WindowPosition.Center);
         detailsWindow.StyleContext.AddProvider(cssProvider, 800);
+        detailsWindow.TransientFor = this;
+        detailsWindow.Modal = true;
 
         Box detailsBox = new Box(Orientation.Vertical, 10);
 
@@ -362,6 +372,8 @@ class GraphicInterface : Window
         Entry newAlbumEntry = new Entry { Text = rolaDetails[5] }; 
 
         Label pathLabel = new Label($"Path: {rolaPath}");
+        pathLabel.StyleContext.AddClass("Child-label");
+
         detailsBox.PackStart(new Label("Current Path:"), false, false, 5);
         detailsBox.PackStart(pathLabel, false, false, 5);
 
