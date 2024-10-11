@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 class GraphicInterface : Window
 {
     public Controller app = new Controller();  
-    private TextView rolasList;
     private Label currentPathLabel;
     private CssProvider cssProvider = new CssProvider();
     private TextView errorLogView;
@@ -19,7 +18,9 @@ class GraphicInterface : Window
     private Button helpButton;
     private ProgressBar progressBar;
     private int totalFiles = 0;
-
+    private Grid grid;
+    private ScrolledWindow rolasScrolledWindow;
+    private Box rolasBox;
 
     public GraphicInterface() : base("Music Library Editor")
     {
@@ -28,7 +29,6 @@ class GraphicInterface : Window
         BorderWidth = 10;
         Resizable = true;
 
-        //to change background color
         cssProvider.LoadFromData(@"
             textview {
                 background-color: #2e2e2e;
@@ -55,6 +55,9 @@ class GraphicInterface : Window
             label.path-label {
                 color : #d3d3d3;
             }
+            label.rola-label {
+                color : #d3d3d3;
+            }
         ");
         StyleContext.AddProviderForScreen(Gdk.Screen.Default, cssProvider, 800);
 
@@ -63,7 +66,7 @@ class GraphicInterface : Window
 
         Box mainBox = new Box(Orientation.Vertical, 10);
 
-        Grid grid = new Grid();
+        grid = new Grid();
         grid.RowSpacing = 10;
         grid.ColumnSpacing = 10;
         grid.Margin = 10;
@@ -82,20 +85,6 @@ class GraphicInterface : Window
         changeDirButton.Clicked += OnChangeDirClick!;
         pathBox.PackStart(changeDirButton, false, false, 5);
         grid.Attach(pathBox, 0, 0, 4, 1);
-
-        // TextView to show mined rolas inside a ScrolledWindow
-        ScrolledWindow scrolledWindow = new ScrolledWindow();
-        scrolledWindow.Vexpand = true;
-        scrolledWindow.Hexpand = true;
-
-        rolasList = new TextView();
-        rolasList.StyleContext.AddProvider(cssProvider, uint.MaxValue);
-        rolasList.Buffer.Text = "Rolas will be displayed here...";
-        rolasList.WrapMode = WrapMode.Word;
-        rolasList.Editable = false;
-
-        scrolledWindow.Add(rolasList);
-        grid.Attach(scrolledWindow, 0, 1, 3, 4);
 
         Box buttonBox = new Box(Orientation.Vertical, 10);
 
@@ -154,26 +143,32 @@ class GraphicInterface : Window
 
         grid.Attach(buttonBox, 3, 1, 1, 5);
 
-        // add grid
+        rolasScrolledWindow = new ScrolledWindow{Vexpand = true, Hexpand = true};
+        rolasBox = new Box(Orientation.Vertical, 10);        
+
+        if(app.AreRolasInDatabase())
+        {
+            Label placeholderLabel = new Label("Aquí aparecerán las rolas...");
+            rolasBox.PackStart(placeholderLabel, false, false, 10);
+            DisableNonMiningActions();
+        }
+        else ShowRolasWithCoverArt();
+        rolasScrolledWindow.Add(rolasBox);
+        grid.Attach(rolasScrolledWindow, 0, 1, 3, 4);
         mainBox.PackStart(grid, true, true, 0);
         Add(mainBox);
-
-        if (app.GetDataBase().IsRolasTableEmpty()) DisableNonMiningActions();
-        else 
-        {
-            List<string> rolas = app.GetRolasInfoInPath();
-            rolasList.Buffer.Text = string.Join("\n", rolas);
-        }
-
         ShowAll();
     }
 
-    // manage change directory
+    // ready
     void OnChangeDirClick(object sender, EventArgs args)
     {
         Window changePathWindow = new Window("Change Path");
         changePathWindow.SetDefaultSize(300, 100);
         changePathWindow.SetPosition(WindowPosition.Center);
+        changePathWindow.TransientFor = this;
+        changePathWindow.Modal = true;
+    
         changePathWindow.StyleContext.AddProvider(cssProvider, 800);
 
         Box vbox = new Box(Orientation.Vertical, 10);
@@ -194,10 +189,12 @@ class GraphicInterface : Window
                 MessageDialog errorDialog = new MessageDialog(this,DialogFlags.Modal,MessageType.Error,ButtonsType.Ok,"Invalid path. Please enter a valid directory.");
                 errorDialog.Run();
                 errorDialog.Hide();
+                errorDialog.Dispose();
                 return;
             }
             currentPathLabel.Text = $"Current Path: {pathEntry.Text}";
             changePathWindow.Hide();
+            changePathWindow.Dispose();
         };
         vbox.PackStart(confirmButton, false, false, 5);
         changePathWindow.Add(vbox);
@@ -209,12 +206,19 @@ class GraphicInterface : Window
         miningButton.Sensitive = false;
         totalFiles = app.GetTotalMp3FilesInPath();
         progressBar.Fraction = 0;
-        if(totalFiles == 0)
+
+        if (totalFiles == 0)
         {
             progressBar.Fraction = 1;
-            progressBar.Text = "100%";   
+            progressBar.Text = "100%";
         }
-        await Task.Run(() => 
+
+        foreach (Widget child in rolasBox.Children)
+        {
+            rolasBox.Remove(child);
+        }
+
+        await Task.Run(() =>
         {
             app.StartMining((processedFiles) =>
             {
@@ -226,12 +230,54 @@ class GraphicInterface : Window
                 });
             });
         });
+
         app.SetProcessedFilesNumber(0);
-        List<string> rolas = app.GetRolasInfoInPath();
-        rolasList.Buffer.Text = string.Join("\n", rolas);
+
+        ShowRolasWithCoverArt();
+
+        List<(string rolaInfo, Gdk.Pixbuf albumCover)> rolasWithCovers = app.GetRolasInfoWithCovers();
+
+        foreach (Widget child in rolasBox.Children)
+        {
+            rolasBox.Remove(child);
+        }
+        foreach (var (rolaInfo, albumCover) in rolasWithCovers)
+        {
+            var rolaBox = new Box(Orientation.Horizontal, 10);
+
+            Gtk.Image albumImage = new Gtk.Image(albumCover.ScaleSimple(100, 100, Gdk.InterpType.Bilinear));
+
+            var rolaLabel = new Label();
+            rolaLabel.Text = rolaInfo;
+            rolaLabel.SetAlignment(0, 0.5f);
+            rolaLabel.StyleContext.AddClass("rola-label");
+            rolaBox.PackStart(albumImage, false, false, 5);
+            rolaBox.PackStart(rolaLabel, true, true, 5);
+            rolasBox.PackStart(rolaBox, false, false, 10);
+        }
+        rolasBox.ShowAll();
+        rolasScrolledWindow.ShowAll();
         if (app.GetLog().Count > 0)
             errorLogView.Buffer.Text = "Log:\n" + string.Join("\n", app.GetLog());
         miningButton.Sensitive = true;
+    }
+
+    private void ShowRolasWithCoverArt()
+    {
+        List<(string rolaInfo, Gdk.Pixbuf albumCover)> rolasWithCovers = app.GetRolasInfoWithCovers();
+        foreach (var (rolaInfo, albumCover) in rolasWithCovers)
+        {
+            Box rolaBox = new Box(Orientation.Horizontal, 10);
+            Gtk.Image albumImage = new Gtk.Image(albumCover.ScaleSimple(100, 100, Gdk.InterpType.Bilinear));
+            var rolaLabel = new Label();
+            rolaLabel.Text = rolaInfo;
+            rolaLabel.SetAlignment(0, 0.5f);
+            rolaLabel.StyleContext.AddClass("rola-label");
+            rolaBox.PackStart(albumImage, false, false, 5);
+            rolaBox.PackStart(rolaLabel, true, true, 5);
+            rolasBox.PackStart(rolaBox, false, false, 10);
+        }
+        rolasBox.ShowAll();
     }
 
     void OnEditRolaClick(object sender, EventArgs e)

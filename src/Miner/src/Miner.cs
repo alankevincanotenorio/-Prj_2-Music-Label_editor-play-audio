@@ -152,5 +152,17 @@
             Console.WriteLine($"Total accessible MP3 files in '{path}' and subdirectories: {totalMp3FilesCount}");
             return totalMp3FilesCount;
         }
+
+        public Gdk.Pixbuf GetAlbumCover(string rolaPath)
+        {
+            var file = TagLib.File.Create(rolaPath);
+            if (file.Tag.Pictures.Length > 0)
+            {
+                var albumCover = file.Tag.Pictures[0];
+                using (var stream = new MemoryStream(albumCover.Data.Data))
+                    return new Gdk.Pixbuf(stream);
+            }    
+            return new Gdk.Pixbuf("default-cover.png");
+        }
     }
 }

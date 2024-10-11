@@ -266,6 +266,26 @@ namespace ControllerApp
             return rolaInfo;
         }
 
+        public Gdk.Pixbuf GetAlbumCover(string rolaPath)
+        {
+            return _miner.GetAlbumCover(rolaPath);
+        }
+
+        public List<(string rolaInfo, Gdk.Pixbuf albumCover)> GetRolasInfoWithCovers()
+        {
+            List<Rola> rolasInPath = _database.GetAllRolas();
+            List<(string rolaInfo, Gdk.Pixbuf albumCover)> rolasInfo = new List<(string rolaInfo, Gdk.Pixbuf albumCover)>();
+            foreach (Rola rola in rolasInPath)
+            {
+                string rolaInfo = $"{rola.GetTitle()} \nPerformer: {GetPerformerName(rola.GetIdPerformer())}, " +
+                                $"\nAlbum: {GetAlbumName(rola.GetIdAlbum())} \nYear: {rola.GetYear()}, " +
+                                $"\nTrack: {rola.GetTrack()} \nGenre: {rola.GetGenre()} \nPath: {rola.GetPath()}";
+                Gdk.Pixbuf albumCover = GetAlbumCover(rola.GetPath());
+                rolasInfo.Add((rolaInfo, albumCover));
+            }
+            return rolasInfo;
+        }
+
         //aux method for Update metadata
         private string GetPerformerName(int performerId)
         {
@@ -657,5 +677,11 @@ namespace ControllerApp
                 !query.Contains("Title:") && 
                 !query.Contains("InTitle:");
         }
+
+        public bool AreRolasInDatabase()
+        {
+            return _database.IsRolasTableEmpty();
+        }
+
     }
 }
