@@ -17,7 +17,6 @@ class GraphicInterface : Window
     private Button addPersonButton;
     private Button searchButton;
     private Button helpButton;
-
     private ProgressBar progressBar;
     private int totalFiles = 0;
 
@@ -52,6 +51,9 @@ class GraphicInterface : Window
                 border-radius: 12px;
                 border-width: 1px;
                 border-color: #444444;
+            }
+            label.path-label {
+                color : #d3d3d3;
             }
         ");
         StyleContext.AddProviderForScreen(Gdk.Screen.Default, cssProvider, 800);
@@ -176,6 +178,7 @@ class GraphicInterface : Window
 
         Box vbox = new Box(Orientation.Vertical, 10);
         Label instructionLabel = new Label("Insert the new path:");
+        instructionLabel.StyleContext.AddClass("path-label");
         vbox.PackStart(instructionLabel, false, false, 5);
 
         Entry pathEntry = new Entry();
