@@ -3,21 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataBaseApp", "DataBaseApp\DataBaseApp.csproj", "{52A001B7-44F1-4782-AF44-D1A968DA9F2C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataBaseApp", "src/DataBaseApp/DataBaseApp.csproj", "{52A001B7-44F1-4782-AF44-D1A968DA9F2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinerApp", "MinerApp\MinerApp.csproj", "{58632CA5-715C-4A6D-A234-7721DCAFD69E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinerApp", "src/MinerApp/MinerApp.csproj", "{58632CA5-715C-4A6D-A234-7721DCAFD69E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libs", "libs\libs.csproj", "{42F46E34-386D-4D01-A01E-AE0B4BB26607}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FFC06A3E-2DC5-4D1F-8E0A-E529A786F2DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinerApp.Tests", "test\MinerApp.Tests\MinerApp.Tests.csproj", "{182C59F6-E830-456A-8CB3-D56334A73330}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataBaseApp.Tests", "test\DataBaseApp.Tests\DataBaseApp.Tests.csproj", "{40BB0A94-EC74-441B-801B-A98C044C847B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{3A00F0BB-6C69-4049-911D-B4358988AF43}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "src/Application/Application.csproj", "{3A00F0BB-6C69-4049-911D-B4358988AF43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphicInterface", "GraphicInterface\GraphicInterface.csproj", "{899E2734-2FEF-47AF-A1CE-6506108A3F84}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphicInterface", "src/GraphicInterface/GraphicInterface.csproj", "{899E2734-2FEF-47AF-A1CE-6506108A3F84}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,7 +56,6 @@ Global
 		{899E2734-2FEF-47AF-A1CE-6506108A3F84}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{182C59F6-E830-456A-8CB3-D56334A73330} = {FFC06A3E-2DC5-4D1F-8E0A-E529A786F2DF}
 		{40BB0A94-EC74-441B-801B-A98C044C847B} = {FFC06A3E-2DC5-4D1F-8E0A-E529A786F2DF}
 	EndGlobalSection
 EndGlobal

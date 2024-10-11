@@ -3,7 +3,7 @@ using CompilerClass;
 
 class ControllerMain
 {
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
         Compiler compiler = new Compiler();
         Controller app = new Controller();

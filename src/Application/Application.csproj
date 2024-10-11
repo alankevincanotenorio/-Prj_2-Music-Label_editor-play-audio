@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="../../libs/libs.csproj" />
+    <ProjectReference Include="..\MinerApp\MinerApp.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Definir la carpeta de destino -->
+    <PublishDir>$(Home)/.local/bin/</PublishDir>
+  </PropertyGroup>
+
+  <!-- Crear el directorio y copiar el binario -->
+  <Target Name="CopyToBin" AfterTargets="Build">
+    <!-- Comando para crear el directorio si no existe -->
+    <Exec Command="mkdir -p $(PublishDir)" />
+    <!-- Comando para copiar el binario generado -->
+    <Exec Command="cp $(OutputPath)$(TargetFileName) $(PublishDir)$(TargetFileName)" />
+  </Target>
+
+</Project>

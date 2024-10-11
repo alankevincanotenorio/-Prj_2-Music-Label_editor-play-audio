@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DataBaseApp\DataBaseApp.csproj" />
+    <ProjectReference Include="../../src/DataBaseApp/DataBaseApp.csproj" />
   </ItemGroup>
 
 </Project>
