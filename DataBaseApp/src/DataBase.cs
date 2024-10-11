@@ -689,5 +689,36 @@
                 return count > 0;
             }
         }
+
+        public List<Group> GetGroupsForPerson(Person person)
+        {
+            List<Group> groups = new List<Group>();
+
+            string query = "SELECT g.* FROM in_group ig " +
+                        "JOIN groups g ON ig.id_group = g.id_group " +
+                        "WHERE ig.id_person = @id_person";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@id_person", person.GetIdPerson());
+
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Group group = new Group
+                        (
+                            reader["name"].ToString(),
+                            reader["start_date"].ToString(),
+                            reader["end_date"].ToString()
+                        );
+                        group.SetIdGroup(Convert.ToInt32(reader["id_group"]));
+                        groups.Add(group);
+                    }
+                }
+            }
+
+            return groups;
+        }
     }
 }

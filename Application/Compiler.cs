@@ -93,5 +93,45 @@ namespace CompilerClass
             }
         }
 
+        public void SearchPerformers()
+        {
+            _performersFounded.Clear();
+            _rolasFounded.Clear();
+            string[] parts = _query.Split('|', StringSplitOptions.RemoveEmptyEntries);
+            foreach (string part in parts)
+            {
+                string trimmedPart = part.Trim();
+                if (trimmedPart.StartsWith("Performer:"))
+                {
+                    string performerName = trimmedPart.Substring(trimmedPart.IndexOf(":") + 1).Trim().Trim('"');
+                    List<Performer> performers = _database.GetAllPerformers().Where(p => p.GetName() == performerName).ToList();
+                    foreach (var performer in performers)
+                    {
+                        _performersFounded.Add(performer);
+                        if (performer.GetIdType() == 0)
+                        {
+                            Person person = _database.GetAllPersons().Find(p => p.GetStageName() == performerName);
+                            if (person != null)
+                            {
+                                _rolasFounded.AddRange(_database.GetAllRolas().Where(r => r.GetIdPerformer() == performer.GetIdPerformer()).ToList());                                
+                                List<Group> groups = _database.GetGroupsForPerson(person);
+                                foreach (var group in groups)
+                                {
+                                    List<Rola> groupRolas = _database.GetAllRolas().Where(r => r.GetIdPerformer() == group.GetIdGroup()).ToList();
+                                    _rolasFounded.AddRange(groupRolas);
+                                }
+                            }
+                        }
+                        else if (performer.GetIdType() == 1)
+                        {
+                            Group group = _database.GetAllGroups().Find(g => g.GetName() == performerName);
+                            if (group != null) _rolasFounded.AddRange(_database.GetAllRolas().Where(r => r.GetIdPerformer() == group.GetIdGroup()).ToList());
+                        }
+                        else if (performer.GetIdType() == 2)
+                            _rolasFounded.AddRange(_database.GetAllRolas().Where(r => r.GetIdPerformer() == performer.GetIdPerformer()).ToList());
+                    }
+                }
+            }
+        }
     }
 }
