@@ -24,19 +24,26 @@ namespace CompilerClass
             {
                 string trimmedPart = part.Trim();
 
-                if (trimmedPart.StartsWith("Title:") && IsValidField(trimmedPart, "Title"))
+                if (trimmedPart.StartsWith("Title:") && IsValidField(trimmedPart))
                 {
                     hasValidField = true;
                     continue;
                 }
 
-                if (trimmedPart.StartsWith("Performer:") && IsValidField(trimmedPart, "Performer"))
+                if (trimmedPart.StartsWith("Performer:") && IsValidField(trimmedPart))
                 {
                     hasValidField = true;
                     continue;
                 }
 
-                if (trimmedPart.StartsWith("Album:") && IsValidField(trimmedPart, "Album"))
+                if (trimmedPart.StartsWith("Album:") && IsValidField(trimmedPart))
+                {
+                    hasValidField = true;
+                    continue;
+                }
+
+
+                if (trimmedPart.StartsWith("InTitle:") && IsValidField(trimmedPart))
                 {
                     hasValidField = true;
                     continue;
@@ -48,7 +55,7 @@ namespace CompilerClass
             return hasValidField;
         }
 
-        private bool IsValidField(string part, string fieldName)
+        private bool IsValidField(string part)
         {
             int colonIndex = part.IndexOf(':');
             if (colonIndex == -1) return false;
@@ -56,9 +63,10 @@ namespace CompilerClass
             string value = part.Substring(colonIndex + 1).Trim();
             return value.StartsWith("\"") && value.EndsWith("\"") && value.Length > 2;
         }
-
-        public void SearchRolas()
+    
+        public void SearchAlbums()
         {
+            _albumsFounded.Clear();
             _rolasFounded.Clear();
 
             string[] parts = _query.Split('|', StringSplitOptions.RemoveEmptyEntries);
@@ -67,31 +75,19 @@ namespace CompilerClass
             {
                 string trimmedPart = part.Trim();
 
-                if (trimmedPart.StartsWith("Title:"))
-                {
-                    string title = trimmedPart.Substring(trimmedPart.IndexOf(":") + 1).Trim().Trim('"');
-                    _rolasFounded.AddRange(_database.GetAllRolas().Where(r => r.GetTitle().Contains(title)).ToList());
-                }
-
-                if (trimmedPart.StartsWith("Performer:"))
-                {
-                    string performerName = trimmedPart.Substring(trimmedPart.IndexOf(":") + 1).Trim().Trim('"');
-                    List<Performer> performers = _database.GetAllPerformers().Where(p => p.GetName().Contains(performerName)).ToList();
-
-                    foreach (var performer in performers)
-                    {
-                        _rolasFounded.AddRange(_database.GetAllRolas().Where(r => r.GetIdPerformer() == performer.GetIdPerformer()).ToList());
-                    }
-                }
-
                 if (trimmedPart.StartsWith("Album:"))
                 {
                     string albumName = trimmedPart.Substring(trimmedPart.IndexOf(":") + 1).Trim().Trim('"');
-                    List<Album> albums = _database.GetAllAlbums().Where(a => a.GetName().Contains(albumName)).ToList();
 
+                    List<Album> albums = _database.GetAllAlbums().Where(a => a.GetName() == albumName).ToList();
                     foreach (var album in albums)
                     {
-                        _rolasFounded.AddRange(_database.GetAllRolas().Where(r => r.GetIdAlbum() == album.GetIdAlbum()).ToList());
+                        _albumsFounded.Add(album);
+                        List<Rola> rolas = _database.GetAllRolas().Where(r => r.GetIdAlbum() == album.GetIdAlbum()).ToList();
+                        foreach (var rola in rolas)
+                        {
+                            _rolasFounded.Add(rola);
+                        }
                     }
                 }
             }

@@ -9,15 +9,14 @@
         private string _configFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "MusicLibraryEditorConfg", "config.txt");
         private Miner _miner;
         private DataBase _database = DataBase.Instance();
-        private Compiler _compiler; // Instancia de la clase Compiler
-
+        private Compiler _compiler;
 
         // Constructor
         public Controller()
         {
             _currentPath = LoadPathFromConfig();
             _miner = new Miner();
-            _compiler = new Compiler(); // Inicializamos la instancia del Compiler
+            _compiler = new Compiler();
             CheckForDeletedFiles();
         }
 
@@ -506,23 +505,31 @@
 
         public bool IsQueryValid(string query) => _compiler.IsValidQuery(query);
 
-        public List<string> Search(string query)
+        public List<string> SearchAlbums(string query)
         {
             _compiler.SetQuery(query);
-            _compiler.SearchRolas();
-
-            List<Rola> rolasFound = _compiler.GetRolasFounded();
-            List<string> searchResults = new List<string>();
-
-            if (rolasFound.Count > 0)
+            _compiler.SearchAlbums();
+            List<string> results = new List<string>();
+            foreach (Album album in _compiler.GetAlbumsFounded())
             {
-                foreach (var rola in rolasFound)
+                string albumInfo = $"Album: {album.GetName()}, Year: {album.GetYear()}, Path: {album.GetPath()}";
+
+                results.Add(albumInfo);
+
+                List<Rola> associatedRolas = _compiler.GetRolasFounded().Where(r => r.GetIdAlbum() == album.GetIdAlbum()).ToList();
+                if (associatedRolas.Count > 0)
                 {
-                    string result = $"Title: {rola.GetTitle()}, Performer: {GetPerformerName(rola.GetIdPerformer())}, Album: {GetAlbumName(rola.GetIdAlbum())}";
-                    searchResults.Add(result);
+                    results.Add("Rolas in this album:");
+                    foreach (Rola rola in associatedRolas)
+                    {
+                        string rolaInfo = $"  - Rola: {rola.GetTitle()}, Performer: {GetPerformerName(rola.GetIdPerformer())}, Track: {rola.GetTrack()}";
+                        results.Add(rolaInfo);
+                    }
                 }
+                else results.Add("Not rolas in this album.");
             }
-            return searchResults;
+            return results;
         }
+
     }
 }

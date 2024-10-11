@@ -763,19 +763,19 @@ class GraphicInterface : Window
 
         confirmButton.Clicked += (s, e) =>
         {
-            bool response = app.IsQueryValid(userEntry.Text);
+            string query = userEntry.Text;
+            bool response = app.IsQueryValid(query);
             if(response)
             {
                 MessageDialog success = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Query Valid");
                 success.Run();
                 success.Hide();
                 
-                List<string> searchResults = app.Search(userEntry.Text);
-
-                if (searchResults.Count > 0)
+                List<string> results = app.SearchAlbums(query);
+                if (results.Count > 0)
                 {
-                    string resultText = "Rolas Found:\n" + string.Join("\n", searchResults);
-                    MessageDialog resultsDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, resultText);
+                    string resultText = "albums Found:\n" + string.Join("\n", results);
+                    MessageDialog resultsDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, false, "{0}", resultText);
                     resultsDialog.Run();
                     resultsDialog.Hide();
                 }
@@ -785,7 +785,6 @@ class GraphicInterface : Window
                     noResultsDialog.Run();
                     noResultsDialog.Hide();
                 }
-                           
             }
             else
             {
