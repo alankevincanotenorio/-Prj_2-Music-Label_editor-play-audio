@@ -261,6 +261,7 @@ class GraphicInterface : Window
         rolasScrolledWindow.ShowAll();
         if (app.GetLog().Count > 0)
             errorLogView.Buffer.Text = "Log:\n" + string.Join("\n", app.GetLog());
+        miningButton.Sensitive = true;
         EnableNonMiningActions();
     }
 
