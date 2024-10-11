@@ -310,16 +310,19 @@ class GraphicInterface : Window
                 MessageDialog errorDialog = new MessageDialog(editRola, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "No rola found with that title. Please enter a valid title.");
                 errorDialog.Run();
                 errorDialog.Hide();
+                errorDialog.Dispose();
             }
             else if (rolasOptions.Count == 1)
             {
                 editRola.Hide();
+                editRola.Dispose();
                 List<string> rolaDetails = app.GetRolaDetails(rolaTitle, rolasOptions.First());
                 ShowEditForm(rolaTitle, rolasOptions.First(), rolaDetails);
             }
             else
             {
                 editRola.Hide();
+                editRola.Dispose();
                 Window selectionWindow = new Window("Select Rola");
                 selectionWindow.SetDefaultSize(400, 300);
                 selectionWindow.SetPosition(WindowPosition.Center);
@@ -342,6 +345,7 @@ class GraphicInterface : Window
                     rolaButton.Clicked += (sender, args) => 
                     {
                         selectionWindow.Hide();
+                        selectionWindow.Dispose();
                         ShowEditForm(rolaTitle, rolaPath, rolaDetails);
                     };
                 }
@@ -356,13 +360,34 @@ class GraphicInterface : Window
     void ShowEditForm(string rolaTitle, string rolaPath, List<string> rolaDetails)
     {
         Window detailsWindow = new Window("Edit Rola");
-        detailsWindow.SetDefaultSize(300, 400);
+        detailsWindow.SetDefaultSize(800, 600);
         detailsWindow.SetPosition(WindowPosition.Center);
         detailsWindow.StyleContext.AddProvider(cssProvider, 800);
         detailsWindow.TransientFor = this;
         detailsWindow.Modal = true;
 
+        detailsWindow.Resizable = false;
+
+        ScrolledWindow scrolledWindow = new ScrolledWindow{Vexpand = true, Hexpand = true};
+
         Box detailsBox = new Box(Orientation.Vertical, 10);
+
+        var rolaWithCover = app.GetRolasInfoWithCovers().FirstOrDefault(rola => rola.rolaInfo.Contains(rolaTitle) && rola.rolaInfo.Contains(rolaPath));
+        if (rolaWithCover != default)
+        {
+            Box rolaBox = new Box(Orientation.Horizontal, 10);
+            Gtk.Image albumImage = new Gtk.Image(rolaWithCover.albumCover.ScaleSimple(100, 100, Gdk.InterpType.Bilinear));
+            
+            Label rolaLabel = new Label(rolaWithCover.rolaInfo);
+            rolaLabel.Xalign = 0.0f;
+            rolaLabel.Yalign = 0.5f;
+            rolaLabel.StyleContext.AddClass("Child-label");
+            
+            rolaBox.PackStart(albumImage, false, false, 5);
+            rolaBox.PackStart(rolaLabel, true, true, 5);
+            
+            detailsBox.PackStart(rolaBox, false, false, 10);
+        }
 
         Entry newTitleEntry = new Entry { Text = rolaDetails[0] };
         Entry newGenreEntry = new Entry { Text = rolaDetails[1] };
@@ -371,28 +396,34 @@ class GraphicInterface : Window
         Entry newYearEntry = new Entry { Text = rolaDetails[4] };
         Entry newAlbumEntry = new Entry { Text = rolaDetails[5] }; 
 
-        Label pathLabel = new Label($"Path: {rolaPath}");
-        pathLabel.StyleContext.AddClass("Child-label");
-
-        detailsBox.PackStart(new Label("Current Path:"), false, false, 5);
-        detailsBox.PackStart(pathLabel, false, false, 5);
-
-        detailsBox.PackStart(new Label("New Title:"), false, false, 5);
+        Label title = new Label("New Title:");
+        title.StyleContext.AddClass("Child-label");
+        detailsBox.PackStart(title, false, false, 5);
         detailsBox.PackStart(newTitleEntry, false, false, 5);
 
-        detailsBox.PackStart(new Label("New Genre:"), false, false, 5);
+        Label genreLabel = new Label("New Genre:");
+        genreLabel.StyleContext.AddClass("Child-label");
+        detailsBox.PackStart(genreLabel, false, false, 5);
         detailsBox.PackStart(newGenreEntry, false, false, 5);
 
-        detailsBox.PackStart(new Label("New Track Number:"), false, false, 5);
+        Label trackLabel = new Label("New Track Number:");
+        trackLabel.StyleContext.AddClass("Child-label");
+        detailsBox.PackStart(trackLabel, false, false, 5);
         detailsBox.PackStart(newTrackEntry, false, false, 5);
 
-        detailsBox.PackStart(new Label("New Performer Name:"), false, false, 5);
+        Label performerLabel = new Label("New Performer Name:");
+        performerLabel.StyleContext.AddClass("Child-label");
+        detailsBox.PackStart(performerLabel, false, false, 5);
         detailsBox.PackStart(performerEntry, false, false, 5);
 
-        detailsBox.PackStart(new Label("New Year:"), false, false, 5);
+        Label yearLabel = new Label("New Year:");
+        yearLabel.StyleContext.AddClass("Child-label");
+        detailsBox.PackStart(yearLabel, false, false, 5);
         detailsBox.PackStart(newYearEntry, false, false, 5);
 
-        detailsBox.PackStart(new Label("New Album Name:"), false, false, 5);
+        Label albumLabel = new Label("New Album Name:");
+        albumLabel.StyleContext.AddClass("Child-label");
+        detailsBox.PackStart(albumLabel, false, false, 5);
         detailsBox.PackStart(newAlbumEntry, false, false, 5);
 
         Button acceptButton = new Button("Accept");
@@ -416,17 +447,20 @@ class GraphicInterface : Window
                 MessageDialog errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Failed to update rola. Please check the input values (year and track must be int).");
                 errorDialog.Run();
                 errorDialog.Hide();
+                errorDialog.Dispose();
             }
             else{
                 MessageDialog successDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Rola updated successfully.");
                 successDialog.Run();
                 successDialog.Hide();
+                successDialog.Dispose();
 
                 detailsWindow.Hide();
-                detailsWindow.Dispose(); // Liberar recursos de la ventana
+                detailsWindow.Dispose();
             }
         };
-        detailsWindow.Add(detailsBox);
+        scrolledWindow.Add(detailsBox);
+        detailsWindow.Add(scrolledWindow);
         detailsWindow.ShowAll();
     }
 
