@@ -185,16 +185,17 @@ class GraphicInterface : Window
             bool isValidPath = app.SetCurrentPath(pathEntry.Text);
             if(!isValidPath)
             {
-                changePathWindow.Hide();
                 MessageDialog errorDialog = new MessageDialog(this,DialogFlags.Modal,MessageType.Error,ButtonsType.Ok,"Invalid path. Please enter a valid directory.");
                 errorDialog.Run();
                 errorDialog.Hide();
                 errorDialog.Dispose();
-                return;
             }
-            currentPathLabel.Text = $"Current Path: {pathEntry.Text}";
-            changePathWindow.Hide();
-            changePathWindow.Dispose();
+            else
+            {
+                currentPathLabel.Text = $"Current Path: {pathEntry.Text}";
+                changePathWindow.Hide();
+                changePathWindow.Dispose();
+            }
         };
         vbox.PackStart(confirmButton, false, false, 5);
         changePathWindow.Add(vbox);
@@ -494,6 +495,7 @@ class GraphicInterface : Window
         detailsWindow.ShowAll();
     }
 
+    // ready
     void OnEditAlbumButton(object sender, EventArgs e)
     {
         Window editAlbum = new Window("Edit Album");
@@ -562,7 +564,6 @@ class GraphicInterface : Window
                     string albumNameExtracted = albumInfoParts[0].Split(": ")[1];
                     string albumYearExtracted = albumInfoParts[1].Split(": ")[1];
 
-                    
                     Button albumButton = new Button(albumInfo);
                     selectionVbox.PackStart(albumButton, false, false, 5);
 
@@ -583,6 +584,7 @@ class GraphicInterface : Window
         editAlbum.ShowAll();
     }
 
+    //almost ready
     void ShowEditAlbumForm(string albumName, string albumPath, List<string> albumDetails)
     {
         Window detailsWindow = new Window("Edit Album");
@@ -653,15 +655,20 @@ class GraphicInterface : Window
         definePerformer.SetDefaultSize(300, 200);
         definePerformer.SetPosition(WindowPosition.Center);
         definePerformer.StyleContext.AddProvider(cssProvider, 800);
+        definePerformer.TransientFor = this;
+        definePerformer.Modal = true;
+        definePerformer.Resizable = false;
 
         Box vbox = new Box(Orientation.Vertical, 10);
 
         Label performerLabel = new Label("Enter performer name:");
-        Entry performerEntry = new Entry();
+        performerLabel.StyleContext.AddClass("Child-label");
         vbox.PackStart(performerLabel, false, false, 5);
+        Entry performerEntry = new Entry();
         vbox.PackStart(performerEntry, false, false, 5);
 
         Label instructionLabel = new Label("Define performer as:");
+        instructionLabel.StyleContext.AddClass("Child-label");
         vbox.PackStart(instructionLabel, false, false, 5);
 
         Button personButton = new Button("Person");
@@ -698,16 +705,19 @@ class GraphicInterface : Window
             MessageDialog errorDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please enter a valid performer name.");
             errorDialog.Run();
             errorDialog.Hide();
+            errorDialog.Dispose();
         }
         else if (result == "Redefine")
         {
             MessageDialog redefineDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo, "This performer is already defined. Do you want to redefine it?");
             ResponseType response = (ResponseType)redefineDialog.Run();
             redefineDialog.Hide();
+            redefineDialog.Dispose();
 
             if (response == ResponseType.Yes)
             {
                 definePerformer.Hide();
+                definePerformer.Dispose();
                 defineAction(performerName);
             }
         }
@@ -716,10 +726,12 @@ class GraphicInterface : Window
             MessageDialog errorDialog = new MessageDialog(definePerformer, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, $"This performer is already defined as {result}");
             errorDialog.Run();
             errorDialog.Hide();
+            errorDialog.Dispose();
         }
         else
         {
             definePerformer.Hide();
+            definePerformer.Dispose();
             defineAction(performerName);
         }
     }
@@ -730,31 +742,34 @@ class GraphicInterface : Window
         personWindow.SetDefaultSize(300, 400);
         personWindow.SetPosition(WindowPosition.Center);
         personWindow.StyleContext.AddProvider(cssProvider, 800);
+        personWindow.TransientFor = this;
+        personWindow.Modal = true;
+        personWindow.Resizable = false;
 
         Box detailsBox = new Box(Orientation.Vertical, 10);
 
         Label stageNameLabel = new Label("Stage Name:");
-        Entry stageNameEntry = new Entry
-        {
-            Text = performerName,
-            Sensitive = false
-        };
+        stageNameLabel.StyleContext.AddClass("Child-label");
         detailsBox.PackStart(stageNameLabel, false, false, 5);
+        Entry stageNameEntry = new Entry {Text = performerName, Sensitive = false};
         detailsBox.PackStart(stageNameEntry, false, false, 5);
 
         Label realNameLabel = new Label("Real Name:");
-        Entry realNameEntry = new Entry();
+        realNameLabel.StyleContext.AddClass("Child-label");
         detailsBox.PackStart(realNameLabel, false, false, 5);
+        Entry realNameEntry = new Entry();
         detailsBox.PackStart(realNameEntry, false, false, 5);
 
         Label birthDateLabel = new Label("Birth Date:");
-        Entry birthDateEntry = new Entry();
+        birthDateLabel.StyleContext.AddClass("Child-label");
         detailsBox.PackStart(birthDateLabel, false, false, 5);
+        Entry birthDateEntry = new Entry();
         detailsBox.PackStart(birthDateEntry, false, false, 5);
 
-        Label deathDateLabel = new Label("Death Date (optional):");
-        Entry deathDateEntry = new Entry();
+        Label deathDateLabel = new Label("Death Date:");
+        deathDateLabel.StyleContext.AddClass("Child-label");
         detailsBox.PackStart(deathDateLabel, false, false, 5);
+        Entry deathDateEntry = new Entry();
         detailsBox.PackStart(deathDateEntry, false, false, 5);
 
         List<string> performerDetails = app.ShowPerformerDetails(performerName);
@@ -778,9 +793,10 @@ class GraphicInterface : Window
             MessageDialog successDialog = new MessageDialog(personWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Performer defined as person.");
             successDialog.Run();
             successDialog.Hide();
+            successDialog.Dispose();
             personWindow.Hide();
+            personWindow.Dispose();
         };
-
         personWindow.Add(detailsBox);
         personWindow.ShowAll();
     }
@@ -791,26 +807,32 @@ class GraphicInterface : Window
         groupWindow.SetDefaultSize(300, 400);
         groupWindow.SetPosition(WindowPosition.Center);
         groupWindow.StyleContext.AddProvider(cssProvider, 800);
+        groupWindow.TransientFor = this;
+        groupWindow.Modal = true;
+        groupWindow.Resizable = false;
 
         Box detailsBox = new Box(Orientation.Vertical, 10);
 
         Label groupNameLabel = new Label("Group Name:");
+        groupNameLabel.StyleContext.AddClass("Child-label");
+        detailsBox.PackStart(groupNameLabel, false, false, 5);
         Entry groupNameEntry = new Entry
         {
             Text = performerName,
             Sensitive = false
         };
-        detailsBox.PackStart(groupNameLabel, false, false, 5);
         detailsBox.PackStart(groupNameEntry, false, false, 5);
 
         Label startDateLabel = new Label("Start Date:");
-        Entry startDateEntry = new Entry();
+        startDateLabel.StyleContext.AddClass("Child-label");
         detailsBox.PackStart(startDateLabel, false, false, 5);
+        Entry startDateEntry = new Entry();
         detailsBox.PackStart(startDateEntry, false, false, 5);
 
-        Label endDateLabel = new Label("End Date (optional):");
-        Entry endDateEntry = new Entry();
+        Label endDateLabel = new Label("End Date:");
+        endDateLabel.StyleContext.AddClass("Child-label");
         detailsBox.PackStart(endDateLabel, false, false, 5);
+        Entry endDateEntry = new Entry();
         detailsBox.PackStart(endDateEntry, false, false, 5);
 
         List<string> performerDetails = app.ShowPerformerDetails(performerName);
@@ -832,9 +854,10 @@ class GraphicInterface : Window
                 MessageDialog successDialog = new MessageDialog(groupWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Performer defined as group.");
                 successDialog.Run();
                 successDialog.Hide();
+                successDialog.Dispose();
                 groupWindow.Hide();
+                groupWindow.Dispose();
         };
-
         groupWindow.Add(detailsBox);
         groupWindow.ShowAll();
     }
