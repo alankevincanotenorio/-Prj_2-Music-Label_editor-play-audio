@@ -32,23 +32,26 @@ class GraphicInterface : Window
         //to change background color
         cssProvider.LoadFromData(@"
             textview {
-                background-color: #a9a9a9;
-                color: #000000;
+                background-color: #2e2e2e;
+                color: #d3d3d3;
             }
             text {
-                background-color: #a9a9a9;
-                color: #282828;
+                background-color: #3b3b3b;
+                color: #d3d3d3;
             }
             window {
-                background-color: #999999;
+                background-color: #2e2e2e;
             }
             entry {
-                background-color: #ffffff;
-                color: #000000;
+                background-color: #3b3b3b;
+                color: #d3d3d3;
             }
             frame {
-                background-color: #ffffff;
-                color: #000000;
+                background-color: #3b3b3b;
+                color: #d3d3d3;
+                border-radius: 12px;
+                border-width: 1px;
+                border-color: #444444;
             }
         ");
         StyleContext.AddProviderForScreen(Gdk.Screen.Default, cssProvider, 800);
@@ -67,7 +70,7 @@ class GraphicInterface : Window
         currentPathLabel = new Label($"Current Path: {app.GetCurrentPath()}");
         Frame currentPathFrame = new Frame();
         currentPathFrame.Add(currentPathLabel);
-        currentPathFrame.ShadowType = ShadowType.EtchedIn;
+        currentPathFrame.ShadowType = ShadowType.None;
         currentPathFrame.StyleContext.AddProvider(cssProvider, uint.MaxValue);
         Box pathBox = new Box(Orientation.Horizontal, 10);
         pathBox.PackStart(currentPathFrame, true, true, 5);
@@ -197,7 +200,6 @@ class GraphicInterface : Window
         changePathWindow.Add(vbox);
         changePathWindow.ShowAll();
     }
-
 
     private async void OnStartMiningClick(object sender, EventArgs e)
     {
