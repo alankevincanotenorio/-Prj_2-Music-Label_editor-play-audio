@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../libs/libs.csproj" />
-    <ProjectReference Include="../DataBaseApp/DataBaseApp.csproj" />  
+    <ProjectReference Include="../DataBase/DataBase.csproj" />  
   </ItemGroup>
 
   <PropertyGroup>

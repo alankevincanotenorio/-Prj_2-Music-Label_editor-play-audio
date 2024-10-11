@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../libs/libs.csproj" />
-    <ProjectReference Include="../Application/Application.csproj" />
+    <ProjectReference Include="../Controller/Controller.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
