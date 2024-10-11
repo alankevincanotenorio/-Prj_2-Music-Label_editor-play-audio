@@ -524,10 +524,12 @@ class GraphicInterface : Window
                 MessageDialog errorDialog = new MessageDialog(editAlbum, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "No album found with that name. Please enter a valid name.");
                 errorDialog.Run();
                 errorDialog.Hide();
+                errorDialog.Dispose();
             }
             else if (albumInfoList.Count == 1)
             {
                 editAlbum.Hide();
+                editAlbum.Dispose();
                 string[] albumInfoParts = albumInfoList.First().Split('\n');
                 string albumPath = albumInfoParts.Last().Split(": ")[1];
                 List<string> albumDetails = app.GetAlbumDetails(albumName, albumPath);
@@ -536,10 +538,16 @@ class GraphicInterface : Window
             else
             {
                 editAlbum.Hide();
+                editAlbum.Dispose();
                 Window selectionWindow = new Window("Select Album");
-                selectionWindow.SetDefaultSize(400, 300);
+                selectionWindow.SetDefaultSize(800, 600);
                 selectionWindow.SetPosition(WindowPosition.Center);
                 selectionWindow.StyleContext.AddProvider(cssProvider, 800);
+                selectionWindow.TransientFor = this;
+                selectionWindow.Modal = true;
+                selectionWindow.Resizable = false;
+
+                ScrolledWindow scrolledWindow = new ScrolledWindow{Vexpand = true, Hexpand = true};
 
                 Box selectionVbox = new Box(Orientation.Vertical, 10);
                 Label selectLabel = new Label("Select the Album to edit:");
@@ -551,17 +559,23 @@ class GraphicInterface : Window
                 {
                     string[] albumInfoParts = albumInfo.Split('\n');
                     string extractedAlbumPath = albumInfoParts.Last().Split(": ")[1]; 
-                    List<string> albumDetails = app.GetAlbumDetails(albumName, extractedAlbumPath);
+                    string albumNameExtracted = albumInfoParts[0].Split(": ")[1];
+                    string albumYearExtracted = albumInfoParts[1].Split(": ")[1];
+
+                    
                     Button albumButton = new Button(albumInfo);
                     selectionVbox.PackStart(albumButton, false, false, 5);
 
                     albumButton.Clicked += (sender, args) => 
                     {
                         selectionWindow.Hide();
+                        selectionWindow.Dispose();
+                        List<string> albumDetails = app.GetAlbumDetails(albumName, extractedAlbumPath);
                         ShowEditAlbumForm(albumName, extractedAlbumPath, albumDetails);
                     };
                 }
-                selectionWindow.Add(selectionVbox);
+                scrolledWindow.Add(selectionVbox);
+                selectionWindow.Add(scrolledWindow);
                 selectionWindow.ShowAll();
             }
         };
@@ -569,32 +583,33 @@ class GraphicInterface : Window
         editAlbum.ShowAll();
     }
 
-
     void ShowEditAlbumForm(string albumName, string albumPath, List<string> albumDetails)
     {
         Window detailsWindow = new Window("Edit Album");
         detailsWindow.SetDefaultSize(300, 400);
         detailsWindow.SetPosition(WindowPosition.Center);
         detailsWindow.StyleContext.AddProvider(cssProvider, 800);
+        detailsWindow.TransientFor = this;
+        detailsWindow.Modal = true;
+        detailsWindow.Resizable = false;
 
         Box detailsBox = new Box(Orientation.Vertical, 10);
 
-        Entry newNameEntry = new Entry { Text = albumDetails[0] };
-        Entry newYearEntry = new Entry { Text = albumDetails[1] }; 
-
-       Label pathLabel = new Label($"Path: {albumPath}");
-        pathLabel.StyleContext.AddClass("Child-label");
-        detailsBox.PackStart(new Label("Current Path:"), false, false, 5);
-        detailsBox.PackStart(pathLabel, false, false, 5);
+        Label albumDetailsLabel = new Label($"Name: {albumDetails[0]}\nYear: {albumDetails[1]}\nPath: {albumPath}");
+        albumDetailsLabel.StyleContext.AddClass("Child-label");
+        albumDetailsLabel.Xalign = 0.0f;
+        detailsBox.PackStart(albumDetailsLabel, false, false, 5);
 
         Label NewName = new Label("New Name:");
         NewName.StyleContext.AddClass("Child-label");
         detailsBox.PackStart(NewName, false, false, 5);
+        Entry newNameEntry = new Entry { Text = albumDetails[0] };
         detailsBox.PackStart(newNameEntry, false, false, 5);
 
         Label newYearLabel = new Label("New Year:");
         newYearLabel.StyleContext.AddClass("Child-label");
         detailsBox.PackStart(newYearLabel, false, false, 5);
+        Entry newYearEntry = new Entry { Text = albumDetails[1] }; 
         detailsBox.PackStart(newYearEntry, false, false, 5);
 
         Button acceptButton = new Button("Accept");
@@ -614,14 +629,18 @@ class GraphicInterface : Window
                 MessageDialog successDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Album updated successfully.");
                 successDialog.Run();
                 successDialog.Hide();
+                successDialog.Dispose();
 
                 detailsWindow.Hide();
+                detailsWindow.Dispose();
+                //actualizar la vista 
             }
             else
             {
                 MessageDialog errorDialog = new MessageDialog(detailsWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Failed to update album. Please check the input values (year must be an integer).");
                 errorDialog.Run();
                 errorDialog.Hide();
+                errorDialog.Dispose();
             }
         };
         detailsWindow.Add(detailsBox);
