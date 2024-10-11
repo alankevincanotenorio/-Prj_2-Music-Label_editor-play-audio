@@ -130,6 +130,7 @@ class GraphicInterface : Window
         searchButton = new Button();
         Image searchIcon = new Image(Stock.Find, IconSize.Button);
         searchButton.Image = searchIcon;
+        searchButton.Clicked += OnSearchButton!;
         searchButton.SetSizeRequest(40, 40);
         buttonBox.PackStart(searchButton, false, false, 0);
 
@@ -682,8 +683,6 @@ class GraphicInterface : Window
         groupWindow.ShowAll();
     }
 
-
-
     void OnAddPersonGroup(object sender, EventArgs e)
     {
         Window addPersonGroup = new Window("Add person in a group");
@@ -744,6 +743,48 @@ class GraphicInterface : Window
             addPersonGroup.Hide();
         }
     }
+
+    void OnSearchButton(object sender, EventArgs e)
+    {
+        Window searchWindow = new Window("Search");
+        searchWindow.SetDefaultSize(300, 200);
+        searchWindow.SetPosition(WindowPosition.Center);
+        searchWindow.StyleContext.AddProvider(cssProvider, 800);
+
+        Box vbox = new Box(Orientation.Vertical, 10);
+
+        Label searchLabel = new Label("Enter the query to search (Remember, this must be like: |Thing:\"name\"):");
+        Entry userEntry = new Entry();
+        vbox.PackStart(searchLabel, false, false, 5);
+        vbox.PackStart(userEntry, false, false, 5);
+
+        Button confirmButton = new Button("Confirm");
+        vbox.PackStart(confirmButton, false, false, 5);
+
+        confirmButton.Clicked += (s, e) =>
+        {
+            bool response = app.IsQueryValid(userEntry.Text);
+            if(response)
+            {
+                MessageDialog success = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Query Valid");
+                success.Run();
+                success.Hide();
+            }
+            else
+            {
+                MessageDialog invalid = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Invalid query");
+                invalid.Run();
+                invalid.Hide();
+            }
+        };
+        searchWindow.Add(vbox);
+        searchWindow.ShowAll();
+    }
+
+
+
+
+
     
     private void DisableNonMiningActions()
     {

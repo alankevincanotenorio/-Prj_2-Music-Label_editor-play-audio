@@ -2,18 +2,22 @@
 {
     using MinerApp;
     using DataBaseApp;
+    using CompilerClass;
     public class Controller
     {
         private string _currentPath;
         private string _configFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "MusicLibraryEditorConfg", "config.txt");
         private Miner _miner;
         private DataBase _database = DataBase.Instance();
+        private Compiler _compiler; // Instancia de la clase Compiler
+
 
         // Constructor
         public Controller()
         {
             _currentPath = LoadPathFromConfig();
             _miner = new Miner();
+            _compiler = new Compiler(); // Inicializamos la instancia del Compiler
             CheckForDeletedFiles();
         }
 
@@ -500,10 +504,7 @@
             return "success";
         }
 
-        //this method is for the compiler
-        public void search()
-        {
+        public bool IsQueryValid(string query) => _compiler.IsValidQuery(query);
 
-        }
     }
 }
