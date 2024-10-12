@@ -63,8 +63,13 @@ Title:"song name" ^ Performer:"artist name" | Album:"album name"
 
 Search by Performer (only performer name is allowed):
 Performer:"artist name"
+and will appear performers with that name, also, their rolas and their group or members.
 
 Search by Album (only album name is allowed):
 Album:"album name"
+and will appear albums with that name and their rolas
 
-Error: sometimes, search function displays incomplete rola list or inconsistent rola list
+Note:
+In search function, the results appears like simple text, i was out of time to display it better.
+I cant remade the diagrams because i was out of time, but i tried to follow it.
+The actual code and the class diagram have a lot of diferences.
