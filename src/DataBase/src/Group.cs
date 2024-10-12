@@ -1,9 +1,11 @@
-public class Group{
+public class Group
+{
     private int IdGroup;
     private string Name;
     private string StartDate;
     private string EndDate;
 
+    // Constructor for existing group
     public Group(int id_group, string name, string start_date, string end_date)
     {
         IdGroup = id_group;
@@ -12,6 +14,7 @@ public class Group{
         EndDate = end_date;
     }
 
+    // Constructor for new groups
     public Group(string name, string start_date, string end_date)
     {
         Name = name;

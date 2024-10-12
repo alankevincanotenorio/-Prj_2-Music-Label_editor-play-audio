@@ -5,7 +5,7 @@ public class Album
     private string Name;
     private int Year;
 
-    // Constructor
+    // Constructor for existing album
     public Album(int idAlbum, string path, string name, int year)
     {
         IdAlbum = idAlbum;

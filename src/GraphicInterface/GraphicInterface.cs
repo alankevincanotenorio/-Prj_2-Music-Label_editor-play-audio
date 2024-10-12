@@ -973,8 +973,44 @@ class GraphicInterface : Window
                 errorDialog.Dispose();
                 return;
             }
+    
+            if (app.OnlyContainsPerformer(userQuery))
+            {
+                List<string> performerResults = app.SearchPerformers(userQuery);
 
-            if (app.OnlyContainsAlbum(userQuery))
+                Window resultsWindow = new Window("Performer Search Results");
+                resultsWindow.SetDefaultSize(400, 400);
+                resultsWindow.SetPosition(WindowPosition.Center);
+                resultsWindow.StyleContext.AddProvider(cssProvider, 800);
+                resultsWindow.TransientFor = this;
+                resultsWindow.Modal = true;
+                resultsWindow.Resizable = false;
+
+                ScrolledWindow scrolledWindow = new ScrolledWindow();
+                Box resultsBox = new Box(Orientation.Vertical, 10);
+
+                if (performerResults.Count == 0)
+                {
+                    Label noResultsLabel = new Label("No performers found.");
+                    noResultsLabel.StyleContext.AddClass("Child-label");
+                    resultsBox.PackStart(noResultsLabel, false, false, 5);
+                }
+                else
+                {
+                    foreach (string result in performerResults)
+                    {
+                        Label resultLabel = new Label(result);
+                        resultLabel.Xalign = 0.0f;
+                        resultLabel.Wrap = true;
+                        resultLabel.StyleContext.AddClass("Child-label");
+                        resultsBox.PackStart(resultLabel, false, false, 5);
+                    }
+                }
+                scrolledWindow.Add(resultsBox);
+                resultsWindow.Add(scrolledWindow);
+                resultsWindow.ShowAll();
+            }
+            else if (app.OnlyContainsAlbum(userQuery))
             {
                 app.SearchAlbums(userQuery);
                 List<Album> albumResults = app.GetAlbumsFounded();
@@ -983,6 +1019,9 @@ class GraphicInterface : Window
                 resultsWindow.SetDefaultSize(400, 400);
                 resultsWindow.SetPosition(WindowPosition.Center);
                 resultsWindow.StyleContext.AddProvider(cssProvider, 800);
+                resultsWindow.TransientFor = this;
+                resultsWindow.Modal = true;
+                resultsWindow.Resizable = false;
 
                 ScrolledWindow scrolledWindow = new ScrolledWindow();
                 Box resultsBox = new Box(Orientation.Vertical, 10);
@@ -1007,6 +1046,7 @@ class GraphicInterface : Window
                         if (rolasInAlbum.Count > 0)
                         {
                             Label rolaHeaderLabel = new Label("Rolas in this album:");
+                            rolaHeaderLabel.StyleContext.AddClass("Child-label");
                             resultsBox.PackStart(rolaHeaderLabel, false, false, 5);
 
                             foreach (Rola rola in rolasInAlbum)
@@ -1021,6 +1061,7 @@ class GraphicInterface : Window
                         else
                         {
                             Label noRolasLabel = new Label("No rolas in this album.");
+                            noRolasLabel.StyleContext.AddClass("Child-label");
                             resultsBox.PackStart(noRolasLabel, false, false, 5);
                         }
                     }
@@ -1037,6 +1078,9 @@ class GraphicInterface : Window
                 resultsWindow.SetDefaultSize(400, 400);
                 resultsWindow.SetPosition(WindowPosition.Center);
                 resultsWindow.StyleContext.AddProvider(cssProvider, 800);
+                resultsWindow.TransientFor = this;
+                resultsWindow.Modal = true;
+                resultsWindow.Resizable = false;
 
                 ScrolledWindow scrolledWindow = new ScrolledWindow();
                 Box resultsBox = new Box(Orientation.Vertical, 10);

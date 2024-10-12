@@ -748,8 +748,130 @@ namespace DataBaseApp
             return albums;
         }
 
+        public List<Performer> GetPerformersByQuery(string sql, Dictionary<string, string> parameters)
+        {
+            List<Performer> performers = new List<Performer>();
+            using (SQLiteCommand command = new SQLiteCommand(sql, _connection))
+            {
+                foreach (var param in parameters)
+                {
+                    command.Parameters.AddWithValue($"@{param.Key}", param.Value);
+                }
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idPerformer = reader.GetInt32(0);
+                        string name = reader.GetString(2);
+                        int idType = reader.GetInt32(1);
+                        performers.Add(new Performer(idPerformer, name, idType));
+                    }
+                }
+            }
+            return performers;
+        }
 
+        public List<Group> GetGroupsForPerson(Person person)
+        {
+            List<Group> groups = new List<Group>();
+            string query = "SELECT g.* FROM in_group ig JOIN groups g ON ig.id_group = g.id_group WHERE ig.id_person = @id_person";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@id_person", person.GetIdPerson());
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Group group = new Group
+                        (
+                            reader["name"].ToString(),
+                            reader["start_date"].ToString(),
+                            reader["end_date"].ToString()
+                        );
+                        group.SetIdGroup(Convert.ToInt32(reader["id_group"]));
+                        groups.Add(group);
+                    }
+                }
+            }
+            return groups;
+        }
 
+        public List<Person> GetPersonsInGroup(Group group)
+        {
+            List<Person> personsInGroup = new List<Person>();
+            string query = "SELECT persons.* FROM persons JOIN in_group ON persons.id_person = in_group.id_person " +
+                            "WHERE in_group.id_group = @id_group";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@id_group", group.GetIdGroup());
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idPerson = reader.GetInt32(0);
+                        string stageName = reader.GetString(1);
+                        string realName = reader.GetString(2);
+                        string birthDate = reader.GetString(3);
+                        string deathDate = reader.GetString(4);
+                        Person person = new Person(idPerson, stageName, realName, birthDate, deathDate);
+                        personsInGroup.Add(person);
+                    }
+                }
+            }
+            return personsInGroup;
+        }
 
+        public List<Rola> GetRolasByPerformer(int idPerformer)
+        {
+            List<Rola> rolas = new List<Rola>();
+            string query = "SELECT * FROM rolas WHERE id_performer = @id_performer";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@id_performer", idPerformer);
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idRola = reader.GetInt32(0);
+                        int idAlbum = reader.GetInt32(2);
+                        string path = reader.GetString(3);
+                        string title = reader.GetString(4);
+                        int track = reader.GetInt32(5);
+                        int year = reader.GetInt32(6);
+                        string genre = reader.GetString(7);
+                        Rola rola = new Rola(idRola, idPerformer, idAlbum, path, title, track, year, genre);
+                        rolas.Add(rola);
+                    }
+                }
+            }
+            return rolas;
+        }
+
+        public List<Rola> GetRolasByGroup(int idGroup)
+        {
+            List<Rola> rolas = new List<Rola>();
+            string query = "SELECT * FROM rolas WHERE id_performer = @id_group";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@id_group", idGroup);
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idRola = reader.GetInt32(0);
+                        int idPerformer = reader.GetInt32(1);
+                        int idAlbum = reader.GetInt32(2);
+                        string path = reader.GetString(3);
+                        string title = reader.GetString(4);
+                        int track = reader.GetInt32(5);
+                        int year = reader.GetInt32(6);
+                        string genre = reader.GetString(7);
+                        Rola rola = new Rola(idRola, idPerformer, idAlbum, path, title, track, year, genre);
+                        rolas.Add(rola);
+                    }
+                }
+            }
+            return rolas;
+        }
     }
 }

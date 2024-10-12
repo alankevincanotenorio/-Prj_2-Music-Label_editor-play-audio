@@ -4,7 +4,7 @@ public class Performer
     private string Name;
     private int IdType = (int)PerformerType.Unknown;
 
-    // Constructor
+    // Constructor for existing performers
     public Performer(int id_performer, string name, int id_type)
     {
         IdPerformer = id_performer;
@@ -12,10 +12,8 @@ public class Performer
         IdType = id_type;
     }
 
-    public Performer(string name)
-    {
-        Name = name;
-    }
+    // Constructor for new perfomres
+    public Performer(string name) => Name = name;
 
     // getters
     public int GetIdPerformer() => IdPerformer;

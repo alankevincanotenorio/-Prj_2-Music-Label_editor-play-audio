@@ -1,10 +1,12 @@
-public class Person{
+public class Person
+{
     private int IdPerson;
     private string StageName;
     private string RealName;
     private string BirthDate;
     private string DeathDate;
 
+    // Constructor for existing persons
     public Person(int id_person, string stage_name, string real_name, string birth_date, string death_date)
     {
         IdPerson = id_person;
@@ -14,6 +16,7 @@ public class Person{
         DeathDate = death_date;
     }
 
+    // Constructor for new performers
     public Person(string stage_name, string real_name, string birth_date, string death_date)
     {
         StageName = stage_name;

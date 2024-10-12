@@ -9,7 +9,7 @@ public class Rola
     private int Year;
     private string Genre;
 
-    // Constructor
+    // Constructor for existing rolas
     public Rola(int idRola, int idPerformer, int idAlbum, string path, string title, int track, int year, string genre)
     {
         IdRola = idRola;

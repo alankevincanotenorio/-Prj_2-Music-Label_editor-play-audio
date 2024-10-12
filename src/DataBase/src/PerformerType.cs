@@ -1,3 +1,4 @@
+// enum to define the PerformerType
 public enum PerformerType
 {
     Person = 0,

@@ -1,3 +1,4 @@
+#nullable disable
 namespace CompilerApp
 {
     using DataBaseApp;
@@ -11,12 +12,15 @@ namespace CompilerApp
         private Dictionary<string, string> _parameters = new Dictionary<string, string>();
         private int _paramCounter = 1;
 
-
+        // setter
         public void SetQuery(string query) => _query = query;
+
+        // getters
         public string GetQuery() => _query;
         public List<Rola> GetRolasFounded() => _rolasFounded;
         public List<Album> GetAlbumsFounded() => _albumsFounded;
         public List<Performer> GetPerformersFounded() => _performersFounded;
+
 
         public void SearchRolas()
         {
@@ -159,6 +163,40 @@ namespace CompilerApp
 
             string value = part.Substring(colonIndex + 1).Trim();
             return value.StartsWith("\"") && value.EndsWith("\"") && value.Length > 2;
+        }
+
+        public void SearchPerformers()
+        {
+            _performersFounded.Clear();
+            if (!IsValidQuery(_query))
+            {
+                Console.WriteLine("Invalid query format.");
+                return;
+            }
+            string sql = CompilePerformerQuery();
+            
+            if (sql.Contains("Invalid"))
+            {
+                Console.WriteLine(sql);
+                return;
+            }
+            _performersFounded = _database.GetPerformersByQuery(sql, _parameters);
+        }
+
+        private string CompilePerformerQuery()
+        {
+            _parameters.Clear();
+            _paramCounter = 1;
+            
+            if (_query.StartsWith("Performer:"))
+            {
+                string performerName = ExtractValueFromField(_query);
+                string paramName = $"@name";
+                _parameters.Add(paramName.Substring(1), performerName);
+                
+                return "SELECT * FROM performers WHERE name LIKE @name";
+            }            
+            return "Invalid SQL for performer query";
         }
     }
 }
