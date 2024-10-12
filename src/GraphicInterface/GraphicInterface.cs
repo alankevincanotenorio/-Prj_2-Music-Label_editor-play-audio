@@ -649,6 +649,7 @@ class GraphicInterface : Window
         detailsWindow.ShowAll();
     }
 
+    // ready
     void OnDefinePerformerButton(object sender, EventArgs e)
     {
         Window definePerformer = new Window("Define Performer");
@@ -697,7 +698,7 @@ class GraphicInterface : Window
         definePerformer.ShowAll();
     }
 
-    // aux method
+    // ready
     void HandlePerformerResult(string result, Window definePerformer, string performerName, Action<string> defineAction)
     {
         if (result == "NotFound")
@@ -736,6 +737,7 @@ class GraphicInterface : Window
         }
     }
 
+    // ready
     void DefinePerson(string performerName)
     {
         Window personWindow = new Window("Define Person");
@@ -801,6 +803,7 @@ class GraphicInterface : Window
         personWindow.ShowAll();
     }
 
+    // ready
     void DefineGroup(string performerName)
     {
         Window groupWindow = new Window("Define Group");
@@ -862,23 +865,31 @@ class GraphicInterface : Window
         groupWindow.ShowAll();
     }
 
+    // ready
     void OnAddPersonGroup(object sender, EventArgs e)
     {
         Window addPersonGroup = new Window("Add person in a group");
         addPersonGroup.SetDefaultSize(300, 200);
         addPersonGroup.SetPosition(WindowPosition.Center);
         addPersonGroup.StyleContext.AddProvider(cssProvider, 800);
+        addPersonGroup.TransientFor = this;
+        addPersonGroup.Modal = true;
+        addPersonGroup.Resizable = false;
 
         Box vbox = new Box(Orientation.Vertical, 10);
 
         Label personLabel = new Label("Enter person name:");
-        Entry personEntry = new Entry();
+        personLabel.StyleContext.AddClass("Child-label");
         vbox.PackStart(personLabel, false, false, 5);
+
+        Entry personEntry = new Entry();
         vbox.PackStart(personEntry, false, false, 5);
 
         Label groupLabel = new Label("Enter group name:");
-        Entry groupEntry = new Entry();
+        groupLabel.StyleContext.AddClass("Child-label");
         vbox.PackStart(groupLabel, false, false, 5);
+
+        Entry groupEntry = new Entry();
         vbox.PackStart(groupEntry, false, false, 5);
 
         Button confirmButton = new Button("Confirm");
@@ -893,6 +904,7 @@ class GraphicInterface : Window
         addPersonGroup.ShowAll();
     }
 
+    //left show group where the person belongs
     void HandleResult(string result, Window addPersonGroup, string personName, string groupName)
     {
         if (result == "Person not found")
@@ -900,18 +912,21 @@ class GraphicInterface : Window
             MessageDialog errorPerson = new MessageDialog(addPersonGroup, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please enter a valid person name.");
             errorPerson.Run();
             errorPerson.Hide();
+            errorPerson.Dispose();
         }
         else if (result == "Group not found")
         {
             MessageDialog errorGroup = new MessageDialog(addPersonGroup, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Please enter a valid group name.");
             errorGroup.Run();
             errorGroup.Hide();
+            errorGroup.Dispose();
         }
         else if (result == "Person already in group")
         {
             MessageDialog alreadyInGroupDialog = new MessageDialog(addPersonGroup, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "This person is already in the group.");
             alreadyInGroupDialog.Run();
             alreadyInGroupDialog.Hide();
+            alreadyInGroupDialog.Dispose();
         }
         else
         {
@@ -919,7 +934,9 @@ class GraphicInterface : Window
             MessageDialog success = new MessageDialog(addPersonGroup, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Person added to a group");
             success.Run();
             success.Hide();
+            success.Dispose();
             addPersonGroup.Hide();
+            addPersonGroup.Dispose();
         }
     }
         
@@ -943,42 +960,42 @@ class GraphicInterface : Window
 
         confirmButton.Clicked += (s, e) =>
         {
-            string query = userEntry.Text;
-            bool response = app.IsQueryValid(query);
+            // string query = userEntry.Text;
+            // bool response = app.IsQueryValid(query);
 
-            if (response)
-            {
-                MessageDialog success = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Query Valid");
-                success.Run();
-                success.Hide();
-                if (app.OnlyContainsAlbum(query))
-                {
-                    List<string> results = app.SearchAlbums(query);
-                    DisplayResults(searchWindow, results, "Albums Found:", "No albums found.");
-                }
-                else if (app.OnlyContainsPerformer(query))
-                {
-                    List<string> results = app.SearchPerformers(query);
-                    DisplayResults(searchWindow, results, "Performers Found:", "No performers found.");
-                }
-                else if (query.Contains("Title:") || query.Contains("InTitle:") || query.Contains("Performer:") || query.Contains("Album:"))
-                {
-                    List<string> results = app.SearchRolas(query);
-                    DisplayResults(searchWindow, results, "Rolas Found:", "No rolas found.");
-                }
-                else
-                {
-                    MessageDialog unknownTypeDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Unknown search type.");
-                    unknownTypeDialog.Run();
-                    unknownTypeDialog.Hide();
-                }
-            }
-            else
-            {
-                MessageDialog invalidDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Invalid query");
-                invalidDialog.Run();
-                invalidDialog.Hide();
-            }
+            // if (response)
+            // {
+            //     MessageDialog success = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Query Valid");
+            //     success.Run();
+            //     success.Hide();
+            //     if (app.OnlyContainsAlbum(query))
+            //     {
+            //         List<string> results = app.SearchAlbums(query);
+            //         DisplayResults(searchWindow, results, "Albums Found:", "No albums found.");
+            //     }
+            //     else if (app.OnlyContainsPerformer(query))
+            //     {
+            //         List<string> results = app.SearchPerformers(query);
+            //         DisplayResults(searchWindow, results, "Performers Found:", "No performers found.");
+            //     }
+            //     else if (query.Contains("Title:") || query.Contains("InTitle:") || query.Contains("Performer:") || query.Contains("Album:"))
+            //     {
+            //         List<string> results = app.SearchRolas(query);
+            //         DisplayResults(searchWindow, results, "Rolas Found:", "No rolas found.");
+            //     }
+            //     else
+            //     {
+            //         MessageDialog unknownTypeDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Unknown search type.");
+            //         unknownTypeDialog.Run();
+            //         unknownTypeDialog.Hide();
+            //     }
+            // }
+            // else
+            // {
+            //     MessageDialog invalidDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Invalid query");
+            //     invalidDialog.Run();
+            //     invalidDialog.Hide();
+            // }
         };
         searchWindow.Add(vbox);
         searchWindow.ShowAll();
