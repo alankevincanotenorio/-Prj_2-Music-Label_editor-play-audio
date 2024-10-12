@@ -946,13 +946,17 @@ class GraphicInterface : Window
         searchWindow.SetDefaultSize(300, 200);
         searchWindow.SetPosition(WindowPosition.Center);
         searchWindow.StyleContext.AddProvider(cssProvider, 800);
+        searchWindow.TransientFor = this;
+        searchWindow.Modal = true;
+        searchWindow.Resizable = false;
 
         Box vbox = new Box(Orientation.Vertical, 10);
 
         Label searchLabel = new Label("Enter the query to search (e.g., |Album:\"name\" ^ Performer:\"name\" ^ Title:\"song\" ^ InTitle:\"word\"):");
+        searchLabel.StyleContext.AddClass("Child-label");
+        vbox.PackStart(searchLabel, false, false, 5);
 
         Entry userEntry = new Entry();
-        vbox.PackStart(searchLabel, false, false, 5);
         vbox.PackStart(userEntry, false, false, 5);
 
         Button confirmButton = new Button("Confirm");
@@ -960,46 +964,53 @@ class GraphicInterface : Window
 
         confirmButton.Clicked += (s, e) =>
         {
-            // string query = userEntry.Text;
-            // bool response = app.IsQueryValid(query);
+            string userQuery = userEntry.Text;
+            if (string.IsNullOrEmpty(userQuery) || !app.IsQueryValid(userQuery))
+            {
+                MessageDialog errorDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Invalid query format. Please enter a valid query.");
+                errorDialog.Run();
+                errorDialog.Hide();
+                errorDialog.Dispose();
+                return;
+            }
 
-            // if (response)
-            // {
-            //     MessageDialog success = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Query Valid");
-            //     success.Run();
-            //     success.Hide();
-            //     if (app.OnlyContainsAlbum(query))
-            //     {
-            //         List<string> results = app.SearchAlbums(query);
-            //         DisplayResults(searchWindow, results, "Albums Found:", "No albums found.");
-            //     }
-            //     else if (app.OnlyContainsPerformer(query))
-            //     {
-            //         List<string> results = app.SearchPerformers(query);
-            //         DisplayResults(searchWindow, results, "Performers Found:", "No performers found.");
-            //     }
-            //     else if (query.Contains("Title:") || query.Contains("InTitle:") || query.Contains("Performer:") || query.Contains("Album:"))
-            //     {
-            //         List<string> results = app.SearchRolas(query);
-            //         DisplayResults(searchWindow, results, "Rolas Found:", "No rolas found.");
-            //     }
-            //     else
-            //     {
-            //         MessageDialog unknownTypeDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Unknown search type.");
-            //         unknownTypeDialog.Run();
-            //         unknownTypeDialog.Hide();
-            //     }
-            // }
-            // else
-            // {
-            //     MessageDialog invalidDialog = new MessageDialog(searchWindow, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "Invalid query");
-            //     invalidDialog.Run();
-            //     invalidDialog.Hide();
-            // }
+            List<string> rolaResults = app.SearchRolas(userQuery);
+
+            Window resultsWindow = new Window("Search Results");
+            resultsWindow.SetDefaultSize(400, 400);
+            resultsWindow.SetPosition(WindowPosition.Center);
+            resultsWindow.StyleContext.AddProvider(cssProvider, 800);
+
+            ScrolledWindow scrolledWindow = new ScrolledWindow();
+            Box resultsBox = new Box(Orientation.Vertical, 10);
+
+            if (rolaResults.Count == 0)
+            {
+                Label noResultsLabel = new Label("No results found.");
+                noResultsLabel.StyleContext.AddClass("Child-label");
+                resultsBox.PackStart(noResultsLabel, false, false, 5);
+            }
+            else
+            {
+                foreach (string rolaInfo in rolaResults)
+                {
+                    Label rolaLabel = new Label(rolaInfo);
+                    rolaLabel.Xalign = 0.0f;
+                    rolaLabel.Wrap = true;
+                    rolaLabel.StyleContext.AddClass("Child-label");
+                    resultsBox.PackStart(rolaLabel, false, false, 5);
+                }
+            }
+            scrolledWindow.Add(resultsBox);
+            resultsWindow.Add(scrolledWindow);
+            resultsWindow.ShowAll();
+            searchWindow.Hide();
+            searchWindow.Dispose();
         };
         searchWindow.Add(vbox);
         searchWindow.ShowAll();
     }
+
 
     void DisplayResults(Window searchWindow, List<string> results, string successMessage, string failureMessage)
     {

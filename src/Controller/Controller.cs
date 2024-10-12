@@ -522,122 +522,122 @@ namespace ControllerApp
 
         public bool IsQueryValid(string query) => _compiler.IsValidQuery(query);
 
-        public List<string> SearchAlbums(string query)
-        {
-            _compiler.SetQuery(query);
-            _compiler.SearchAlbums();
-            List<string> results = new List<string>();
-            foreach (Album album in _compiler.GetAlbumsFounded())
-            {
-                string albumInfo = $"Album: {album.GetName()}, Year: {album.GetYear()}, Path: {album.GetPath()}";
+        // public List<string> SearchAlbums(string query)
+        // {
+        //     _compiler.SetQuery(query);
+        //     _compiler.SearchAlbums();
+        //     List<string> results = new List<string>();
+        //     foreach (Album album in _compiler.GetAlbumsFounded())
+        //     {
+        //         string albumInfo = $"Album: {album.GetName()}, Year: {album.GetYear()}, Path: {album.GetPath()}";
 
-                results.Add(albumInfo);
+        //         results.Add(albumInfo);
 
-                List<Rola> associatedRolas = _compiler.GetRolasFounded().Where(r => r.GetIdAlbum() == album.GetIdAlbum()).ToList();
-                if (associatedRolas.Count > 0)
-                {
-                    results.Add("Rolas in this album:");
-                    foreach (Rola rola in associatedRolas)
-                    {
-                        string rolaInfo = $"  - Rola: {rola.GetTitle()}, Performer: {GetPerformerName(rola.GetIdPerformer())}, Track: {rola.GetTrack()}";
-                        results.Add(rolaInfo);
-                    }
-                }
-                else results.Add("Not rolas in this album.");
-            }
-            return results;
-        }
+        //         List<Rola> associatedRolas = _compiler.GetRolasFounded().Where(r => r.GetIdAlbum() == album.GetIdAlbum()).ToList();
+        //         if (associatedRolas.Count > 0)
+        //         {
+        //             results.Add("Rolas in this album:");
+        //             foreach (Rola rola in associatedRolas)
+        //             {
+        //                 string rolaInfo = $"  - Rola: {rola.GetTitle()}, Performer: {GetPerformerName(rola.GetIdPerformer())}, Track: {rola.GetTrack()}";
+        //                 results.Add(rolaInfo);
+        //             }
+        //         }
+        //         else results.Add("Not rolas in this album.");
+        //     }
+        //     return results;
+        // }
 
-        public List<string> SearchPerformers(string query)
-        {
-            _compiler.SetQuery(query);
-            _compiler.SearchPerformers();            
-            List<string> results = new List<string>();
-            foreach (Performer performer in _compiler.GetPerformersFounded())
-            {
-                if (performer.GetIdType() == 0) results.AddRange(ProcessPerson(performer));
-                else if (performer.GetIdType() == 1) results.AddRange(ProcessGroup(performer));
-                else if (performer.GetIdType() == 2)
-                {
-                    string unknownPerformerInfo = $"Performer: {performer.GetName()} is not yet defined as a person or group.";
-                    results.Add(unknownPerformerInfo);
-                }
-                results.AddRange(ProcessRolasForPerformer(performer));
-            }
-            return results;
-        }
+        // public List<string> SearchPerformers(string query)
+        // {
+        //     _compiler.SetQuery(query);
+        //     _compiler.SearchPerformers();            
+        //     List<string> results = new List<string>();
+        //     foreach (Performer performer in _compiler.GetPerformersFounded())
+        //     {
+        //         if (performer.GetIdType() == 0) results.AddRange(ProcessPerson(performer));
+        //         else if (performer.GetIdType() == 1) results.AddRange(ProcessGroup(performer));
+        //         else if (performer.GetIdType() == 2)
+        //         {
+        //             string unknownPerformerInfo = $"Performer: {performer.GetName()} is not yet defined as a person or group.";
+        //             results.Add(unknownPerformerInfo);
+        //         }
+        //         results.AddRange(ProcessRolasForPerformer(performer));
+        //     }
+        //     return results;
+        // }
 
-        private List<string> ProcessPerson(Performer performer)
-        {
-            List<string> result = new List<string>();
-            Person person = _database.GetAllPersons().Find(p => p.GetStageName() == performer.GetName());
-            if (person != null)
-            {
-                string personInfo = $"Person: {person.GetStageName()}, Real Name: {person.GetRealName()}, " +
-                                    $"Birth Date: {person.GetBirthDate()}, Death Date: {person.GetDeathDate()}";
-                result.Add(personInfo);
-                List<Group> groups = _database.GetGroupsForPerson(person);
-                if (groups.Count > 0)
-                {
-                    foreach (Group group in groups)
-                    {
-                        string groupInfo = $"  - Group: {group.GetName()}, Start Date: {group.GetStartDate()}, End Date: {group.GetEndDate()}";
-                        result.Add(groupInfo);
-                        result.AddRange(ProcessRolasForGroup(group));
-                    }
-                }
-                else result.Add("This person does not belong to any group.");
-            }
-            return result;
-        }
+        // private List<string> ProcessPerson(Performer performer)
+        // {
+        //     List<string> result = new List<string>();
+        //     Person person = _database.GetAllPersons().Find(p => p.GetStageName() == performer.GetName());
+        //     if (person != null)
+        //     {
+        //         string personInfo = $"Person: {person.GetStageName()}, Real Name: {person.GetRealName()}, " +
+        //                             $"Birth Date: {person.GetBirthDate()}, Death Date: {person.GetDeathDate()}";
+        //         result.Add(personInfo);
+        //         List<Group> groups = _database.GetGroupsForPerson(person);
+        //         if (groups.Count > 0)
+        //         {
+        //             foreach (Group group in groups)
+        //             {
+        //                 string groupInfo = $"  - Group: {group.GetName()}, Start Date: {group.GetStartDate()}, End Date: {group.GetEndDate()}";
+        //                 result.Add(groupInfo);
+        //                 result.AddRange(ProcessRolasForGroup(group));
+        //             }
+        //         }
+        //         else result.Add("This person does not belong to any group.");
+        //     }
+        //     return result;
+        // }
 
-        private List<string> ProcessGroup(Performer performer)
-        {
-            List<string> result = new List<string>();
-            Group group = _database.GetAllGroups().Find(g => g.GetName() == performer.GetName());
+        // private List<string> ProcessGroup(Performer performer)
+        // {
+        //     List<string> result = new List<string>();
+        //     Group group = _database.GetAllGroups().Find(g => g.GetName() == performer.GetName());
 
-            if (group != null)
-            {
-                string groupInfo = $"Group: {group.GetName()}, Start Date: {group.GetStartDate()}, End Date: {group.GetEndDate()}";
-                result.Add(groupInfo);
-                result.AddRange(ProcessRolasForGroup(group));
-            }
-            return result;
-        }
+        //     if (group != null)
+        //     {
+        //         string groupInfo = $"Group: {group.GetName()}, Start Date: {group.GetStartDate()}, End Date: {group.GetEndDate()}";
+        //         result.Add(groupInfo);
+        //         result.AddRange(ProcessRolasForGroup(group));
+        //     }
+        //     return result;
+        // }
 
-        private List<string> ProcessRolasForGroup(Group group)
-        {
-            List<string> result = new List<string>();
-            List<Rola> groupRolas = _compiler.GetRolasFounded().Where(r => r.GetIdPerformer() == group.GetIdGroup()).ToList();
-            if (groupRolas.Count > 0)
-            {
-                result.Add("Rolas in this group:");
-                foreach (Rola rola in groupRolas)
-                {
-                    string rolaInfo = $"  - Rola: {rola.GetTitle()}, Track: {rola.GetTrack()}";
-                    result.Add(rolaInfo);
-                }
-            }
-            else result.Add("No rolas found for this group.");
-            return result;
-        }
+        // private List<string> ProcessRolasForGroup(Group group)
+        // {
+        //     List<string> result = new List<string>();
+        //     List<Rola> groupRolas = _compiler.GetRolasFounded().Where(r => r.GetIdPerformer() == group.GetIdGroup()).ToList();
+        //     if (groupRolas.Count > 0)
+        //     {
+        //         result.Add("Rolas in this group:");
+        //         foreach (Rola rola in groupRolas)
+        //         {
+        //             string rolaInfo = $"  - Rola: {rola.GetTitle()}, Track: {rola.GetTrack()}";
+        //             result.Add(rolaInfo);
+        //         }
+        //     }
+        //     else result.Add("No rolas found for this group.");
+        //     return result;
+        // }
 
-        private List<string> ProcessRolasForPerformer(Performer performer)
-        {
-            List<string> result = new List<string>();
-            List<Rola> associatedRolas = _compiler.GetRolasFounded().Where(r => r.GetIdPerformer() == performer.GetIdPerformer()).ToList();
-            if (associatedRolas.Count > 0)
-            {
-                result.Add("Rolas associated with this performer:");
-                foreach (Rola rola in associatedRolas)
-                {
-                    string rolaInfo = $"  - Rola: {rola.GetTitle()}, Track: {rola.GetTrack()}";
-                    result.Add(rolaInfo);
-                }
-            }
-            else result.Add("No rolas found for this performer.");
-            return result;
-        }
+        // private List<string> ProcessRolasForPerformer(Performer performer)
+        // {
+        //     List<string> result = new List<string>();
+        //     List<Rola> associatedRolas = _compiler.GetRolasFounded().Where(r => r.GetIdPerformer() == performer.GetIdPerformer()).ToList();
+        //     if (associatedRolas.Count > 0)
+        //     {
+        //         result.Add("Rolas associated with this performer:");
+        //         foreach (Rola rola in associatedRolas)
+        //         {
+        //             string rolaInfo = $"  - Rola: {rola.GetTitle()}, Track: {rola.GetTrack()}";
+        //             result.Add(rolaInfo);
+        //         }
+        //     }
+        //     else result.Add("No rolas found for this performer.");
+        //     return result;
+        // }
 
         public List<string> SearchRolas(string query)
         {

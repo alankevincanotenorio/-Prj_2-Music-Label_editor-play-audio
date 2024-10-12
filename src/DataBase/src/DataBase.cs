@@ -688,35 +688,37 @@ namespace DataBaseApp
             }
         }
 
-        public List<Group> GetGroupsForPerson(Person person)
+
+        public List<Rola> GetRolasByQuery(string sql, Dictionary<string, string> parameters)
         {
-            List<Group> groups = new List<Group>();
+            List<Rola> rolas = new List<Rola>();
 
-            string query = "SELECT g.* FROM in_group ig " +
-                        "JOIN groups g ON ig.id_group = g.id_group " +
-                        "WHERE ig.id_person = @id_person";
-
-            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            using (SQLiteCommand command = new SQLiteCommand(sql, _connection))
             {
-                command.Parameters.AddWithValue("@id_person", person.GetIdPerson());
+                foreach (var param in parameters)
+                {
+                    command.Parameters.AddWithValue($"@{param.Key}", param.Value);
+                }
 
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        Group group = new Group
-                        (
-                            reader["name"].ToString(),
-                            reader["start_date"].ToString(),
-                            reader["end_date"].ToString()
-                        );
-                        group.SetIdGroup(Convert.ToInt32(reader["id_group"]));
-                        groups.Add(group);
+                        int idRola = reader.GetInt32(0);
+                        int idPerformer = reader.GetInt32(1);
+                        int idAlbum = reader.GetInt32(2);
+                        string rolaPath = reader.GetString(3);
+                        string rolaTitle = reader.GetString(4);
+                        int track = reader.GetInt32(5);
+                        int year = reader.GetInt32(6);
+                        string genre = reader.GetString(7);
+
+                        Rola rola = new Rola(idRola, idPerformer, idAlbum, rolaPath, rolaTitle, track, year, genre);
+                        rolas.Add(rola);
                     }
                 }
             }
-
-            return groups;
+            return rolas;
         }
     }
 }
