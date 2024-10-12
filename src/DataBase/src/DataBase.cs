@@ -720,5 +720,36 @@ namespace DataBaseApp
             }
             return rolas;
         }
+
+        public List<Album> GetAlbumsByQuery(string sql, Dictionary<string, string> parameters)
+        {
+            List<Album> albums = new List<Album>();
+            using (SQLiteCommand command = new SQLiteCommand(sql, _connection))
+            {
+                foreach (var param in parameters)
+                {
+                    command.Parameters.AddWithValue($"@{param.Key}", param.Value);
+                }
+
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idAlbum = reader.GetInt32(0);
+                        string path = reader.GetString(1);
+                        string name = reader.GetString(2);
+                        int year = reader.GetInt32(3);
+
+                        Album album = new Album(idAlbum, path, name, year);
+                        albums.Add(album);
+                    }
+                }
+            }
+            return albums;
+        }
+
+
+
+
     }
 }

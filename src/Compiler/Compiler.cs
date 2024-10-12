@@ -6,12 +6,17 @@ namespace CompilerApp
         private string _query;
         private DataBase _database = DataBase.Instance();
         private List<Rola> _rolasFounded = new List<Rola>();
+        private List<Album> _albumsFounded = new List<Album>();
+        private List<Performer> _performersFounded = new List<Performer>();
         private Dictionary<string, string> _parameters = new Dictionary<string, string>();
         private int _paramCounter = 1;
 
-        public void SetQuery(string query) => _query = query;
 
+        public void SetQuery(string query) => _query = query;
+        public string GetQuery() => _query;
         public List<Rola> GetRolasFounded() => _rolasFounded;
+        public List<Album> GetAlbumsFounded() => _albumsFounded;
+        public List<Performer> GetPerformersFounded() => _performersFounded;
 
         public void SearchRolas()
         {
@@ -28,6 +33,32 @@ namespace CompilerApp
                 return;
             }
             _rolasFounded = _database.GetRolasByQuery(sql, _parameters);
+        }
+
+        public void SearchAlbums()
+        {
+            _albumsFounded.Clear();
+            if (!IsValidQuery(_query))
+            {
+                Console.WriteLine("Invalid query format.");
+                return;
+            }
+
+            if (_query.StartsWith("Album:"))
+            {
+                string albumName = ExtractValueFromField(_query);
+                string sql = "SELECT * FROM albums WHERE name LIKE @name";
+                var parameters = new Dictionary<string, string> { { "name", $"%{albumName}%" } };
+
+                _albumsFounded = _database.GetAlbumsByQuery(sql, parameters);
+                foreach (var album in _albumsFounded)
+                {
+                    string rolaSql = "SELECT * FROM rolas WHERE id_album = @id_album";
+                    var rolaParams = new Dictionary<string, string> { { "id_album", album.GetIdAlbum().ToString() } };
+                    List<Rola> rolasInAlbum = _database.GetRolasByQuery(rolaSql, rolaParams);
+                    _rolasFounded.AddRange(rolasInAlbum);
+                }
+            }
         }
 
         private string CompileToSQL()

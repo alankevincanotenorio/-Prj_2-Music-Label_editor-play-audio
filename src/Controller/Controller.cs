@@ -287,7 +287,7 @@ namespace ControllerApp
         }
 
         //aux method for Update metadata
-        private string GetPerformerName(int performerId)
+        public string GetPerformerName(int performerId)
         {
             List<Performer> performers = _database.GetAllPerformers();
             Performer performer = performers.Find(p => p.GetIdPerformer() == performerId);
@@ -522,31 +522,33 @@ namespace ControllerApp
 
         public bool IsQueryValid(string query) => _compiler.IsValidQuery(query);
 
-        // public List<string> SearchAlbums(string query)
-        // {
-        //     _compiler.SetQuery(query);
-        //     _compiler.SearchAlbums();
-        //     List<string> results = new List<string>();
-        //     foreach (Album album in _compiler.GetAlbumsFounded())
-        //     {
-        //         string albumInfo = $"Album: {album.GetName()}, Year: {album.GetYear()}, Path: {album.GetPath()}";
+        public List<string> SearchAlbums(string query)
+        {
+            _compiler.SetQuery(query);
+            _compiler.SearchAlbums();
+            List<string> results = new List<string>();
+            foreach (Album album in _compiler.GetAlbumsFounded())
+            {
+                string albumInfo = $"Album: {album.GetName()}, Year: {album.GetYear()}, Path: {album.GetPath()}";
 
-        //         results.Add(albumInfo);
+                results.Add(albumInfo);
 
-        //         List<Rola> associatedRolas = _compiler.GetRolasFounded().Where(r => r.GetIdAlbum() == album.GetIdAlbum()).ToList();
-        //         if (associatedRolas.Count > 0)
-        //         {
-        //             results.Add("Rolas in this album:");
-        //             foreach (Rola rola in associatedRolas)
-        //             {
-        //                 string rolaInfo = $"  - Rola: {rola.GetTitle()}, Performer: {GetPerformerName(rola.GetIdPerformer())}, Track: {rola.GetTrack()}";
-        //                 results.Add(rolaInfo);
-        //             }
-        //         }
-        //         else results.Add("Not rolas in this album.");
-        //     }
-        //     return results;
-        // }
+                List<Rola> associatedRolas = _compiler.GetRolasFounded().Where(r => r.GetIdAlbum() == album.GetIdAlbum()).ToList();
+                if (associatedRolas.Count > 0)
+                {
+                    results.Add("Rolas in this album:");
+                    foreach (Rola rola in associatedRolas)
+                    {
+                        string rolaInfo = $"  - Rola: {rola.GetTitle()}, Performer: {GetPerformerName(rola.GetIdPerformer())}, Track: {rola.GetTrack()}";
+                        results.Add(rolaInfo);
+                    }
+                }
+                else results.Add("Not rolas in this album.");
+            }
+            return results;
+        }
+
+        public List<Album> GetAlbumsFounded() => _compiler.GetAlbumsFounded();
 
         // public List<string> SearchPerformers(string query)
         // {

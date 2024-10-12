@@ -974,42 +974,102 @@ class GraphicInterface : Window
                 return;
             }
 
-            List<string> rolaResults = app.SearchRolas(userQuery);
-
-            Window resultsWindow = new Window("Search Results");
-            resultsWindow.SetDefaultSize(400, 400);
-            resultsWindow.SetPosition(WindowPosition.Center);
-            resultsWindow.StyleContext.AddProvider(cssProvider, 800);
-
-            ScrolledWindow scrolledWindow = new ScrolledWindow();
-            Box resultsBox = new Box(Orientation.Vertical, 10);
-
-            if (rolaResults.Count == 0)
+            if (app.OnlyContainsAlbum(userQuery))
             {
-                Label noResultsLabel = new Label("No results found.");
-                noResultsLabel.StyleContext.AddClass("Child-label");
-                resultsBox.PackStart(noResultsLabel, false, false, 5);
+                app.SearchAlbums(userQuery);
+                List<Album> albumResults = app.GetAlbumsFounded();
+
+                Window resultsWindow = new Window("Album Search Results");
+                resultsWindow.SetDefaultSize(400, 400);
+                resultsWindow.SetPosition(WindowPosition.Center);
+                resultsWindow.StyleContext.AddProvider(cssProvider, 800);
+
+                ScrolledWindow scrolledWindow = new ScrolledWindow();
+                Box resultsBox = new Box(Orientation.Vertical, 10);
+
+                if (albumResults.Count == 0)
+                {
+                    Label noResultsLabel = new Label("No albums found.");
+                    noResultsLabel.StyleContext.AddClass("Child-label");
+                    resultsBox.PackStart(noResultsLabel, false, false, 5);
+                }
+                else
+                {
+                    foreach (Album album in albumResults)
+                    {
+                        Label albumLabel = new Label($"Album: {album.GetName()}, Year: {album.GetYear()}");
+                        albumLabel.Xalign = 0.0f;
+                        albumLabel.Wrap = true;
+                        albumLabel.StyleContext.AddClass("Child-label");
+                        resultsBox.PackStart(albumLabel, false, false, 5);
+
+                        List<Rola> rolasInAlbum = app.GetAllRolasInDB().Where(r => r.GetIdAlbum() == album.GetIdAlbum()).ToList();
+                        if (rolasInAlbum.Count > 0)
+                        {
+                            Label rolaHeaderLabel = new Label("Rolas in this album:");
+                            resultsBox.PackStart(rolaHeaderLabel, false, false, 5);
+
+                            foreach (Rola rola in rolasInAlbum)
+                            {
+                                Label rolaLabel = new Label($"  - Rola: {rola.GetTitle()}, Performer: {app.GetPerformerName(rola.GetIdPerformer())}, Track: {rola.GetTrack()}");
+                                rolaLabel.Xalign = 0.0f;
+                                rolaLabel.Wrap = true;
+                                rolaLabel.StyleContext.AddClass("Child-label");
+                                resultsBox.PackStart(rolaLabel, false, false, 5);
+                            }
+                        }
+                        else
+                        {
+                            Label noRolasLabel = new Label("No rolas in this album.");
+                            resultsBox.PackStart(noRolasLabel, false, false, 5);
+                        }
+                    }
+                }
+                scrolledWindow.Add(resultsBox);
+                resultsWindow.Add(scrolledWindow);
+                resultsWindow.ShowAll();
             }
             else
             {
-                foreach (string rolaInfo in rolaResults)
+                List<string> rolaResults = app.SearchRolas(userQuery);
+
+                Window resultsWindow = new Window("Search Results");
+                resultsWindow.SetDefaultSize(400, 400);
+                resultsWindow.SetPosition(WindowPosition.Center);
+                resultsWindow.StyleContext.AddProvider(cssProvider, 800);
+
+                ScrolledWindow scrolledWindow = new ScrolledWindow();
+                Box resultsBox = new Box(Orientation.Vertical, 10);
+
+                if (rolaResults.Count == 0)
                 {
-                    Label rolaLabel = new Label(rolaInfo);
-                    rolaLabel.Xalign = 0.0f;
-                    rolaLabel.Wrap = true;
-                    rolaLabel.StyleContext.AddClass("Child-label");
-                    resultsBox.PackStart(rolaLabel, false, false, 5);
+                    Label noResultsLabel = new Label("No results found.");
+                    noResultsLabel.StyleContext.AddClass("Child-label");
+                    resultsBox.PackStart(noResultsLabel, false, false, 5);
                 }
+                else
+                {
+                    foreach (string rolaInfo in rolaResults)
+                    {
+                        Label rolaLabel = new Label(rolaInfo);
+                        rolaLabel.Xalign = 0.0f;
+                        rolaLabel.Wrap = true;
+                        rolaLabel.StyleContext.AddClass("Child-label");
+                        resultsBox.PackStart(rolaLabel, false, false, 5);
+                    }
+                }
+                scrolledWindow.Add(resultsBox);
+                resultsWindow.Add(scrolledWindow);
+                resultsWindow.ShowAll();
             }
-            scrolledWindow.Add(resultsBox);
-            resultsWindow.Add(scrolledWindow);
-            resultsWindow.ShowAll();
+
             searchWindow.Hide();
             searchWindow.Dispose();
         };
         searchWindow.Add(vbox);
         searchWindow.ShowAll();
     }
+
 
 
     void DisplayResults(Window searchWindow, List<string> results, string successMessage, string failureMessage)
