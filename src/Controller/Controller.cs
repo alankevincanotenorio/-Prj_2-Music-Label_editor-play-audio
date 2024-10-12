@@ -21,7 +21,7 @@ namespace ControllerApp
             CheckForDeletedFiles();
         }
 
-        // read the path config
+        // read the config file from path config
         private string LoadPathFromConfig()
         {
             string configDirectory = Path.GetDirectoryName(_configFilePath);
@@ -53,21 +53,10 @@ namespace ControllerApp
         public List<Rola> GetAllRolasInDB() => _database.GetAllRolas();
         public float GetProgress(float processedFiles, int totalFiles) => processedFiles / totalFiles;
 
+        // set the number of files processed
         public void SetProcessedFilesNumber(int count) => _miner.SetProcessedFilesCount(count);
-        
-        // set the current path
-        public bool SetCurrentPath(string current_path)
-        {
-            if (!Directory.Exists(current_path))
-            {
-                Console.WriteLine("Path does not exists");
-                return false;
-            }
-            _currentPath =  current_path;
-            File.WriteAllText(_configFilePath, _currentPath);
-            return true;
-        }
 
+        // checks if the Rolas table is empty
         public bool AreRolasInDatabase() => _database.IsRolasTableEmpty();
 
         //check ir a file was deleted and update the database
@@ -83,6 +72,19 @@ namespace ControllerApp
                 }
             }
         }
+       
+        // set the current path
+        public bool SetCurrentPath(string current_path)
+        {
+            if (!Directory.Exists(current_path))
+            {
+                Console.WriteLine("Path does not exists");
+                return false;
+            }
+            _currentPath =  current_path;
+            File.WriteAllText(_configFilePath, _currentPath);
+            return true;
+        }
 
         // start mining method
         public void StartMining(Action<int> onFileProcessed)
@@ -91,6 +93,22 @@ namespace ControllerApp
             SetProcessedFilesNumber(0);
             _miner.Mine(_currentPath, onFileProcessed);
             Console.WriteLine("Mining finished.");
+        }
+
+        // get performer name by id
+        public string GetPerformerName(int performerId)
+        {
+            List<Performer> performers = _database.GetAllPerformers();
+            Performer performer = performers.Find(p => p.GetIdPerformer() == performerId);
+            return performer != null ? performer.GetName() : "Unknown Performer";
+        }
+
+        // get album name by id
+        private string GetAlbumName(int albumId)
+        {
+            List<Album> albums = _database.GetAllAlbums();
+            Album album = albums.Find(a => a.GetIdAlbum() == albumId);
+            return album != null ? album.GetName() : "Unknown Album";
         }
 
         //show rolas in path, maybe erase it or change name
@@ -109,13 +127,8 @@ namespace ControllerApp
             }
             return rolasInfo;
         }
-
-        public List<string> GetRolasOptions(string title)
-        {
-            List<Rola> matchedRolas = _database.GetAllRolas().Where(r => r.GetTitle() == title).ToList();
-            return matchedRolas.Select(r => r.GetPath()).ToList();
-        }
     
+        // get rola details with title and path
         public List<string> GetRolaDetails(string title, string path)
         {
             Rola rola = _database.GetRolaByTitleAndPath(title, path);
@@ -132,7 +145,8 @@ namespace ControllerApp
             return rolaDetails;
         }
 
-      public bool UpdateRolaDetails(string title, string path, string newTitle, string newGenre, string newTrack, string performerName, string year, string albumName)
+        // update rola  details in database
+        public bool UpdateRolaDetails(string title, string path, string newTitle, string newGenre, string newTrack, string performerName, string year, string albumName)
         {
             Rola rolaToEdit = _database.GetRolaByTitleAndPath(title, path);
             if (rolaToEdit == null)
@@ -160,13 +174,15 @@ namespace ControllerApp
                 }
                 rolaToEdit.SetYear(yearNumber);
             }
+            if (!string.IsNullOrEmpty(newTitle)) 
+                rolaToEdit.SetTitle(newTitle);
+            if (!string.IsNullOrEmpty(newGenre)) 
+                rolaToEdit.SetGenre(newGenre);
+            if (!string.IsNullOrEmpty(performerName)) 
+                UpdatePerformer(rolaToEdit, performerName);
 
-            if (!string.IsNullOrEmpty(newTitle)) rolaToEdit.SetTitle(newTitle);
-            if (!string.IsNullOrEmpty(newGenre)) rolaToEdit.SetGenre(newGenre);
-
-            if (!string.IsNullOrEmpty(performerName)) UpdatePerformer(rolaToEdit, performerName);
-
-            if (!string.IsNullOrEmpty(albumName)) UpdateAlbum(rolaToEdit, albumName);
+            if (!string.IsNullOrEmpty(albumName)) 
+                UpdateAlbum(rolaToEdit, albumName);
 
             _database.UpdateRola(rolaToEdit);
 
@@ -174,12 +190,11 @@ namespace ControllerApp
             return true;
         }
 
-
+        // update performer from rolaToEdit
         private void UpdatePerformer(Rola rolaToEdit, string performerName)
         {
             List<Performer> performers = _database.GetAllPerformers();
             Performer existingPerformer = performers.Find(p => p.GetName() == performerName);
-
             if (existingPerformer == null)
             {
                 List<Rola> rolas = _database.GetAllRolas();
@@ -193,7 +208,6 @@ namespace ControllerApp
                     if(p.GetIdType() == 0)
                     {
                         Person personToUpdate = _database.GetAllPersons().Find(person => person.GetStageName() == oldName);
-
                         personToUpdate.SetStageName(performerName);
                         _database.UpdatePerson(personToUpdate);
                         Console.WriteLine("Person performer updated successfully.");
@@ -201,7 +215,6 @@ namespace ControllerApp
                     if(p.GetIdType() == 1)
                     {
                         Group groupToUpdate = _database.GetAllGroups().Find(group => group.GetName() == oldName);
-
                         groupToUpdate.SetName(performerName);
                         _database.UpdateGroup(groupToUpdate);
                         Console.WriteLine("Group performer updated successfully.");
@@ -212,16 +225,16 @@ namespace ControllerApp
                 _database.InsertPerformer(newPerformer);
                 rolaToEdit.SetIdPerformer(newPerformer.GetIdPerformer());
             }
-            else rolaToEdit.SetIdPerformer(existingPerformer.GetIdPerformer());
+            else 
+                rolaToEdit.SetIdPerformer(existingPerformer.GetIdPerformer());
         }
 
-       private void UpdateAlbum(Rola rolaToEdit, string albumName)
+        // update album from rolaToEdit
+        private void UpdateAlbum(Rola rolaToEdit, string albumName)
         {
             List<Album> albums = _database.GetAllAlbums();
             Album rolaAlbum = albums.Find(a => a.GetIdAlbum() == rolaToEdit.GetIdAlbum());
-
             Album existingAlbum = albums.Find(a => a.GetName() == albumName && a.GetPath() == rolaAlbum.GetPath());
-
             if (existingAlbum == null)
             {
                 List<Rola> rolas = _database.GetAllRolas();
@@ -233,15 +246,16 @@ namespace ControllerApp
                     Console.WriteLine($"Album updated to {albumName}.");
                     return;
                 }
-
                 Album newAlbum = new Album(rolaAlbum.GetPath(), albumName, rolaAlbum.GetYear());
                 _database.InsertAlbum(newAlbum);
                 rolaToEdit.SetIdAlbum(newAlbum.GetIdAlbum());
                 Console.WriteLine($"New album {albumName} created and assigned to the song.");
             }
-            else rolaToEdit.SetIdAlbum(existingAlbum.GetIdAlbum());
+            else 
+                rolaToEdit.SetIdAlbum(existingAlbum.GetIdAlbum());
         }
 
+        // update rola metadata
         private void UpdateMp3Metadata(Rola rola)
         {
             var file = TagLib.File.Create(rola.GetPath());
@@ -255,6 +269,7 @@ namespace ControllerApp
             Console.WriteLine("MP3 metadata updated.");
         }
 
+        // displayes the rola details
         public string ShowRolaDetails(List<string> rolaDetails, string rolaPath)
         {
             string rolaInfo = $"Title: {rolaDetails[0]}\n" +
@@ -264,15 +279,20 @@ namespace ControllerApp
                             $"Year: {rolaDetails[4]}\n" +
                             $"Album: {rolaDetails[5]}\n" +
                             $"Path: {rolaPath}\n";;
-
             return rolaInfo;
         }
 
-        public Gdk.Pixbuf GetAlbumCover(string rolaPath)
+        //get all the rolas that mathched with the title
+        public List<string> GetRolasOptions(string title)
         {
-            return _miner.GetAlbumCover(rolaPath);
+            List<Rola> matchedRolas = _database.GetAllRolas().Where(r => r.GetTitle() == title).ToList();
+            return matchedRolas.Select(r => r.GetPath()).ToList();
         }
 
+        //get the album cover
+        public Gdk.Pixbuf GetAlbumCover(string rolaPath) => _miner.GetAlbumCover(rolaPath);
+
+        //Get the rolas info, includethe cover
         public List<(string rolaInfo, Gdk.Pixbuf albumCover)> GetRolasInfoWithCovers()
         {
             List<Rola> rolasInPath = _database.GetAllRolas();
@@ -288,29 +308,14 @@ namespace ControllerApp
             return rolasInfo;
         }
 
-        //aux method for Update metadata
-        public string GetPerformerName(int performerId)
-        {
-            List<Performer> performers = _database.GetAllPerformers();
-            Performer performer = performers.Find(p => p.GetIdPerformer() == performerId);
-            return performer != null ? performer.GetName() : "Unknown Performer";
-        }
-
-        //aux method for Update metadata
-        private string GetAlbumName(int albumId)
-        {
-            List<Album> albums = _database.GetAllAlbums();
-            Album album = albums.Find(a => a.GetIdAlbum() == albumId);
-            return album != null ? album.GetName() : "Unknown Album";
-        }
-
-
+        // get albums that mathched with name
         public List<string> GetAlbumsOptions(string name)
         {
             List<Album> matchedAlbums = _database.GetAllAlbums().Where(r => r.GetName() == name).ToList();
             return matchedAlbums.Select(r => r.GetPath()).ToList();
         }
 
+        // update album details in database
         public bool UpdateAlbumDetails(string oldName, string newName, string path, string year)
         {
             Album albumToEdit = _database.GetAlbumByNameAndPath(oldName, path);
@@ -336,7 +341,8 @@ namespace ControllerApp
                 albumToEdit.SetYear(yearNumber);
             }
             bool isUpdated = _database.UpdateAlbum(albumToEdit);
-            if (isUpdated) Console.WriteLine("Album details successfully updated.");
+            if (isUpdated) 
+                Console.WriteLine("Album details successfully updated.");
             else
             {
                 Console.WriteLine("Failed to update album details.");
@@ -346,6 +352,7 @@ namespace ControllerApp
             return true;
         }
 
+        // update the rola album metadata 
         private void UpdateRolasMetadataForAlbum(Album album)
         {
             List<Rola> rolas = _database.GetAllRolas().Where(r => r.GetIdAlbum() == album.GetIdAlbum()).ToList();
@@ -360,7 +367,8 @@ namespace ControllerApp
                 UpdateMp3Metadata(rola);
             }
         }
-                
+        
+        //get all albums details hat mathches with albumName 
         public List<string> GetAlbumDetailsWithOptions(string albumName)
         {
             List<Album> matchedAlbums = _database.GetAllAlbums().Where(r => r.GetName() == albumName).ToList();
@@ -375,6 +383,7 @@ namespace ControllerApp
             return albumInfo;
         }
 
+        // get album details with name and path
         public List<string> GetAlbumDetails(string name, string path)
         {
             Album album = _database.GetAlbumByNameAndPath(name, path);
@@ -386,10 +395,10 @@ namespace ControllerApp
             return albumDetails;
         }
 
-        public List<string> ShowPerformerDetails(string performerName)
+        // get performer details
+        public List<string> GetPerformerDetails(string performerName)
         {
             List<string> performerDetails = new List<string>();
-
             Performer performer = _database.GetPerformerByName(performerName);
             if (performer == null) return performerDetails;
             if (performer.GetIdType() == 0)
@@ -416,9 +425,11 @@ namespace ControllerApp
             return performerDetails;
         }
 
+        //check if a performer is defined or not and return the performer type
         public string CheckPerformer(string performerName, string typeToDefineAs)
         {
-            if (string.IsNullOrEmpty(performerName) || !ExistsPerformer(performerName)) return "NotFound";
+            if (string.IsNullOrEmpty(performerName) || !ExistsPerformer(performerName)) 
+                return "NotFound";
             if (IsDefined(performerName))
             {
                 int performerType = GetTypePerformer(performerName);
@@ -429,32 +440,33 @@ namespace ControllerApp
             return "NotDefined";
         }
 
-
+        //checks if a performer exists in database
         public bool ExistsPerformer(string performerName)
         {
             Performer performer = _database.GetPerformerByName(performerName);
             return performer != null ? true : false;
         }
 
+        //check if a performer is defined
         public bool IsDefined(string performerName)
         {   
             Performer performer = _database.GetPerformerByName(performerName);
             return performer.GetIdType() == 2 ? false : true;
         }
 
+        //get the performer type
         public int GetTypePerformer(string performerName)
         {
             Performer performer = _database.GetPerformerByName(performerName);
             return performer.GetIdType();
         }
 
+        //define a performer as person
         public void DefinePerformerAsPerson(string performerName, string stage_name, string real_name, string birth_date, string death_date)
         {
             Performer performer = _database.GetPerformerByName(performerName);
             List<Person> allPersons = _database.GetAllPersons();
-
             Person existingPerson = allPersons.Find(p => p.GetStageName() == stage_name);
-
             if (existingPerson != null)
             {
                 existingPerson.SetRealName(real_name);
@@ -471,6 +483,7 @@ namespace ControllerApp
             _database.UpdatePerformer(performer);
         }
 
+        //define a performer as group
         public void DefinePerformerAsGroup(string performerName, string name, string start_date, string end_date)
         {
             Performer performer = _database.GetPerformerByName(performerName);
@@ -491,16 +504,20 @@ namespace ControllerApp
             performer.SetIdType(PerformerType.Group);
             _database.UpdatePerformer(performer);
         }
-
+        
+        //add a person in a group
         public void AddPersonToGroup(string personName, string groupName)
         {
             Person person = _database.GetAllPersons().Find(p => p.GetStageName() == personName);
             Group group = _database.GetAllGroups().Find(g => g.GetName() == groupName);
             bool isAdded = _database.AddInGroup(person, group);
-            if (isAdded) Console.WriteLine("Person added to the group successfully.");
-            else Console.WriteLine("The person is already in the group or an error occurred.");
+            if (isAdded)
+                 Console.WriteLine("Person added to the group successfully.");
+            else 
+                Console.WriteLine("The person is already in the group or an error occurred.");
         }
 
+        //check if a person and a group exists and if the person is in the group
         public string CheckPersonAndGroup(string personName, string groupName)
         {
             Person person = _database.GetAllPersons().Find(p => p.GetStageName() == personName);
@@ -509,21 +526,21 @@ namespace ControllerApp
                 Console.WriteLine("Person not found.");
                 return "Person not found";
             }
-
             Group group = _database.GetAllGroups().Find(g => g.GetName() == groupName);
             if (group == null)
             {
                 Console.WriteLine("Group not found.");
                 return "Group not found";
             }
-
             bool alreadyInGroup = _database.CheckPersonInGroup(person, group);
             if (alreadyInGroup) return "Person already in group";
             return "success";
         }
 
+        //check if is a valid query
         public bool IsQueryValid(string query) => _compiler.IsValidQuery(query);
 
+        // search albums in database
         public List<string> SearchAlbums(string query)
         {
             _compiler.SetQuery(query);
@@ -532,9 +549,7 @@ namespace ControllerApp
             foreach (Album album in _compiler.GetAlbumsFounded())
             {
                 string albumInfo = $"Album: {album.GetName()}, Year: {album.GetYear()}, Path: {album.GetPath()}";
-
                 results.Add(albumInfo);
-
                 List<Rola> associatedRolas = _compiler.GetRolasFounded().Where(r => r.GetIdAlbum() == album.GetIdAlbum()).ToList();
                 if (associatedRolas.Count > 0)
                 {
@@ -550,8 +565,10 @@ namespace ControllerApp
             return results;
         }
 
+        // getAlbumsFounded after the search
         public List<Album> GetAlbumsFounded() => _compiler.GetAlbumsFounded();
 
+        // search rolas in database        
         public List<string> SearchRolas(string query)
         {
             _compiler.SetQuery(query);
@@ -564,13 +581,13 @@ namespace ControllerApp
                     string rolaInfo = $"Title: {rola.GetTitle()}, Genre: {rola.GetGenre()}, Track: {rola.GetTrack()}, " +
                                     $"Performer: {GetPerformerName(rola.GetIdPerformer())}, Year: {rola.GetYear()}, " +
                                     $"Album: {GetAlbumName(rola.GetIdAlbum())}, Path: {rola.GetPath()}";
-
                     results.Add(rolaInfo);
                 }
             }
             return results;
         }
 
+        //check if the query contains only performer
         public bool OnlyContainsPerformer(string query)
         {
             return query.Contains("Performer:") && 
@@ -579,6 +596,7 @@ namespace ControllerApp
                 !query.Contains("InTitle:");
         }
 
+        //check if the query contains only album
         public bool OnlyContainsAlbum(string query)
         {
             return query.Contains("Album:") && 
@@ -587,6 +605,7 @@ namespace ControllerApp
                 !query.Contains("InTitle:");
         }
 
+        // search performers in database
         public List<string> SearchPerformers(string query)
         {
             _compiler.SetQuery(query);
@@ -608,6 +627,7 @@ namespace ControllerApp
             return results;
         }
 
+        // continue the search performers process if the performer is a person
         private List<string> ProcessPerson(Performer performer)
         {
             List<string> result = new List<string>();
@@ -638,6 +658,7 @@ namespace ControllerApp
             return result;
         }
 
+        // continue the search performers process if the performer is a group
         private List<string> ProcessGroup(Performer performer)
         {
             List<string> result = new List<string>();
@@ -660,6 +681,7 @@ namespace ControllerApp
             return result;
         }
 
+        // get rolas from the performer
         private List<string> ProcessRolasForPerformer(Performer performer)
         {
             List<string> result = new List<string>();
@@ -676,6 +698,7 @@ namespace ControllerApp
             return result;
         }
 
+        // get rolas from the group
         private List<string> ProcessRolasForGroup(Group group)
         {
             List<string> result = new List<string>();

@@ -152,7 +152,7 @@ class GraphicInterface : Window
         ShowAll();
     }
 
-    // ready
+    // change directory logic
     void OnChangeDirClick(object sender, EventArgs args)
     {
         Window changePathWindow = new Window("Change Path");
@@ -196,7 +196,7 @@ class GraphicInterface : Window
         changePathWindow.ShowAll();
     }
 
-    // ready
+    // start mining
     private async void OnStartMiningClick(object sender, EventArgs e)
     {
         miningButton.Sensitive = false;
@@ -240,9 +240,7 @@ class GraphicInterface : Window
         foreach (var (rolaInfo, albumCover) in rolasWithCovers)
         {
             Box rolaBox = new Box(Orientation.Horizontal, 10);
-
             Gtk.Image albumImage = new Gtk.Image(albumCover.ScaleSimple(100, 100, Gdk.InterpType.Bilinear));
-
             Label rolaLabel = new Label();
             rolaLabel.Text = rolaInfo;
             rolaLabel.Xalign = 0.0f;
@@ -260,7 +258,7 @@ class GraphicInterface : Window
         EnableNonMiningActions();
     }
 
-    // ready
+    // show rolas with coverArt
     private void ShowRolasWithCoverArt()
     {
         List<(string rolaInfo, Gdk.Pixbuf albumCover)> rolasWithCovers = app.GetRolasInfoWithCovers();
@@ -280,7 +278,7 @@ class GraphicInterface : Window
         rolasBox.ShowAll();
     }
 
-    //ready
+    // edit rola
     void OnEditRolaClick(object sender, EventArgs e)
     {
         Window editRola = new Window("Edit Rola");
@@ -352,8 +350,7 @@ class GraphicInterface : Window
                         rolaLabel.Xalign = 0.0f;
                         rolaLabel.Yalign = 0.5f;
                         
-                        Button rolaButton = new Button();
-                        
+                        Button rolaButton = new Button();                
                         rolaButton.Add(rolaBox);
                         rolaBox.PackStart(albumImage, false, false, 5);
                         rolaBox.PackStart(rolaLabel, true, true, 5);
@@ -375,7 +372,7 @@ class GraphicInterface : Window
         editRola.ShowAll();
     }
 
-    //ready
+    // show the edit rola form
     void ShowEditForm(string rolaTitle, string rolaPath, List<string> rolaDetails)
     {
         Window detailsWindow = new Window("Edit Rola");
@@ -404,7 +401,7 @@ class GraphicInterface : Window
             
             rolaBox.PackStart(albumImage, false, false, 5);
             rolaBox.PackStart(rolaLabel, true, true, 5);
-            
+
             detailsBox.PackStart(rolaBox, false, false, 10);
         }
 
@@ -489,7 +486,7 @@ class GraphicInterface : Window
         detailsWindow.ShowAll();
     }
 
-    // ready
+    // edit album
     void OnEditAlbumButton(object sender, EventArgs e)
     {
         Window editAlbum = new Window("Edit Album");
@@ -578,7 +575,7 @@ class GraphicInterface : Window
         editAlbum.ShowAll();
     }
 
-    //almost ready
+    // shhow the album edit form
     void ShowEditAlbumForm(string albumName, string albumPath, List<string> albumDetails)
     {
         Window detailsWindow = new Window("Edit Album");
@@ -629,7 +626,6 @@ class GraphicInterface : Window
 
                 detailsWindow.Hide();
                 detailsWindow.Dispose();
-                //actualizar la vista 
             }
             else
             {
@@ -643,7 +639,7 @@ class GraphicInterface : Window
         detailsWindow.ShowAll();
     }
 
-    // ready
+    // define performer
     void OnDefinePerformerButton(object sender, EventArgs e)
     {
         Window definePerformer = new Window("Define Performer");
@@ -692,7 +688,7 @@ class GraphicInterface : Window
         definePerformer.ShowAll();
     }
 
-    // ready
+    // handle the performer result
     void HandlePerformerResult(string result, Window definePerformer, string performerName, Action<string> defineAction)
     {
         if (result == "NotFound")
@@ -731,7 +727,7 @@ class GraphicInterface : Window
         }
     }
 
-    // ready
+    // definePerson
     void DefinePerson(string performerName)
     {
         Window personWindow = new Window("Define Person");
@@ -768,7 +764,7 @@ class GraphicInterface : Window
         Entry deathDateEntry = new Entry();
         detailsBox.PackStart(deathDateEntry, false, false, 5);
 
-        List<string> performerDetails = app.ShowPerformerDetails(performerName);
+        List<string> performerDetails = app.GetPerformerDetails(performerName);
         if (performerDetails.Count > 0)
         {
             realNameEntry.Text = performerDetails[1];
@@ -797,7 +793,7 @@ class GraphicInterface : Window
         personWindow.ShowAll();
     }
 
-    // ready
+    // define group
     void DefineGroup(string performerName)
     {
         Window groupWindow = new Window("Define Group");
@@ -832,7 +828,7 @@ class GraphicInterface : Window
         Entry endDateEntry = new Entry();
         detailsBox.PackStart(endDateEntry, false, false, 5);
 
-        List<string> performerDetails = app.ShowPerformerDetails(performerName);
+        List<string> performerDetails = app.GetPerformerDetails(performerName);
         if (performerDetails.Count > 0)
         {
             startDateEntry.Text = performerDetails[1];
@@ -859,7 +855,7 @@ class GraphicInterface : Window
         groupWindow.ShowAll();
     }
 
-    // ready
+    // add person in group
     void OnAddPersonGroup(object sender, EventArgs e)
     {
         Window addPersonGroup = new Window("Add person in a group");
@@ -898,7 +894,7 @@ class GraphicInterface : Window
         addPersonGroup.ShowAll();
     }
 
-    //left show group where the person belongs
+    // handle if the eprson or group exists or not and if the person exists in group
     void HandleResult(string result, Window addPersonGroup, string personName, string groupName)
     {
         if (result == "Person not found")
@@ -934,6 +930,7 @@ class GraphicInterface : Window
         }
     }
         
+    // search
     void OnSearchButton(object sender, EventArgs e)
     {
         Window searchWindow = new Window("Search");
@@ -978,7 +975,6 @@ class GraphicInterface : Window
                 resultsWindow.StyleContext.AddProvider(cssProvider, 800);
                 resultsWindow.TransientFor = this;
                 resultsWindow.Modal = true;
-                resultsWindow.Resizable = false;
 
                 ScrolledWindow scrolledWindow = new ScrolledWindow();
                 Box resultsBox = new Box(Orientation.Vertical, 10);
@@ -1015,7 +1011,6 @@ class GraphicInterface : Window
                 resultsWindow.StyleContext.AddProvider(cssProvider, 800);
                 resultsWindow.TransientFor = this;
                 resultsWindow.Modal = true;
-                resultsWindow.Resizable = false;
 
                 ScrolledWindow scrolledWindow = new ScrolledWindow();
                 Box resultsBox = new Box(Orientation.Vertical, 10);
@@ -1108,6 +1103,7 @@ class GraphicInterface : Window
         searchWindow.ShowAll();
     }
     
+    //display search results
     void DisplayResults(Window searchWindow, List<string> results, string successMessage, string failureMessage)
     {
         if (results.Count > 0)
@@ -1125,6 +1121,7 @@ class GraphicInterface : Window
         }
     }
         
+    // disable non mining actions
     private void DisableNonMiningActions()
     {
         editRolaButton.Sensitive = false;
@@ -1134,6 +1131,7 @@ class GraphicInterface : Window
         searchButton.Sensitive = false;
     }
 
+    // enable non mining actions
     private void EnableNonMiningActions()
     {
         editRolaButton.Sensitive = true;
@@ -1143,6 +1141,7 @@ class GraphicInterface : Window
         searchButton.Sensitive = true;
     }
 
+    // MAIN METHOD
     public static void Main()
     {
         Application.Init();
