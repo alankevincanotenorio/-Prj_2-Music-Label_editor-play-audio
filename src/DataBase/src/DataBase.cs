@@ -3,6 +3,7 @@ namespace DataBaseApp
 {
     using System;
     using System.Data.SQLite;
+    
     public class DataBase
     {
         private static DataBase _instance = null!;
@@ -51,7 +52,7 @@ namespace DataBaseApp
             return _instance;
         }
 
-        //Make tables if data base does not exist
+        // Make tables if data base does not exist
         private void CreateTables()
         {
             string createTablesQuery = @"
@@ -129,7 +130,7 @@ namespace DataBaseApp
             }
         }
 
-        //check if the databse has not songs
+        //check if the database is empty
         public bool IsRolasTableEmpty()
         {
             string query = "SELECT COUNT(*) FROM rolas";
@@ -140,7 +141,7 @@ namespace DataBaseApp
             }
         }
 
-        //addPerformer
+        // add a performer in the database
         public bool InsertPerformer(Performer performer)
         {
             bool isAdded = false;
@@ -162,12 +163,13 @@ namespace DataBaseApp
                     performer.SetIdPerformer((int)_connection.LastInsertRowId);
                     Console.WriteLine($"Performer '{performer.GetName()}' added with ID: {performer.GetIdPerformer()}");
                 }
-                else Console.WriteLine("Performer not added");
+                else 
+                    Console.WriteLine("Performer not added");
             }
             return isAdded;
         }
 
-        //addRola
+        // add a rola in the database
         public bool InsertRola(Rola rola)
         {   
             bool isAdded = false;
@@ -195,12 +197,13 @@ namespace DataBaseApp
                     rola.SetIdRola((int)_connection.LastInsertRowId);
                     Console.WriteLine($"Rola '{rola.GetTitle()}' added with ID: {rola.GetIdRola()}");
                 }
-                else Console.WriteLine("Rola not added");
+                else 
+                    Console.WriteLine("Rola not added");
             }
             return isAdded;
         }
         
-        //addPersons
+        // add a person in the database
         public bool InsertPerson(Person person)
         {
             bool isAdded = false;
@@ -224,12 +227,13 @@ namespace DataBaseApp
                     person.SetIdPerson((int)_connection.LastInsertRowId);
                     Console.WriteLine($"Person '{person.GetStageName()}' added with ID: {person.GetIdPerson()}");
                 }
-                else Console.WriteLine("Person not added");
+                else 
+                    Console.WriteLine("Person not added");
             }
             return isAdded;
         }
 
-        //addGroup
+        // add a group in the database
         public bool InsertGroup(Group group)
         {
             bool isAdded = false;
@@ -253,12 +257,13 @@ namespace DataBaseApp
                     group.SetIdGroup((int)_connection.LastInsertRowId);
                     Console.WriteLine($"Group '{group.GetName()}' added with ID: {group.GetIdGroup()}");
                 }
-                else Console.WriteLine("Group not added");
+                else 
+                    Console.WriteLine("Group not added");
             }
             return isAdded;
         }
 
-        //addAlbum
+        // add an album in the database
         public bool InsertAlbum(Album album)
         {
             bool isAdded = false;            
@@ -281,12 +286,13 @@ namespace DataBaseApp
                     album.SetIdAlbum((int)_connection.LastInsertRowId);
                     Console.WriteLine($"Album '{album.GetName()}' added with ID: {album.GetIdAlbum()}");
                 }
-                else Console.WriteLine("Album not added");
+                else 
+                    Console.WriteLine("Album not added");
             }
             return isAdded;
         }
 
-        //get performer by name
+        // get performer by name
         public Performer GetPerformerByName(string name)
         {
             Performer performer = null;
@@ -307,7 +313,7 @@ namespace DataBaseApp
             return performer;
         }
 
-        //get rola by name and path
+        // get rola by name and path
         public Rola GetRolaByTitleAndPath(string title, string path)
         {
             Rola rola = null;
@@ -335,7 +341,7 @@ namespace DataBaseApp
             return rola;
         }
 
-        //get person by stage name
+        // get person by stage name
         public Person GetPersonByStageName(string stage_name)
         {
             Person person  = null;
@@ -359,7 +365,7 @@ namespace DataBaseApp
             return person;
         }
 
-        //get group by name
+        // get group by name
         public Group GetGroupByName(string name)
         {
             Group group = null;
@@ -382,7 +388,7 @@ namespace DataBaseApp
             return group;
         }
 
-        //get album by name
+        // get album by name and path
         public Album GetAlbumByNameAndPath(string name, string path)
         {
             Album album = null;
@@ -406,53 +412,7 @@ namespace DataBaseApp
             return album;
         }
 
-        // update rola
-        public bool UpdateRola(Rola rola)
-        {
-            bool isUpdated = false;
-            string query = "UPDATE rolas SET title = @title, id_performer = @id_performer, id_album = @id_album, " +
-                            "track = @track, year = @year, genre = @genre WHERE id_rola = @id_rola";
-            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
-            {
-                command.Parameters.AddWithValue("@title", rola.GetTitle());
-                command.Parameters.AddWithValue("@id_performer", rola.GetIdPerformer());
-                command.Parameters.AddWithValue("@id_album", rola.GetIdAlbum());
-                command.Parameters.AddWithValue("@track", rola.GetTrack());
-                command.Parameters.AddWithValue("@year", rola.GetYear());
-                command.Parameters.AddWithValue("@genre", rola.GetGenre());
-                command.Parameters.AddWithValue("@id_rola", rola.GetIdRola());
-                int rowsAffected = command.ExecuteNonQuery();
-                isUpdated = rowsAffected > 0;
-                if(isUpdated) Console.WriteLine("Rola updated successfully.");
-                else Console.WriteLine("Rola not updated.");
-            }
-            return isUpdated;
-        }
-
-        public bool UpdateAlbum(Album album)
-        {
-            bool isUpdated = false;
-            string query = "UPDATE albums SET name = @name, year = @year WHERE id_album = @id_album";
-            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
-            {
-                command.Parameters.AddWithValue("@name", album.GetName());
-                command.Parameters.AddWithValue("@year", album.GetYear());
-                command.Parameters.AddWithValue("@id_album", album.GetIdAlbum());
-                int rowsAffected = command.ExecuteNonQuery();
-                isUpdated = rowsAffected > 0;
-                if(isUpdated) Console.WriteLine("Album updated successfully.");
-                else Console.WriteLine("Album not updated.");
-            }
-            string updateRolasQuery = "UPDATE rolas SET id_album = @id_album WHERE id_album = @id_album";
-            using (SQLiteCommand command = new SQLiteCommand(updateRolasQuery, _connection))
-            {
-                command.Parameters.AddWithValue("@id_album", album.GetIdAlbum());
-                int rowsAffected = command.ExecuteNonQuery();
-                Console.WriteLine($"{rowsAffected} rolas updated with new album details.");
-            }
-            return isUpdated;
-        }
-
+        // update performer
         public bool UpdatePerformer (Performer performer)
         {
             bool isUpdated = false;
@@ -470,6 +430,135 @@ namespace DataBaseApp
             return isUpdated;
         }
 
+        // update rola
+        public bool UpdateRola(Rola rola)
+        {
+            bool isUpdated = false;
+            string query = "UPDATE rolas SET title = @title, id_performer = @id_performer, id_album = @id_album, " +
+                            "track = @track, year = @year, genre = @genre WHERE id_rola = @id_rola";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@title", rola.GetTitle());
+                command.Parameters.AddWithValue("@id_performer", rola.GetIdPerformer());
+                command.Parameters.AddWithValue("@id_album", rola.GetIdAlbum());
+                command.Parameters.AddWithValue("@track", rola.GetTrack());
+                command.Parameters.AddWithValue("@year", rola.GetYear());
+                command.Parameters.AddWithValue("@genre", rola.GetGenre());
+                command.Parameters.AddWithValue("@id_rola", rola.GetIdRola());
+                int rowsAffected = command.ExecuteNonQuery();
+                isUpdated = rowsAffected > 0;
+                if(isUpdated) 
+                    Console.WriteLine("Rola updated successfully.");
+                else 
+                    Console.WriteLine("Rola not updated.");
+            }
+            return isUpdated;
+        }
+
+        // update person
+        public bool UpdatePerson(Person person)
+        {
+            bool isUpdated = false;
+            string query = "UPDATE persons SET stage_name = @stage_name, real_name = @real_name, birth_date = @birth_date, death_date = @death_date WHERE id_person = @id_person";
+            
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@stage_name", person.GetStageName());
+                command.Parameters.AddWithValue("@real_name", person.GetRealName());
+                command.Parameters.AddWithValue("@birth_date", person.GetBirthDate());
+                command.Parameters.AddWithValue("@death_date", person.GetDeathDate());
+                command.Parameters.AddWithValue("@id_person", person.GetIdPerson());
+
+                int rowsAffected = command.ExecuteNonQuery();
+                isUpdated = rowsAffected > 0;
+
+                if (isUpdated) 
+                    Console.WriteLine("Person updated successfully.");
+                else 
+                    Console.WriteLine("Person not updated.");
+            }
+
+            return isUpdated;
+        }
+
+        //update album
+        public bool UpdateGroup(Group group)
+        {
+            bool isUpdated = false;
+            string query = "UPDATE groups SET name = @name, start_date = @start_date, end_date = @end_date WHERE id_group = @id_group";
+            
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@name", group.GetName());
+                command.Parameters.AddWithValue("@start_date", group.GetStartDate());
+                command.Parameters.AddWithValue("@end_date", group.GetEndDate());
+                command.Parameters.AddWithValue("@id_group", group.GetIdGroup());
+
+                int rowsAffected = command.ExecuteNonQuery();
+                isUpdated = rowsAffected > 0;
+
+                if (isUpdated) 
+                    Console.WriteLine("Group updated successfully.");
+                else 
+                    Console.WriteLine("Group not updated.");
+            }
+
+            return isUpdated;
+        }
+
+        // update album
+        public bool UpdateAlbum(Album album)
+        {
+            bool isUpdated = false;
+            string query = "UPDATE albums SET name = @name, year = @year WHERE id_album = @id_album";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                command.Parameters.AddWithValue("@name", album.GetName());
+                command.Parameters.AddWithValue("@year", album.GetYear());
+                command.Parameters.AddWithValue("@id_album", album.GetIdAlbum());
+                int rowsAffected = command.ExecuteNonQuery();
+                isUpdated = rowsAffected > 0;
+                if(isUpdated) 
+                    Console.WriteLine("Album updated successfully.");
+                else 
+                    Console.WriteLine("Album not updated.");
+            }
+            string updateRolasQuery = "UPDATE rolas SET id_album = @id_album WHERE id_album = @id_album";
+            using (SQLiteCommand command = new SQLiteCommand(updateRolasQuery, _connection))
+            {
+                command.Parameters.AddWithValue("@id_album", album.GetIdAlbum());
+                int rowsAffected = command.ExecuteNonQuery();
+                Console.WriteLine($"{rowsAffected} rolas updated with new album details.");
+            }
+            return isUpdated;
+        }
+
+        // get all performers from the performers table
+        public List<Performer> GetAllPerformers()
+        {
+            List<Performer> performers = new List<Performer>();
+            string query = "SELECT * FROM performers";
+            
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idPerformer = reader.GetInt32(0);
+                        int idType = reader.GetInt32(1);
+                        string name = reader.GetString(2);
+                        
+                        Performer performer = new Performer(idPerformer, name, idType);
+                        performers.Add(performer);
+                    }
+                }
+            }
+            
+            return performers;
+        }
+
+        // get all rolas from the rolas table
         public List<Rola> GetAllRolas()
         {
             List<Rola> rolas = new List<Rola>();
@@ -496,60 +585,11 @@ namespace DataBaseApp
             return rolas;
         }
 
-        public List<Performer> GetAllPerformers()
-        {
-            List<Performer> performers = new List<Performer>();
-            string query = "SELECT * FROM performers";
-            
-            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
-            {
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        int idPerformer = reader.GetInt32(0);
-                        int idType = reader.GetInt32(1);
-                        string name = reader.GetString(2);
-                        
-                        Performer performer = new Performer(idPerformer, name, idType);
-                        performers.Add(performer);
-                    }
-                }
-            }
-            
-            return performers;
-        }
-
-        public List<Album> GetAllAlbums()
-        {
-            List<Album> albums = new List<Album>();
-            string query = "SELECT * FROM albums";
-            
-            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
-            {
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        int idAlbum = reader.GetInt32(0);
-                        string path = reader.GetString(1);
-                        string name = reader.GetString(2);
-                        int year = reader.GetInt32(3);
-                        
-                        Album album = new Album(idAlbum, path, name, year);
-                        albums.Add(album);
-                    }
-                }
-            }
-            
-            return albums;
-        }
-
+        // get all persons from the person table
         public List<Person> GetAllPersons()
         {
             List<Person> persons = new List<Person>();
             string query = "SELECT * FROM persons";
-            
             using (SQLiteCommand command = new SQLiteCommand(query, _connection))
             {
                 using (SQLiteDataReader reader = command.ExecuteReader())
@@ -561,70 +601,19 @@ namespace DataBaseApp
                         string realName = reader.GetString(2);
                         string birthDate = reader.GetString(3);
                         string deathDate = reader.GetString(4);
-                        
                         Person person = new Person(idPerson, stageName, realName, birthDate, deathDate);
                         persons.Add(person);
                     }
                 }
             }
-            
             return persons;
         }
 
-        public bool UpdatePerson(Person person)
-        {
-            bool isUpdated = false;
-            string query = "UPDATE persons SET stage_name = @stage_name, real_name = @real_name, birth_date = @birth_date, death_date = @death_date WHERE id_person = @id_person";
-            
-            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
-            {
-                command.Parameters.AddWithValue("@stage_name", person.GetStageName());
-                command.Parameters.AddWithValue("@real_name", person.GetRealName());
-                command.Parameters.AddWithValue("@birth_date", person.GetBirthDate());
-                command.Parameters.AddWithValue("@death_date", person.GetDeathDate());
-                command.Parameters.AddWithValue("@id_person", person.GetIdPerson());
-
-                int rowsAffected = command.ExecuteNonQuery();
-                isUpdated = rowsAffected > 0;
-
-                if (isUpdated) 
-                    Console.WriteLine("Person updated successfully.");
-                else 
-                    Console.WriteLine("Person not updated.");
-            }
-
-            return isUpdated;
-        }
-
-        public bool UpdateGroup(Group group)
-        {
-            bool isUpdated = false;
-            string query = "UPDATE groups SET name = @name, start_date = @start_date, end_date = @end_date WHERE id_group = @id_group";
-            
-            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
-            {
-                command.Parameters.AddWithValue("@name", group.GetName());
-                command.Parameters.AddWithValue("@start_date", group.GetStartDate());
-                command.Parameters.AddWithValue("@end_date", group.GetEndDate());
-                command.Parameters.AddWithValue("@id_group", group.GetIdGroup());
-
-                int rowsAffected = command.ExecuteNonQuery();
-                isUpdated = rowsAffected > 0;
-
-                if (isUpdated) 
-                    Console.WriteLine("Group updated successfully.");
-                else 
-                    Console.WriteLine("Group not updated.");
-            }
-
-            return isUpdated;
-        }
-
+        // get all groups from the groups table
         public List<Group> GetAllGroups()
         {
             List<Group> groups = new List<Group>();
             string query = "SELECT * FROM groups";
-            
             using (SQLiteCommand command = new SQLiteCommand(query, _connection))
             {
                 using (SQLiteDataReader reader = command.ExecuteReader())
@@ -640,10 +629,34 @@ namespace DataBaseApp
                     }
                 }
             }
-            
             return groups;
         }
 
+        // get all albums from the albums table
+        public List<Album> GetAllAlbums()
+        {
+            List<Album> albums = new List<Album>();
+            string query = "SELECT * FROM albums";
+            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            {
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idAlbum = reader.GetInt32(0);
+                        string path = reader.GetString(1);
+                        string name = reader.GetString(2);
+                        int year = reader.GetInt32(3);
+                        
+                        Album album = new Album(idAlbum, path, name, year);
+                        albums.Add(album);
+                    }
+                }
+            }
+            return albums;
+        }
+
+        //delete a rola from the rolas table
         public bool DeleteRola(int idRola)
         {
             string query = "DELETE FROM rolas WHERE id_rola = @id_rola";
@@ -655,6 +668,7 @@ namespace DataBaseApp
             }
         }
 
+        // insert a person in a group
         public bool AddInGroup(Person person, Group group)
         {
             if (CheckPersonInGroup(person, group))
@@ -669,12 +683,15 @@ namespace DataBaseApp
                 command.Parameters.AddWithValue("@id_group", group.GetIdGroup());
                 int rowsAffected = command.ExecuteNonQuery();
                 bool isInserted = rowsAffected > 0;
-                if (isInserted) Console.WriteLine("Person successfully added to group.");
-                else Console.WriteLine("Failed to add person to group.");
+                if (isInserted) 
+                    Console.WriteLine("Person successfully added to group.");
+                else 
+                    Console.WriteLine("Failed to add person to group.");
                 return isInserted;
             }
         }
         
+        // checks if a person is in a group
         public bool CheckPersonInGroup(Person person, Group group)
         {
             string checkQuery = "SELECT COUNT(*) FROM in_group WHERE id_person = @id_person AND id_group = @id_group";
@@ -682,72 +699,12 @@ namespace DataBaseApp
             {
                 command.Parameters.AddWithValue("@id_person", person.GetIdPerson());
                 command.Parameters.AddWithValue("@id_group", group.GetIdGroup());
-
                 long count = (long)command.ExecuteScalar();
                 return count > 0;
             }
         }
 
-
-        public List<Rola> GetRolasByQuery(string sql, Dictionary<string, string> parameters)
-        {
-            List<Rola> rolas = new List<Rola>();
-
-            using (SQLiteCommand command = new SQLiteCommand(sql, _connection))
-            {
-                foreach (var param in parameters)
-                {
-                    command.Parameters.AddWithValue($"@{param.Key}", param.Value);
-                }
-
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        int idRola = reader.GetInt32(0);
-                        int idPerformer = reader.GetInt32(1);
-                        int idAlbum = reader.GetInt32(2);
-                        string rolaPath = reader.GetString(3);
-                        string rolaTitle = reader.GetString(4);
-                        int track = reader.GetInt32(5);
-                        int year = reader.GetInt32(6);
-                        string genre = reader.GetString(7);
-
-                        Rola rola = new Rola(idRola, idPerformer, idAlbum, rolaPath, rolaTitle, track, year, genre);
-                        rolas.Add(rola);
-                    }
-                }
-            }
-            return rolas;
-        }
-
-        public List<Album> GetAlbumsByQuery(string sql, Dictionary<string, string> parameters)
-        {
-            List<Album> albums = new List<Album>();
-            using (SQLiteCommand command = new SQLiteCommand(sql, _connection))
-            {
-                foreach (var param in parameters)
-                {
-                    command.Parameters.AddWithValue($"@{param.Key}", param.Value);
-                }
-
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        int idAlbum = reader.GetInt32(0);
-                        string path = reader.GetString(1);
-                        string name = reader.GetString(2);
-                        int year = reader.GetInt32(3);
-
-                        Album album = new Album(idAlbum, path, name, year);
-                        albums.Add(album);
-                    }
-                }
-            }
-            return albums;
-        }
-
+        // get performer by query from compiler
         public List<Performer> GetPerformersByQuery(string sql, Dictionary<string, string> parameters)
         {
             List<Performer> performers = new List<Performer>();
@@ -771,6 +728,63 @@ namespace DataBaseApp
             return performers;
         }
 
+        // get rolas by query from the compiler
+        public List<Rola> GetRolasByQuery(string sql, Dictionary<string, string> parameters)
+        {
+            List<Rola> rolas = new List<Rola>();
+            using (SQLiteCommand command = new SQLiteCommand(sql, _connection))
+            {
+                foreach (var param in parameters)
+                {
+                    command.Parameters.AddWithValue($"@{param.Key}", param.Value);
+                }
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idRola = reader.GetInt32(0);
+                        int idPerformer = reader.GetInt32(1);
+                        int idAlbum = reader.GetInt32(2);
+                        string rolaPath = reader.GetString(3);
+                        string rolaTitle = reader.GetString(4);
+                        int track = reader.GetInt32(5);
+                        int year = reader.GetInt32(6);
+                        string genre = reader.GetString(7);
+                        Rola rola = new Rola(idRola, idPerformer, idAlbum, rolaPath, rolaTitle, track, year, genre);
+                        rolas.Add(rola);
+                    }
+                }
+            }
+            return rolas;
+        }
+
+        // get albums by query from the compiler
+        public List<Album> GetAlbumsByQuery(string sql, Dictionary<string, string> parameters)
+        {
+            List<Album> albums = new List<Album>();
+            using (SQLiteCommand command = new SQLiteCommand(sql, _connection))
+            {
+                foreach (var param in parameters)
+                {
+                    command.Parameters.AddWithValue($"@{param.Key}", param.Value);
+                }
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int idAlbum = reader.GetInt32(0);
+                        string path = reader.GetString(1);
+                        string name = reader.GetString(2);
+                        int year = reader.GetInt32(3);
+                        Album album = new Album(idAlbum, path, name, year);
+                        albums.Add(album);
+                    }
+                }
+            }
+            return albums;
+        }
+
+        // get groups where a person belongs
         public List<Group> GetGroupsForPerson(Person person)
         {
             List<Group> groups = new List<Group>();
@@ -796,6 +810,7 @@ namespace DataBaseApp
             return groups;
         }
 
+        // get the members of a group
         public List<Person> GetPersonsInGroup(Group group)
         {
             List<Person> personsInGroup = new List<Person>();
@@ -821,6 +836,7 @@ namespace DataBaseApp
             return personsInGroup;
         }
 
+        // get rolas by performer id
         public List<Rola> GetRolasByPerformer(int idPerformer)
         {
             List<Rola> rolas = new List<Rola>();
@@ -847,6 +863,7 @@ namespace DataBaseApp
             return rolas;
         }
 
+        // get rolas by group id
         public List<Rola> GetRolasByGroup(int idGroup)
         {
             List<Rola> rolas = new List<Rola>();

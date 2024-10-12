@@ -33,28 +33,28 @@ namespace ControllerApp
             if (File.Exists(_configFilePath))
             {
                 string pathFromFile = File.ReadAllText(_configFilePath).Trim();
-                if(Directory.Exists(pathFromFile)) return pathFromFile;
+                if(Directory.Exists(pathFromFile)) 
+                    return pathFromFile;
             }
             string defaultPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
             if(string.IsNullOrWhiteSpace(defaultPath))
                 defaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Music");
             if(!Directory.Exists(defaultPath)) 
                 Directory.CreateDirectory(defaultPath);
+
             File.WriteAllText(_configFilePath, defaultPath);
             return defaultPath;
         }
 
         // getters
         public string GetCurrentPath() => _currentPath;
-        public Miner GetMiner() => _miner;
-        public DataBase GetDataBase() => _database;
         public List<string> GetLog() => _miner.GetLog();
         public int GetTotalMp3FilesInPath() => _miner.GetTotalMp3FilesCount(_currentPath);
         public List<Rola> GetAllRolasInDB() => _database.GetAllRolas();
         public float GetProgress(float processedFiles, int totalFiles) => processedFiles / totalFiles;
 
         public void SetProcessedFilesNumber(int count) => _miner.SetProcessedFilesCount(count);
-
+        
         // set the current path
         public bool SetCurrentPath(string current_path)
         {
@@ -67,6 +67,8 @@ namespace ControllerApp
             File.WriteAllText(_configFilePath, _currentPath);
             return true;
         }
+
+        public bool AreRolasInDatabase() => _database.IsRolasTableEmpty();
 
         //check ir a file was deleted and update the database
         public void CheckForDeletedFiles()
@@ -583,11 +585,6 @@ namespace ControllerApp
                 !query.Contains("Performer:") && 
                 !query.Contains("Title:") && 
                 !query.Contains("InTitle:");
-        }
-
-        public bool AreRolasInDatabase()
-        {
-            return _database.IsRolasTableEmpty();
         }
 
         public List<string> SearchPerformers(string query)
