@@ -70,6 +70,7 @@ Album:"album name"
 and will appear albums with that name and their rolas
 
 Note:
+If you try to mine a path with a lot of files, the program does not stop but the UI displays a Wait Message,
 In search function, the results appears like simple text, i was out of time to display it better.
 I cant remade the diagrams because i was out of time, but i tried to follow it.
 The actual code and the class diagram have a lot of diferences.
