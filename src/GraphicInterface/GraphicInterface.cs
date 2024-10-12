@@ -15,7 +15,6 @@ class GraphicInterface : Window
     private Button definePerformerButton;
     private Button addPersonButton;
     private Button searchButton;
-    private Button helpButton;
     private ProgressBar progressBar;
     private int totalFiles = 0;
     private Grid grid;
@@ -125,11 +124,6 @@ class GraphicInterface : Window
         searchButton.Clicked += OnSearchButton!;
         searchButton.SetSizeRequest(40, 40);
         buttonBox.PackStart(searchButton, false, false, 0);
-
-        // "Help"
-        helpButton = new Button("Help");
-        helpButton.SetSizeRequest(100, 40);
-        buttonBox.PackStart(helpButton, false, false, 0);
     
         // log view
         errorLogView = new TextView();
@@ -1113,9 +1107,7 @@ class GraphicInterface : Window
         searchWindow.Add(vbox);
         searchWindow.ShowAll();
     }
-
-
-
+    
     void DisplayResults(Window searchWindow, List<string> results, string successMessage, string failureMessage)
     {
         if (results.Count > 0)
